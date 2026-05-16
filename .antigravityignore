@@ -1,0 +1,47 @@
+# Build & Dependencies
+node_modules/
+src-tauri/target/
+dist/
+build/
+.svelte-kit/
+.vscode/
+
+# Assets & Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+*.tar.gz
+*.wav
+*.mp3
+*.ogg
+*.mid
+*.png
+*.jpg
+*.ico
+src-tauri/icons/
+
+# Logs & Temporary Files
+_logs/
+tmp/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Large Debug Outputs (User generated)
+check_*.txt
+ts_check.txt
+*.out
+
+# Generated Code / Bindings
+src-tauri/gen/
+src-tauri/capabilities/
+
+# Git
+.git/
+*.lock
+package-lock.json
+Cargo.lock    

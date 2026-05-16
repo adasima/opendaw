@@ -1,0 +1,181 @@
+﻿cargo :     Checking t
+auri-app v0.1.0 (C:\Us
+ers\sonnp\Desktop\inda
+w\src-tauri)
+発生場所 行:1 文字:1
++ cargo check 2>&1 | O
+ut-File -Encoding UTF8
+ check_phase10.txt
++ ~~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (    Checki   
+ ng ta...ndaw\src-    
+tauri):String) []    ,
+ RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+error[E0428]: the name
+ `set_oscillator_type`
+ is defined multiple t
+imes
+   --> src\commands.rs
+:106:1
+    |
+100 | pub fn set_oscil
+lator_type(state: Stat
+e<SharedAudioState>, o
+scillator_type: crate:
+:state::OscillatorType
+) -> Result<(), AppErr
+or> {
+    | ----------------
+----------------------
+----------------------
+----------------------
+----------------------
+----------------------
+--- previous definitio
+n of the value `set_os
+cillator_type` here
+...
+106 | pub fn set_oscil
+lator_type(state: Stat
+e<SharedAudioState>, o
+scillator_type: crate:
+:state::OscillatorType
+) -> Result<(), AppErr
+or> {
+    | ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+^^^ `set_oscillator_ty
+pe` redefined here
+    |
+    = note: `set_oscil
+lator_type` must be de
+fined only once in the
+ value namespace of th
+is module
+
+error[E0428]: the name
+ `__cmd__set_oscillato
+r_type` is defined mul
+tiple times
+   --> src\commands.rs
+:105:1
+    |
+ 99 | #[tauri::command
+]
+    | ----------------
+- previous definition 
+of the macro `__cmd__s
+et_oscillator_type` he
+re
+...
+105 | #[tauri::command
+]
+    | ^^^^^^^^^^^^^^^^
+^ `__cmd__set_oscillat
+or_type` redefined her
+e
+    |
+    = note: `__cmd__se
+t_oscillator_type` mus
+t be defined only once
+ in the macro namespac
+e of this module
+    = note: this error
+ originates in the att
+ribute macro `tauri::c
+ommand` (in Nightly bu
+ilds, run with -Z macr
+o-backtrace for more i
+nfo)
+
+error[E0252]: the name
+ `__cmd__set_oscillato
+r_type` is defined mul
+tiple times
+   --> src\commands.rs
+:106:8
+    |
+100 | pub fn set_oscil
+lator_type(state: Stat
+e<SharedAudioState>, o
+scillator_type: crate:
+:state::OscillatorType
+) -> Result<(), AppErr
+or> {
+    |        ---------
+---------- previous im
+port of the macro `__c
+md__set_oscillator_typ
+e` here
+...
+106 | pub fn set_oscil
+lator_type(state: Stat
+e<SharedAudioState>, o
+scillator_type: crate:
+:state::OscillatorType
+) -> Result<(), AppErr
+or> {
+    |        ^^^^^^^^^
+^^^^^^^^^^ `__cmd__set
+_oscillator_type` reim
+ported here
+    |
+    = note: `__cmd__se
+t_oscillator_type` mus
+t be defined only once
+ in the macro namespac
+e of this module
+help: you can use `as`
+ to change the binding
+ name of the import
+    |
+106 | pub fn set_oscil
+lator_type as other___
+cmd__set_oscillator_ty
+pe(state: State<Shared
+AudioState>, oscillato
+r_type: crate::state::
+OscillatorType) -> Res
+ult<(), AppError> {
+    |                 
+           +++++++++++
+++++++++++++++++++++++
+++
+
+warning: unused import
+: `tauri::Manager`
+  --> src\lib.rs:12:5
+   |
+12 | use tauri::Manage
+r;
+   |     ^^^^^^^^^^^^^
+^
+   |
+   = note: `#[warn(unu
+sed_imports)]` (part o
+f `#[warn(unused)]`) o
+n by default
+
+Some errors have detai
+led explanations: E025
+2, E0428.
+For more information a
+bout an error, try `ru
+stc --explain E0252`.
+warning: `tauri-app` (
+lib) generated 1 warni
+ng
+error: could not compi
+le `tauri-app` (lib) d
+ue to 3 previous error
+s; 1 warning emitted

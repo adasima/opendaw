@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Theme Color Variables */
+:root {
+    --color-skin: #C3917D;
+    --color-skin-shadow: #785046;
+    --color-hair: #281E1E;
+    --color-shirt: #32324B;
+    --color-bg: #9BC3BE;
+    --color-wall: #E6E6E6;
+    --color-wall-light: #E6E6E6;
+    --color-wall-shadow: #A0A09B;
+}
+
+@theme {
+    --color-theme-skin: var(--color-skin);
+    --color-theme-skin-shadow: var(--color-skin-shadow);
+    --color-theme-hair: var(--color-hair);
+    --color-theme-shirt: var(--color-shirt);
+    --color-theme-bg: var(--color-bg);
+    --color-theme-wall: var(--color-wall);
+    --color-theme-wall-light: var(--color-wall-light);
+    --color-theme-wall-shadow: var(--color-wall-shadow);
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+    accent-color: var(--color-skin);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-hair);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-skin-shadow);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-skin);
+}

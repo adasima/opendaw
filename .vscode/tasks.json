@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "Path": "${env:Path};C:\\Users\\sonnp\\.cargo\\bin"
+        }
+    },
+    "tasks": [
+        {
+            "label": "1. 🏗️ BUILD (Clean)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Remove-Item -Path 'src-tauri/target/release/bundle' -Recurse -Force -ErrorAction SilentlyContinue; npm run tauri build"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "detail": "Clean bundle folder and run production build"
+        },
+        {
+            "label": "2. 🧪 TEST (Back & Front)",
+            "type": "shell",
+            "dependsOn": [
+                "Rust Check",
+                "Frontend Check"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "detail": "Run Rust tests/check and Svelte check"
+        },
+        {
+            "label": "Rust Check",
+            "type": "shell",
+            "command": "cargo test && cargo check",
+            "options": {
+                "cwd": "${workspaceFolder}/src-tauri"
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$rustc"
+        },
+        {
+            "label": "Frontend Check",
+            "type": "shell",
+            "command": "npm run check",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "3. 🎭 UI MOCK SERVER",
+            "type": "shell",
+            "command": "npm run dev:mock",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "detail": "Start UI development server with mock mode"
+        }
+    ]
+}
