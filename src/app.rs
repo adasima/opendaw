@@ -1,8 +1,19 @@
 use eframe::egui;
 
-#[derive(Default)]
 pub struct AuraDawApp {
-    // 状態などをここに保持します
+    pub is_playing: bool,
+    pub playhead_pos: f32,
+    pub master_volume: f32,
+}
+
+impl Default for AuraDawApp {
+    fn default() -> Self {
+        Self {
+            is_playing: false,
+            playhead_pos: 0.0,
+            master_volume: 0.8,
+        }
+    }
 }
 
 impl AuraDawApp {
@@ -10,6 +21,15 @@ impl AuraDawApp {
         // カスタムフォントやスタイルなどをここで設定
         setup_custom_style(&cc.egui_ctx);
         Self::default()
+    }
+
+    pub fn toggle_playback(&mut self) {
+        self.is_playing = !self.is_playing;
+    }
+
+    pub fn stop_playback(&mut self) {
+        self.is_playing = false;
+        self.playhead_pos = 0.0;
     }
 }
 
@@ -27,6 +47,16 @@ fn setup_custom_style(ctx: &egui::Context) {
 impl eframe::App for AuraDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // 再生中の場合、プレイヘッドを進行させて再描画を要求
+        if self.is_playing {
+            self.playhead_pos += 1.0;
+            // 画面端まで行ったらループさせる簡単な処理
+            if self.playhead_pos > 100.0 {
+                self.playhead_pos = 0.0;
+            }
+            ctx.request_repaint();
+        }
+
         #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
              self.ui(ui, frame);
@@ -42,8 +72,7 @@ impl eframe::App for AuraDawApp {
                 ui.separator();
                 ui.horizontal(|ui| {
                     ui.label("Master Volume");
-                    let mut vol = 0.8;
-                    ui.add(egui::Slider::new(&mut vol, 0.0..=1.0));
+                    ui.add(egui::Slider::new(&mut self.master_volume, 0.0..=1.0));
                 });
             });
 
@@ -70,6 +99,17 @@ impl eframe::App for AuraDawApp {
         #[allow(deprecated)]
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.heading("Main Timeline & Visualizer");
+
+            // トランスポートコントロールの追加
+            ui.horizontal(|ui| {
+                let play_icon = if self.is_playing { "⏸" } else { "▶" };
+                if ui.button(play_icon).clicked() {
+                    self.toggle_playback();
+                }
+                if ui.button("⏹").clicked() {
+                    self.stop_playback();
+                }
+            });
             ui.separator();
 
             // 波形のプレースホルダー領域
@@ -91,6 +131,41 @@ impl eframe::App for AuraDawApp {
                     egui::Stroke::new(2.0, egui::Color32::from_rgb(114, 137, 218)) // アクセントカラー
                 );
             }
+
+            // プレイヘッド（縦線）の描画
+            let playhead_x = rect.left() + (rect.width() / 100.0) * self.playhead_pos;
+            painter.line_segment(
+                [egui::pos2(playhead_x, rect.top()), egui::pos2(playhead_x, rect.bottom())],
+                egui::Stroke::new(2.0, egui::Color32::RED)
+            );
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_toggle_playback() {
+        let mut app = AuraDawApp::default();
+        assert!(!app.is_playing);
+
+        app.toggle_playback();
+        assert!(app.is_playing);
+
+        app.toggle_playback();
+        assert!(!app.is_playing);
+    }
+
+    #[test]
+    fn test_stop_playback() {
+        let mut app = AuraDawApp::default();
+        app.is_playing = true;
+        app.playhead_pos = 50.0;
+
+        app.stop_playback();
+        assert!(!app.is_playing);
+        assert_eq!(app.playhead_pos, 0.0);
     }
 }
