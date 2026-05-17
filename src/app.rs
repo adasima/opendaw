@@ -29,7 +29,7 @@ impl AuraDawApp {
 
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // カスタムフォントやスタイルなどをここで設定
-        setup_custom_style(&cc.egui_ctx);
+        crate::ui::setup_custom_style(&cc.egui_ctx);
         Self::default()
     }
 
@@ -63,17 +63,6 @@ impl AuraDawApp {
             }
         }
     }
-}
-
-fn setup_custom_style(ctx: &egui::Context) {
-    let mut style = (*ctx.global_style()).clone();
-
-    // Discordにインスパイアされたダークテーマ/グラスモーフィズム風のスタイル調整
-    style.visuals = egui::Visuals::dark();
-    style.visuals.window_fill = egui::Color32::from_rgba_premultiplied(18, 19, 24, 230); // 半透明の暗い背景
-    style.visuals.panel_fill = egui::Color32::from_rgb(18, 19, 24);
-
-    ctx.set_global_style(style);
 }
 
 impl eframe::App for AuraDawApp {
@@ -134,68 +123,10 @@ impl eframe::App for AuraDawApp {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.heading("Main Timeline & Visualizer");
 
-            // トランスポートコントロールの追加
-            ui.horizontal(|ui| {
-                let play_icon = if self.is_playing { "⏸" } else { "▶" };
-                if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
-                    self.toggle_playback();
-                }
-                if ui.button("⏹").on_hover_text("Stop").clicked() {
-                    self.stop_playback();
-                }
-
-                let loop_icon = if self.is_looping { "🔁 (On)" } else { "🔁 (Off)" };
-                if ui.button(loop_icon).on_hover_text("Toggle Loop").clicked() {
-                    self.toggle_loop();
-                }
-
-                ui.separator();
-
-                // BPMコントロール
-                ui.add(egui::DragValue::new(&mut self.bpm).clamp_range(20.0..=300.0).prefix("BPM: "));
-
-                ui.separator();
-
-                // 仮想的なタイム表示 (MM:SS.ms などに見立てる)
-                ui.label(format!("Time: {:.1}s", self.playhead_pos * 0.1));
-            });
+            crate::ui::transport::draw_transport(ui, self);
             ui.separator();
 
-            // 波形のプレースホルダー領域
-            let (rect, response) = ui.allocate_exact_size(
-                ui.available_size(),
-                egui::Sense::click_and_drag(),
-            );
-
-            if let Some(pos) = response
-                .interact_pointer_pos()
-                .filter(|_| response.clicked() || response.dragged())
-            {
-                let relative_x = pos.x - rect.left();
-                let percentage = (relative_x / rect.width()) * 100.0;
-                self.seek_to(percentage);
-            }
-
-            // 簡単な波形描画のモック
-            let painter = ui.painter();
-            painter.rect_filled(rect, 4.0, egui::Color32::from_rgba_premultiplied(22, 24, 28, 180));
-
-            let center_y = rect.center().y;
-            for i in 0..100 {
-                let x = rect.left() + (rect.width() / 100.0) * i as f32;
-                let height = (i as f32 * 0.1).sin().abs() * 50.0;
-                painter.line_segment(
-                    [egui::pos2(x, center_y - height), egui::pos2(x, center_y + height)],
-                    egui::Stroke::new(2.0, egui::Color32::from_rgb(114, 137, 218)) // アクセントカラー
-                );
-            }
-
-            // プレイヘッド（縦線）の描画
-            let playhead_x = rect.left() + (rect.width() / 100.0) * self.playhead_pos;
-            painter.line_segment(
-                [egui::pos2(playhead_x, rect.top()), egui::pos2(playhead_x, rect.bottom())],
-                egui::Stroke::new(2.0, egui::Color32::RED)
-            );
+            crate::ui::timeline::draw_timeline(ui, self);
         });
     }
 }
