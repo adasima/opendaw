@@ -154,12 +154,13 @@ impl eframe::App for AuraDawApp {
                 egui::Sense::click_and_drag(),
             );
 
-            if response.clicked() || response.dragged() {
-                if let Some(pos) = response.interact_pointer_pos() {
-                    let relative_x = pos.x - rect.left();
-                    let percentage = (relative_x / rect.width()) * 100.0;
-                    self.seek_to(percentage);
-                }
+            if let Some(pos) = response
+                .interact_pointer_pos()
+                .filter(|_| response.clicked() || response.dragged())
+            {
+                let relative_x = pos.x - rect.left();
+                let percentage = (relative_x / rect.width()) * 100.0;
+                self.seek_to(percentage);
             }
 
             // 簡単な波形描画のモック
