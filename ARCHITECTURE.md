@@ -15,6 +15,7 @@ src/
 │   ├── timeline.rs      # タイムライン & 波形描画
 │   ├── tracks.rs        # トラック一覧パネル
 │   ├── mixer.rs         # ミキサーパネル（ボリューム/パン/エフェクト）
+│   ├── ai_agent.rs      # AIエージェントパネル
 │   ├── piano_roll.rs    # ピアノロールエディタ
 │   ├── effects.rs       # エフェクトチェーンUI
 │   └── import.rs        # ファイルインポートダイアログ
