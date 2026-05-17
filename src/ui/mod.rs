@@ -1,3 +1,4 @@
+pub mod mixer;
 pub mod timeline;
 pub mod transport;
 
@@ -17,22 +18,7 @@ pub fn setup_custom_style(ctx: &egui::Context) {
 
 /// メイン画面のUIを描画します。
 pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
-    #[allow(deprecated)]
-    egui::TopBottomPanel::bottom("mixer_panel")
-        .resizable(true)
-        .show_inside(ui, |ui| {
-            ui.heading("Mixer & Effects");
-            ui.separator();
-            ui.horizontal(|ui| {
-                ui.label("Master Volume");
-                ui.add(egui::Slider::new(&mut app.master_volume, 0.0..=1.0));
-
-                let mute_icon = if app.is_muted { "🔇" } else { "🔊" };
-                if ui.button(mute_icon).on_hover_text("Mute/Unmute").clicked() {
-                    app.toggle_mute();
-                }
-            });
-        });
+    crate::ui::mixer::draw_mixer_panel(ui, app);
 
     #[allow(deprecated)]
     egui::SidePanel::left("tracks_panel")
