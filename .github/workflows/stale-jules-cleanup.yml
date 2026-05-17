@@ -1,0 +1,44 @@
+name: Cleanup Stale Jules PRs
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # 6時間ごとに実行
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close stale Jules PRs with conflicts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Julesが作成したオープン中のPRを取得
+          gh pr list \
+            --repo adasima/opendaw \
+            --state open \
+            --author "google-labs-jules[bot]" \
+            --json number,title,createdAt,mergeable \
+            --jq '.[] | select(.mergeable == "CONFLICTING") | .number' \
+          | while read pr_number; do
+            echo "Closing conflicting Jules PR #${pr_number}"
+            gh pr close "$pr_number" \
+              --repo adasima/opendaw \
+              --comment "🤖 コンフリクトが検出されたため、このPRを自動クローズしました。次回のエージェント実行で最新のmainブランチに基づいて再作成されます。"
+          done
+
+          # adasimaが作成したJules署名付きPRも対象
+          gh pr list \
+            --repo adasima/opendaw \
+            --state open \
+            --author "adasima" \
+            --json number,title,createdAt,body,mergeable \
+            --jq '.[] | select(.mergeable == "CONFLICTING" and (.body | contains("PR created automatically by Jules"))) | .number' \
+          | while read pr_number; do
+            echo "Closing conflicting Jules PR #${pr_number} (by adasima)"
+            gh pr close "$pr_number" \
+              --repo adasima/opendaw \
+              --comment "🤖 コンフリクトが検出されたため、このPRを自動クローズしました。次回のエージェント実行で最新のmainブランチに基づいて再作成されます。"
+          done

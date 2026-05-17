@@ -1,0 +1,42 @@
+name: Sync Docs to Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+
+      - name: Checkout wiki repo
+        uses: actions/checkout@v4
+        with:
+          repository: adasima/opendaw.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync docs to wiki
+        run: |
+          # docs/ の中身を wiki/ にコピー（既存のファイルを上書き）
+          rsync -av --delete docs/ wiki/
+
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 変更がある場合のみコミット・プッシュ
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "📝 docs/ からWikiを自動同期"
+            git push
+            echo "Wiki synced successfully."
+          else
+            echo "No changes to sync."
+          fi
