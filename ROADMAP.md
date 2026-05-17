@@ -17,37 +17,36 @@
 - [x] ミュートボタンとツールチップ (#6)
 
 ### 残タスク
-- [ ] `nova:` app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
-- [ ] `nova:` app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
-- [ ] `nova:` app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
-- [ ] `nova:` app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
-- [ ] `nova:` キーボードショートカットを実装する: Space=再生/停止 (対象: src/ui/mod.rs)
+- [ ] @A app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
+- [ ] @B app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
+- [ ] @A app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
+- [ ] @B キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
+- [ ] @A app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
 - [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
 
 ---
 
 ## Phase 2: オーディオエンジン基盤
 
-- [ ] `nova:` src/engine/mod.rs を作成し、AudioEngine 構造体のスケルトンを定義する (対象: src/engine/mod.rs)
-- [ ] `nova:` Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
-- [ ] `nova:` ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
-- [ ] `nova:` cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
-- [ ] `nova:` 無音ストリームを出力し、オーディオデバイスが動作することを検証するテストを書く (対象: src/engine/stream.rs)
-- [ ] `nova:` hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
-- [ ] `nova:` 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
-- [ ] `nova:` トランスポートUI の再生/停止をオーディオエンジンに接続する (対象: src/ui/transport.rs, src/engine/mod.rs)
+- [ ] @A src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
+- [ ] @A Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
+- [ ] @A ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
+- [ ] @B hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
+- [ ] @A cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
+- [ ] @B トランスポートUI の再生/停止をオーディオエンジンに接続する (対象: src/ui/transport.rs, src/engine/mod.rs)
+- [ ] @A 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
 - [ ] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正 (対象: src/engine/)
 
 ---
 
 ## Phase 3: マルチトラック & ミキシング
 
-- [ ] `nova:` Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs)
-- [ ] `nova:` トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
-- [ ] `nova:` 各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
-- [ ] `nova:` オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs)
-- [ ] `nova:` ソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs)
-- [ ] `nova:` rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
+- [ ] @A Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs)
+- [ ] @B トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
+- [ ] @B 各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
+- [ ] @A オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs)
+- [ ] @A ソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs)
+- [ ] @B rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
 
 ---
 
