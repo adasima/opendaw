@@ -5,6 +5,7 @@
 ## Phase 1: UI基盤 & アーキテクチャ ✅ (進行中)
 
 ### 完了済み
+- [x] app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
 - [x] egui/eframe によるウィンドウ表示
 - [x] ダークテーマ・グラスモーフィズム基本スタイル
 - [x] トランスポートコントロール（再生/停止/ループ）
@@ -17,10 +18,10 @@
 - [x] ミュートボタンとツールチップ (#6)
 
 ### 残タスク
-- [ ] @A app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
-- [ ] @B app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
+
+- [ ] @A app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
 - [ ] @A app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
-- [ ] @B キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
+- [ ] @A キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
 - [ ] @A app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
 - [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
 
@@ -28,13 +29,13 @@
 
 ## Phase 2: オーディオエンジン基盤
 
-- [ ] @A src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
-- [ ] @A Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
-- [ ] @A ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
+- [ ] @B src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
+- [ ] @B Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
+- [ ] @B ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
 - [ ] @B hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
-- [ ] @A cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
-- [ ] @B トランスポートUI の再生/停止をオーディオエンジンに接続する (対象: src/ui/transport.rs, src/engine/mod.rs)
-- [ ] @A 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
+- [ ] @B cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
+- [ ] @A トランスポートUI の再生/停止をオーディオエンジンに接続する (対象: src/ui/transport.rs, src/engine/mod.rs)
+- [ ] @B 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
 - [ ] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正 (対象: src/engine/)
 
 ---
@@ -42,21 +43,21 @@
 ## Phase 3: マルチトラック & ミキシング
 
 - [ ] @A Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs)
-- [ ] @B トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
-- [ ] @B 各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
-- [ ] @A オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs)
-- [ ] @A ソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs)
-- [ ] @B rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
+- [ ] @A トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
+- [ ] @A 各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
+- [ ] @B オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs)
+- [ ] @B ソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs)
+- [ ] @A rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
 
 ---
 
 ## Phase 4: MIDI & シーケンシング
 
-- [ ] `nova:` midir を使った MIDI デバイスの列挙・接続を実装する (対象: Cargo.toml, src/midi/mod.rs)
-- [ ] `nova:` MIDI メッセージの受信とパースを実装する (対象: src/midi/message.rs)
-- [ ] `nova:` ピアノロール UI のスケルトンを作成する (対象: src/ui/piano_roll.rs)
-- [ ] `nova:` MIDI ノートイベントのシーケンスデータ構造を定義する (対象: src/midi/sequence.rs)
-- [ ] `nova:` ピアノロール上でノートの追加・削除を可能にする (対象: src/ui/piano_roll.rs)
+- [ ] @B midir を使った MIDI デバイスの列挙・接続を実装する (対象: Cargo.toml, src/midi/mod.rs)
+- [ ] @B MIDI メッセージの受信とパースを実装する (対象: src/midi/message.rs)
+- [ ] @A ピアノロール UI のスケルトンを作成する (対象: src/ui/piano_roll.rs)
+- [ ] @B MIDI ノートイベントのシーケンスデータ構造を定義する (対象: src/midi/sequence.rs)
+- [ ] @A ピアノロール上でノートの追加・削除を可能にする (対象: src/ui/piano_roll.rs)
 
 ---
 
