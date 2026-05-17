@@ -14,3 +14,53 @@ pub fn setup_custom_style(ctx: &egui::Context) {
 
     ctx.set_global_style(style);
 }
+
+/// メイン画面のUIを描画します。
+pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
+    #[allow(deprecated)]
+    egui::TopBottomPanel::bottom("mixer_panel")
+        .resizable(true)
+        .show_inside(ui, |ui| {
+            ui.heading("Mixer & Effects");
+            ui.separator();
+            ui.horizontal(|ui| {
+                ui.label("Master Volume");
+                ui.add(egui::Slider::new(&mut app.master_volume, 0.0..=1.0));
+
+                let mute_icon = if app.is_muted { "🔇" } else { "🔊" };
+                if ui.button(mute_icon).on_hover_text("Mute/Unmute").clicked() {
+                    app.toggle_mute();
+                }
+            });
+        });
+
+    #[allow(deprecated)]
+    egui::SidePanel::left("tracks_panel")
+        .resizable(true)
+        .show_inside(ui, |ui| {
+            ui.heading("Tracks");
+            ui.separator();
+            ui.label("Track 1 - Vocals");
+            ui.label("Track 2 - Synth");
+        });
+
+    #[allow(deprecated)]
+    egui::SidePanel::right("ai_agent_panel")
+        .resizable(true)
+        .show_inside(ui, |ui| {
+            ui.heading("AI Agent & CLI");
+            ui.separator();
+            ui.label("Agent is ready.");
+            ui.text_edit_singleline(&mut "".to_string());
+        });
+
+    #[allow(deprecated)]
+    egui::CentralPanel::default().show_inside(ui, |ui| {
+        ui.heading("Main Timeline & Visualizer");
+
+        crate::ui::transport::draw_transport(ui, app);
+        ui.separator();
+
+        crate::ui::timeline::draw_timeline(ui, app);
+    });
+}

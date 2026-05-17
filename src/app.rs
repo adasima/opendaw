@@ -67,7 +67,7 @@ impl AuraDawApp {
 
 impl eframe::App for AuraDawApp {
     // Eframe 0.34
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // 再生中の場合、プレイヘッドを進行させて再描画を要求
         if self.is_playing {
             self.tick_playback();
@@ -76,58 +76,12 @@ impl eframe::App for AuraDawApp {
 
         #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
-             self.ui(ui, frame);
+             crate::ui::draw_main_ui(self, ui);
         });
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        #[allow(deprecated)]
-        egui::TopBottomPanel::bottom("mixer_panel")
-            .resizable(true)
-            .show_inside(ui, |ui| {
-                ui.heading("Mixer & Effects");
-                ui.separator();
-                ui.horizontal(|ui| {
-                    ui.label("Master Volume");
-                    ui.add(egui::Slider::new(&mut self.master_volume, 0.0..=1.0));
-
-                    let mute_icon = if self.is_muted { "🔇" } else { "🔊" };
-                    if ui.button(mute_icon).on_hover_text("Mute/Unmute").clicked() {
-                        self.toggle_mute();
-                    }
-
-                });
-            });
-
-        #[allow(deprecated)]
-        egui::SidePanel::left("tracks_panel")
-            .resizable(true)
-            .show_inside(ui, |ui| {
-                ui.heading("Tracks");
-                ui.separator();
-                ui.label("Track 1 - Vocals");
-                ui.label("Track 2 - Synth");
-            });
-
-        #[allow(deprecated)]
-        egui::SidePanel::right("ai_agent_panel")
-            .resizable(true)
-            .show_inside(ui, |ui| {
-                ui.heading("AI Agent & CLI");
-                ui.separator();
-                ui.label("Agent is ready.");
-                ui.text_edit_singleline(&mut "".to_string());
-            });
-
-        #[allow(deprecated)]
-        egui::CentralPanel::default().show_inside(ui, |ui| {
-            ui.heading("Main Timeline & Visualizer");
-
-            crate::ui::transport::draw_transport(ui, self);
-            ui.separator();
-
-            crate::ui::timeline::draw_timeline(ui, self);
-        });
+        crate::ui::draw_main_ui(self, ui);
     }
 }
 
