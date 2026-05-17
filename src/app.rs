@@ -2,6 +2,7 @@ use eframe::egui;
 
 pub struct AuraDawApp {
     pub is_playing: bool,
+    pub is_looping: bool,
     pub playhead_pos: f32,
     pub master_volume: f32,
 }
@@ -10,6 +11,7 @@ impl Default for AuraDawApp {
     fn default() -> Self {
         Self {
             is_playing: false,
+            is_looping: true,
             playhead_pos: 0.0,
             master_volume: 0.8,
         }
@@ -31,6 +33,23 @@ impl AuraDawApp {
         self.is_playing = false;
         self.playhead_pos = 0.0;
     }
+
+    pub fn toggle_loop(&mut self) {
+        self.is_looping = !self.is_looping;
+    }
+
+    pub fn tick_playback(&mut self) {
+        if self.is_playing {
+            self.playhead_pos += 1.0;
+            // 画面端まで行ったらループさせるか停止する処理
+            if self.playhead_pos > 100.0 {
+                self.playhead_pos = 0.0;
+                if !self.is_looping {
+                    self.is_playing = false;
+                }
+            }
+        }
+    }
 }
 
 fn setup_custom_style(ctx: &egui::Context) {
@@ -49,11 +68,7 @@ impl eframe::App for AuraDawApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         // 再生中の場合、プレイヘッドを進行させて再描画を要求
         if self.is_playing {
-            self.playhead_pos += 1.0;
-            // 画面端まで行ったらループさせる簡単な処理
-            if self.playhead_pos > 100.0 {
-                self.playhead_pos = 0.0;
-            }
+            self.tick_playback();
             ctx.request_repaint();
         }
 
@@ -108,6 +123,11 @@ impl eframe::App for AuraDawApp {
                 }
                 if ui.button("⏹").clicked() {
                     self.stop_playback();
+                }
+
+                let loop_icon = if self.is_looping { "🔁 (On)" } else { "🔁 (Off)" };
+                if ui.button(loop_icon).clicked() {
+                    self.toggle_loop();
                 }
             });
             ui.separator();
@@ -165,6 +185,44 @@ mod tests {
         app.playhead_pos = 50.0;
 
         app.stop_playback();
+        assert!(!app.is_playing);
+        assert_eq!(app.playhead_pos, 0.0);
+    }
+
+    #[test]
+    fn test_toggle_loop() {
+        let mut app = AuraDawApp::default();
+        assert!(app.is_looping); // 💡 初期値は Default::default() により true
+
+        app.toggle_loop();
+        assert!(!app.is_looping);
+
+        app.toggle_loop();
+        assert!(app.is_looping);
+    }
+
+    #[test]
+    fn test_playback_end_behavior_with_loop() {
+        let mut app = AuraDawApp::default();
+        app.is_playing = true;
+        app.is_looping = true;
+        app.playhead_pos = 100.0; // 次の tick で 100.0 を超える
+
+        app.tick_playback();
+
+        assert!(app.is_playing);
+        assert_eq!(app.playhead_pos, 0.0);
+    }
+
+    #[test]
+    fn test_playback_end_behavior_without_loop() {
+        let mut app = AuraDawApp::default();
+        app.is_playing = true;
+        app.is_looping = false;
+        app.playhead_pos = 100.0; // 次の tick で 100.0 を超える
+
+        app.tick_playback();
+
         assert!(!app.is_playing);
         assert_eq!(app.playhead_pos, 0.0);
     }
