@@ -44,6 +44,10 @@ impl AuraDawApp {
         self.is_looping = !self.is_looping;
     }
 
+    pub fn seek_to(&mut self, pos: f32) {
+        self.playhead_pos = pos.clamp(0.0, 100.0);
+    }
+
     pub fn tick_playback(&mut self) {
         if self.is_playing {
             self.playhead_pos += 1.0;
@@ -145,10 +149,18 @@ impl eframe::App for AuraDawApp {
             ui.separator();
 
             // 波形のプレースホルダー領域
-            let (rect, _response) = ui.allocate_exact_size(
+            let (rect, response) = ui.allocate_exact_size(
                 ui.available_size(),
-                egui::Sense::hover(),
+                egui::Sense::click_and_drag(),
             );
+
+            if response.clicked() || response.dragged() {
+                if let Some(pos) = response.interact_pointer_pos() {
+                    let relative_x = pos.x - rect.left();
+                    let percentage = (relative_x / rect.width()) * 100.0;
+                    self.seek_to(percentage);
+                }
+            }
 
             // 簡単な波形描画のモック
             let painter = ui.painter();
@@ -177,6 +189,20 @@ impl eframe::App for AuraDawApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_seek_to() {
+        let mut app = AuraDawApp::default();
+
+        app.seek_to(-10.0);
+        assert_eq!(app.playhead_pos, 0.0);
+
+        app.seek_to(150.0);
+        assert_eq!(app.playhead_pos, 100.0);
+
+        app.seek_to(50.0);
+        assert_eq!(app.playhead_pos, 50.0);
+    }
 
     #[test]
     fn test_toggle_playback() {
