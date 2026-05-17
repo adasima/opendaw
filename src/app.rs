@@ -6,6 +6,7 @@ pub struct AuraDawApp {
     pub playhead_pos: f32,
     pub master_volume: f32,
     pub is_muted: bool,
+    pub bpm: f32,
 }
 
 impl Default for AuraDawApp {
@@ -16,6 +17,7 @@ impl Default for AuraDawApp {
             playhead_pos: 0.0,
             master_volume: 0.8,
             is_muted: false,
+            bpm: 120.0,
         }
     }
 }
@@ -50,7 +52,8 @@ impl AuraDawApp {
 
     pub fn tick_playback(&mut self) {
         if self.is_playing {
-            self.playhead_pos += 1.0;
+            // BPMに基づいて進行速度を調整 (120 BPM を基準 (1.0) とする)
+            self.playhead_pos += 1.0 * (self.bpm / 120.0);
             // 画面端まで行ったらループさせるか停止する処理
             if self.playhead_pos > 100.0 {
                 self.playhead_pos = 0.0;
@@ -145,6 +148,16 @@ impl eframe::App for AuraDawApp {
                 if ui.button(loop_icon).on_hover_text("Toggle Loop").clicked() {
                     self.toggle_loop();
                 }
+
+                ui.separator();
+
+                // BPMコントロール
+                ui.add(egui::DragValue::new(&mut self.bpm).clamp_range(20.0..=300.0).prefix("BPM: "));
+
+                ui.separator();
+
+                // 仮想的なタイム表示 (MM:SS.ms などに見立てる)
+                ui.label(format!("Time: {:.1}s", self.playhead_pos * 0.1));
             });
             ui.separator();
 
@@ -276,5 +289,21 @@ mod tests {
 
         app.toggle_mute();
         assert!(!app.is_muted);
+    }
+
+    #[test]
+    fn test_bpm_affects_playback_speed() {
+        let mut app120 = AuraDawApp::default();
+        app120.is_playing = true;
+        app120.bpm = 120.0;
+        app120.tick_playback();
+
+        let mut app240 = AuraDawApp::default();
+        app240.is_playing = true;
+        app240.bpm = 240.0;
+        app240.tick_playback();
+
+        // 240 BPMの場合は120 BPMの2倍進むはず
+        assert_eq!(app120.playhead_pos * 2.0, app240.playhead_pos);
     }
 }
