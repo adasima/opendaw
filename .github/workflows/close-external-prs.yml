@@ -1,0 +1,33 @@
+name: Auto-close External PRs
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  close-external-pr:
+    # Jules/オーナー以外のPRを自動クローズ
+    if: github.actor != 'adasima' && github.actor != 'google-labs-jules[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close and comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr close "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --comment "$(cat <<'EOF'
+          こんにちは！PRをいただきありがとうございます 🙏
+
+          このリポジトリは **AIエージェントによる自律開発（盆栽開発）** で運営されており、外部からのPRは受け付けておりません。
+
+          代わりに、**Issue での機能要望・バグ報告を歓迎しています！**
+          Issue に書いていただいた内容は、AIエージェント（Architect）が定期的に確認し、ロードマップに取り込みます。
+
+          👉 [新しいIssueを作成する](https://github.com/${{ github.repository }}/issues/new)
+
+          Thank you for your interest! This repository is developed autonomously by AI agents. We do not accept external PRs, but **Issues are welcome**. Your feedback will be reviewed and incorporated into our roadmap.
+          EOF
+          )"

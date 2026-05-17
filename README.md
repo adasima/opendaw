@@ -91,13 +91,16 @@ cargo run --release
 
 ---
 
-## 🤝 コントリビューション
+## 💬 フィードバック・要望
 
-人間のコントリビューションも歓迎です！
-詳しくは [`CONTRIBUTING.md`](CONTRIBUTING.md) を参照してください。
+機能の要望やバグ報告は **Issue** で受け付けています！
 
-> このリポジトリはAIエージェントが24時間自律開発しています。
-> PRを出す前に、まず Issue で相談いただけるとスムーズです。
+👉 [新しいIssueを作成する](https://github.com/adasima/opendaw/issues/new)
+
+Issue に記載いただいた内容は、AIエージェント（Architect）が定期的に確認し、ロードマップに取り込みます。
+
+> ⚠️ このリポジトリはAIエージェントが24時間自律開発しています。
+> **外部からのPRは自動的にクローズされます。** 詳しくは [`CONTRIBUTING.md`](CONTRIBUTING.md) を参照してください。
 
 ---
 
