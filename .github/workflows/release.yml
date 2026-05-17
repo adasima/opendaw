@@ -1,0 +1,44 @@
+name: Release Portable DAW
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.0.0 などのタグがプッシュされたら起動
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest # Windows用のポータブル版を作る場合
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Release
+        run: cargo build --release
+
+      - name: Package Portable Bundle
+        run: |
+          # 1. 配布用の作業フォルダを作る
+          New-Item -ItemType Directory -Force -Path "opendaw-portable"
+          
+          # 2. ビルド済みの実行ファイルをコピー
+          Copy-Item "target\release\opendaw.exe" "opendaw-portable\"
+          
+          # 3. 同梱したい設定ファイルやフォルダをコピー（必要に応じて増やしてください）
+          if (Test-Path "config.toml") { Copy-Item "config.toml" "opendaw-portable\" }
+          if (Test-Path "assets") { Copy-Item -Recurse "assets" "opendaw-portable\" }
+          if (Test-Path "README.md") { Copy-Item "README.md" "opendaw-portable\" }
+          
+          # 4. まるごとZIPに圧縮
+          Compress-Archive -Path "opendaw-portable\*" -DestinationPath "opendaw-portable-windows.zip"
+
+      - name: Create GitHub Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: opendaw-portable-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
