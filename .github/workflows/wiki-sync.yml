@@ -15,17 +15,19 @@ jobs:
       - name: Checkout main repo
         uses: actions/checkout@v4
 
-      - name: Checkout wiki repo
-        uses: actions/checkout@v4
-        with:
-          repository: adasima/opendaw.wiki
-          path: wiki
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Sync docs to wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # docs/ の中身を wiki/ にコピー（既存のファイルを上書き）
-          rsync -av --delete docs/ wiki/
+          # Wikiリポジトリをclone（actions/checkoutではなくgit cloneで直接取得）
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki || {
+            echo "Wiki repository does not exist yet. Please create at least one wiki page manually."
+            exit 0
+          }
+
+          # docs/ の中身をwikiにコピー
+          # ja/ と en/ をフラットにせず、そのままの構造でコピー
+          rsync -av --delete --exclude='.git' docs/ wiki/
 
           cd wiki
           git config user.name "github-actions[bot]"
@@ -36,7 +38,7 @@ jobs:
             git add -A
             git commit -m "📝 docs/ からWikiを自動同期"
             git push
-            echo "Wiki synced successfully."
+            echo "✅ Wiki synced successfully."
           else
-            echo "No changes to sync."
+            echo "ℹ️ No changes to sync."
           fi

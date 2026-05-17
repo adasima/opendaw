@@ -67,9 +67,10 @@ cargo run --release
 |:---|:---|
 | [`ROADMAP.md`](ROADMAP.md) | 開発ロードマップ（フェーズ・タスク管理） |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | モジュール構造・スレッドモデル・設計原則 |
-| [`DESIGN.md`](DESIGN.md) | UIデザインシステム（美学・レイアウト） |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | コントリビューションガイド |
+| [`DESIGN.md`](DESIGN.md) | UIデザインシステム（カラー・レイアウト・美学） |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | フィードバックガイド（Issue受付） |
 | `src/` | ソースコード（Rust） |
+| `persona/` | AIエージェントプロンプト定義 |
 | `docs/ja/` | ユーザーマニュアル（日本語・正本） |
 | `docs/en/` | ユーザーマニュアル（英語・翻訳版） |
 

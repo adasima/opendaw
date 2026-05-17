@@ -1,11 +1,66 @@
-# Design System for Next-Gen AI DAW
+# OpenDAW デザインシステム
 
-## Overall Aesthetic
-*   **Theme**: Dark mode, heavily inspired by modern communication apps like Discord.
-*   **Style**: Dynamic glassmorphism. UI panels and windows should have a frosted glass effect (semi-transparent backgrounds with background blur).
-*   **Lighting**: Subtle but distinct moving light elements visible behind the glassmorphism layers. These lights should feel organic and gently pulsing, resembling audio visualizer energy.
-*   **Borders**: Soft, slightly rounded corners (similar to Discord's aesthetic) with subtle glowing or distinctive borders to separate panes.
-*   **Vibe**: Futuristic, lightweight, AI-integrated, professional audio production tool.
+> Discordライクな直感性 × グラスモーフィズムの美学
 
-## Layout
-*   Standard DAW layout (timeline in center, tracks on left, mixer/effects at bottom, AI agent/CLI interaction panel on right) but with a highly modern, floating-pane aesthetic.
+## 全体コンセプト
+
+- **テーマ**: ダークモード。Discordのような現代的コミュニケーションアプリにインスパイアされたデザイン。
+- **スタイル**: ダイナミック・グラスモーフィズム。UIパネルは半透明の背景 + 背景ブラー（フロストガラス効果）。
+- **ライティング**: グラスモーフィズムレイヤーの背後に、微かに動く光源。オーディオビジュアライザーのエネルギーを感じさせる、有機的で緩やかな脈動。
+- **ボーダー**: やわらかく丸みを帯びたコーナー。パネル間は微光ボーダーで区切る。
+- **雰囲気**: 未来的、軽量、AI統合、プロフェッショナルなオーディオ制作ツール。
+
+## カラーパレット
+
+| 用途 | カラー | 値 |
+|:---|:---|:---|
+| 背景（メイン） | ほぼ黒 | `rgb(18, 19, 24)` |
+| パネル背景 | 半透明暗色 | `rgba(18, 19, 24, 0.9)` |
+| アクセント | Discord風ブルー | `rgb(114, 137, 218)` |
+| プレイヘッド | レッド | `rgb(255, 0, 0)` |
+| テキスト（通常） | ライトグレー | `rgb(200, 200, 200)` |
+| テキスト（ヘッダー） | ホワイト | `rgb(255, 255, 255)` |
+
+## レイアウト
+
+```
+┌────────────────────────────────────────────────────────┐
+│                    Main Timeline & Visualizer          │
+│  ┌──────┐  ┌──────────────────────────┐  ┌──────────┐ │
+│  │Tracks│  │     波形表示 + プレイヘッド  │  │AI Agent │ │
+│  │Panel │  │                          │  │& CLI    │ │
+│  │(左)  │  │                          │  │(右)     │ │
+│  └──────┘  └──────────────────────────┘  └──────────┘ │
+│  ┌────────────────────────────────────────────────────┐ │
+│  │         Mixer & Effects Panel (下)                │ │
+│  └────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+        ▶ ⏸ ⏹ 🔁  BPM: 120.0  Time: 0.0s
+        └── トランスポートコントロール ──┘
+```
+
+- 標準的なDAWレイアウト（タイムライン中央、トラック左、ミキサー下、AIパネル右）
+- フローティングペイン美学で、従来のDAWの重厚さを排除
+
+## UIコンポーネント規約
+
+### パネル
+- 各パネルは `resizable(true)` でユーザーがサイズ調整可能にする
+- パネル背景は半透明（`from_rgba_premultiplied` でアルファ値 180-230）
+- コーナー半径: `4.0`
+
+### ボタン
+- トランスポート系: アイコン文字（▶ ⏸ ⏹ 🔁 🔇 🔊）
+- ホバー時にツールチップを表示（`.on_hover_text()`）
+- トグル状態はアイコンで表現（例: 再生中は ⏸ に変化）
+
+### スライダー
+- マスターボリューム: `0.0..=1.0` 範囲
+- BPM: `DragValue` で `20.0..=300.0` 範囲
+
+## 波形描画
+
+- 背景: `rgba(22, 24, 28, 180)` のダーク矩形
+- 波形: アクセントカラー（`rgb(114, 137, 218)`）のストローク幅 `2.0`
+- プレイヘッド: `RED` の縦線、ストローク幅 `2.0`
+- 波形はクリック & ドラッグでシーク可能
