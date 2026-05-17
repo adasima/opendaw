@@ -1,0 +1,38 @@
+# PRの変更ファイルに基づいて自動でラベルを付与するルール
+
+"🎨 ui":
+  - changed-files:
+    - any-glob-to-any-file: 'src/ui/**'
+
+"⚙️ engine":
+  - changed-files:
+    - any-glob-to-any-file: 'src/engine/**'
+
+"🎹 midi":
+  - changed-files:
+    - any-glob-to-any-file: 'src/midi/**'
+
+"📦 state":
+  - changed-files:
+    - any-glob-to-any-file: 'src/state/**'
+
+"📝 docs":
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**'
+
+"🏗️ architect":
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'ROADMAP.md'
+      - 'ARCHITECTURE.md'
+      - 'DESIGN.md'
+
+"🔧 ci/cd":
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+
+"📦 deps":
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'Cargo.toml'
+      - 'Cargo.lock'

@@ -1,44 +1,49 @@
-name: Release Portable DAW
+name: Release Build
 
 on:
   push:
     tags:
-      - 'v*' # v1.0.0 などのタグがプッシュされたら起動
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  build-and-release:
-    runs-on: windows-latest # Windows用のポータブル版を作る場合
-    permissions:
-      contents: write
+  build-windows:
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Rust
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build Release
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-release-
+
+      - name: Build release binary
         run: cargo build --release
 
-      - name: Package Portable Bundle
+      - name: Create portable package
+        shell: pwsh
         run: |
-          # 1. 配布用の作業フォルダを作る
-          New-Item -ItemType Directory -Force -Path "opendaw-portable"
-          
-          # 2. ビルド済みの実行ファイルをコピー
-          Copy-Item "target\release\opendaw.exe" "opendaw-portable\"
-          
-          # 3. 同梱したい設定ファイルやフォルダをコピー（必要に応じて増やしてください）
-          if (Test-Path "config.toml") { Copy-Item "config.toml" "opendaw-portable\" }
-          if (Test-Path "assets") { Copy-Item -Recurse "assets" "opendaw-portable\" }
-          if (Test-Path "README.md") { Copy-Item "README.md" "opendaw-portable\" }
-          
-          # 4. まるごとZIPに圧縮
-          Compress-Archive -Path "opendaw-portable\*" -DestinationPath "opendaw-portable-windows.zip"
+          New-Item -ItemType Directory -Path staging -Force
+          Copy-Item target/release/aura_daw.exe staging/
+          Copy-Item README.md staging/
+          Copy-Item LICENSE staging/ -ErrorAction SilentlyContinue
+          Compress-Archive -Path staging/* -DestinationPath opendaw-portable-windows.zip
 
-      - name: Create GitHub Release and Upload Asset
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: opendaw-portable-windows.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
