@@ -17,10 +17,12 @@
 - [x] ミュートボタンとツールチップ (#6)
 
 ### 残タスク
-- [ ] `nova:` app.rs の UI描画ロジックを src/ui/ モジュールに分離する (対象: src/ui/mod.rs, src/ui/transport.rs, src/ui/timeline.rs)
-- [ ] `nova:` app.rs の状態管理ロジックを src/state/mod.rs に分離する (対象: src/state/mod.rs, src/state/project.rs)
+- [ ] `nova:` app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
+- [ ] `nova:` app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
+- [ ] `nova:` app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
+- [ ] `nova:` app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
 - [ ] `nova:` キーボードショートカットを実装する: Space=再生/停止 (対象: src/ui/mod.rs)
-- [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換 (対象: src/main.rs)
+- [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
 
 ---
 
