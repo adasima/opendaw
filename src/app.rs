@@ -5,6 +5,7 @@ pub struct AuraDawApp {
     pub is_looping: bool,
     pub playhead_pos: f32,
     pub master_volume: f32,
+    pub is_muted: bool,
 }
 
 impl Default for AuraDawApp {
@@ -14,11 +15,16 @@ impl Default for AuraDawApp {
             is_looping: true,
             playhead_pos: 0.0,
             master_volume: 0.8,
+            is_muted: false,
         }
     }
 }
 
 impl AuraDawApp {
+    pub fn toggle_mute(&mut self) {
+        self.is_muted = !self.is_muted;
+    }
+
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         setup_custom_style(&cc.egui_ctx);
@@ -88,6 +94,12 @@ impl eframe::App for AuraDawApp {
                 ui.horizontal(|ui| {
                     ui.label("Master Volume");
                     ui.add(egui::Slider::new(&mut self.master_volume, 0.0..=1.0));
+
+                    let mute_icon = if self.is_muted { "🔇" } else { "🔊" };
+                    if ui.button(mute_icon).on_hover_text("Mute/Unmute").clicked() {
+                        self.toggle_mute();
+                    }
+
                 });
             });
 
@@ -118,15 +130,15 @@ impl eframe::App for AuraDawApp {
             // トランスポートコントロールの追加
             ui.horizontal(|ui| {
                 let play_icon = if self.is_playing { "⏸" } else { "▶" };
-                if ui.button(play_icon).clicked() {
+                if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
                     self.toggle_playback();
                 }
-                if ui.button("⏹").clicked() {
+                if ui.button("⏹").on_hover_text("Stop").clicked() {
                     self.stop_playback();
                 }
 
                 let loop_icon = if self.is_looping { "🔁 (On)" } else { "🔁 (Off)" };
-                if ui.button(loop_icon).clicked() {
+                if ui.button(loop_icon).on_hover_text("Toggle Loop").clicked() {
                     self.toggle_loop();
                 }
             });
@@ -225,5 +237,17 @@ mod tests {
 
         assert!(!app.is_playing);
         assert_eq!(app.playhead_pos, 0.0);
+    }
+
+    #[test]
+    fn test_toggle_mute() {
+        let mut app = AuraDawApp::default();
+        assert!(!app.is_muted);
+
+        app.toggle_mute();
+        assert!(app.is_muted);
+
+        app.toggle_mute();
+        assert!(!app.is_muted);
     }
 }
