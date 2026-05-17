@@ -2,6 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // releaseビルド時にコンソールを隠す
 
 pub mod ui;
+pub mod engine;
+pub mod state;
+pub mod midi;
+pub mod util;
 mod app;
 use app::AuraDawApp;
 
