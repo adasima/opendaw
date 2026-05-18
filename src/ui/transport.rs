@@ -1,5 +1,6 @@
 use crate::app::AuraDawApp;
 use eframe::egui;
+use ringbuf::traits::Producer;
 
 const BPM_MIN: f64 = 20.0;
 const BPM_MAX: f64 = 300.0;
@@ -11,9 +12,21 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         let play_icon = if app.state.is_playing { "⏸" } else { "▶" };
         if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
             app.state.toggle_playback();
+            if let Some(ui_channels) = &mut app.ui_channels {
+                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(app.state.is_playing));
+                if send_result.is_err() {
+                    log::warn!("Failed to send SetPlaying message: channel full");
+                }
+            }
         }
         if ui.button("⏹").on_hover_text("Stop").clicked() {
             app.state.stop_playback();
+            if let Some(ui_channels) = &mut app.ui_channels {
+                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
+                if send_result.is_err() {
+                    log::warn!("Failed to send SetPlaying message: channel full");
+                }
+            }
         }
 
         let loop_icon = if app.state.is_looping {

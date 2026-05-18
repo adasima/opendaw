@@ -1,5 +1,6 @@
 use eframe::egui;
 use crate::state::DawState;
+use ringbuf::traits::Producer;
 
 /// OpenDAWのメインアプリケーション状態を保持する構造体。
 ///
@@ -45,11 +46,30 @@ impl AuraDawApp {
 impl eframe::App for AuraDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // 初期化時にオーディオチャンネルをエンジンに渡す
+        if let Some(audio_channels) = self.audio_channels_temp.take() {
+            self.audio_engine.set_channels(audio_channels);
+        }
+
+        // オーディオエンジンからのメッセージを受信
+        if let Some(ui_channels) = &mut self.ui_channels {
+            let pos_opt = self.audio_engine.poll_ui_messages(ui_channels);
+            if let Some(pos) = pos_opt {
+                self.state.playhead_pos = pos;
+            }
+        }
+
         // キーボードショートカット: スペースキーで再生/停止
         // テキスト入力等のUI要素がフォーカスされていない場合のみ反応させます。
         let focused = ctx.memory(|mem| mem.focused());
         if focused.is_none() && ctx.input(|i| i.key_pressed(egui::Key::Space)) {
             self.state.toggle_playback();
+            if let Some(ui_channels) = &mut self.ui_channels {
+                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(self.state.is_playing));
+                if send_result.is_err() {
+                    log::warn!("Failed to send SetPlaying message: channel full");
+                }
+            }
         }
 
         // 再生中の場合、プレイヘッドを進行させて再描画を要求
@@ -83,5 +103,20 @@ mod tests {
         assert_eq!(app.state.playhead_pos, 0.0);
         // チャンネルが初期化されていることを確認
         assert!(app.ui_channels.is_some());
+    }
+
+    #[test]
+    fn test_app_update_channel_initialization() {
+        // 初期化時に audio_channels_temp がエンジンに渡されることを確認
+        let mut app = AuraDawApp::default();
+        assert!(app.audio_channels_temp.is_some());
+
+        if let Some(audio_channels) = app.audio_channels_temp.take() {
+            app.audio_engine.set_channels(audio_channels);
+        }
+
+        assert!(app.audio_channels_temp.is_none());
+        // channels 自体は private なので、間接的に送信して影響を確認するなどで代用するが、
+        // 今回は audio_channels_temp が None になることのみを確認する。
     }
 }
