@@ -1,3 +1,4 @@
+pub mod ai_agent;
 pub mod mixer;
 pub mod timeline;
 pub mod tracks;
@@ -23,15 +24,7 @@ pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
 
     crate::ui::tracks::draw_tracks_panel(ui, app);
 
-    #[allow(deprecated)]
-    egui::SidePanel::right("ai_agent_panel")
-        .resizable(true)
-        .show_inside(ui, |ui| {
-            ui.heading("AI Agent & CLI");
-            ui.separator();
-            ui.label("Agent is ready.");
-            ui.text_edit_singleline(&mut "".to_string());
-        });
+    crate::ui::ai_agent::draw_ai_agent_panel(ui, app);
 
     #[allow(deprecated)]
     egui::CentralPanel::default().show_inside(ui, |ui| {
