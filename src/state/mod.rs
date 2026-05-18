@@ -5,7 +5,7 @@
 
 // Phase 3 で実装予定
 // pub mod project;   // プロジェクトの保存/読み込み
-// pub mod track;     // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
+pub mod track;        // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
 
 /// プロジェクト状態の将来のエントリポイント（Phase 3 で実装予定）
 pub struct ProjectState;
@@ -18,6 +18,7 @@ pub struct DawState {
     pub master_volume: f32,
     pub is_muted: bool,
     pub bpm: f32,
+    pub tracks: Vec<track::Track>,
 }
 
 impl Default for DawState {
@@ -29,6 +30,7 @@ impl Default for DawState {
             master_volume: 0.8,
             is_muted: false,
             bpm: 120.0,
+            tracks: Vec::new(),
         }
     }
 }
