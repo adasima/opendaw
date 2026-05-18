@@ -8,28 +8,28 @@ const TIME_SCALER: f32 = 0.1;
 /// トランスポートコントロール（再生、停止、ループ、BPMなど）を描画します。
 pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     ui.horizontal(|ui| {
-        let play_icon = if app.is_playing { "⏸" } else { "▶" };
+        let play_icon = if app.state.is_playing { "⏸" } else { "▶" };
         if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
-            app.toggle_playback();
+            app.state.toggle_playback();
         }
         if ui.button("⏹").on_hover_text("Stop").clicked() {
-            app.stop_playback();
+            app.state.stop_playback();
         }
 
-        let loop_icon = if app.is_looping {
+        let loop_icon = if app.state.is_looping {
             "🔁 (On)"
         } else {
             "🔁 (Off)"
         };
         if ui.button(loop_icon).on_hover_text("Toggle Loop").clicked() {
-            app.toggle_loop();
+            app.state.toggle_loop();
         }
 
         ui.separator();
 
         // BPMコントロール
         ui.add(
-            egui::DragValue::new(&mut app.bpm)
+            egui::DragValue::new(&mut app.state.bpm)
                 .range(BPM_MIN..=BPM_MAX)
                 .prefix("BPM: "),
         );
@@ -37,6 +37,6 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         ui.separator();
 
         // 仮想的なタイム表示 (MM:SS.ms などに見立てる)
-        ui.label(format!("Time: {:.1}s", app.playhead_pos * TIME_SCALER));
+        ui.label(format!("Time: {:.1}s", app.state.playhead_pos * TIME_SCALER));
     });
 }
