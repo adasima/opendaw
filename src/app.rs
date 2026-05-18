@@ -1,12 +1,20 @@
 use eframe::egui;
 use crate::state::DawState;
 
+/// OpenDAWのメインアプリケーション状態を保持する構造体。
+///
+/// eframeのトップレベルとして機能し、オーディオエンジンの状態や
+/// UI全体の共有データ(`DawState`)を管理します。
 #[derive(Default)]
 pub struct AuraDawApp {
+    /// DAWのコア状態（再生状態、ボリューム、プレイヘッド位置など）
     pub state: DawState,
 }
 
 impl AuraDawApp {
+    /// アプリケーションの新しいインスタンスを作成します。
+    ///
+    /// ここでカスタムフォントやUIテーマ（ダークテーマ・グラスモーフィズム風）の初期化を行います。
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         crate::ui::setup_custom_style(&cc.egui_ctx);
@@ -18,6 +26,7 @@ impl eframe::App for AuraDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // キーボードショートカット: スペースキーで再生/停止
+        // テキスト入力等のUI要素がフォーカスされていない場合のみ反応させます。
         let focused = ctx.memory(|mem| mem.focused());
         if focused.is_none() && ctx.input(|i| i.key_pressed(egui::Key::Space)) {
             self.state.toggle_playback();
