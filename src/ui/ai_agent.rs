@@ -2,6 +2,9 @@ use crate::app::AuraDawApp;
 use eframe::egui;
 
 /// AIエージェントパネルを描画します。
+///
+/// 右側に配置されるリサイズ可能なパネルで、AIアシスタントとの
+/// コミュニケーション用チャットインターフェースや状態表示を提供します。
 pub fn draw_ai_agent_panel(ui: &mut egui::Ui, _app: &mut AuraDawApp) {
     #[allow(deprecated)]
     egui::SidePanel::right("ai_agent_panel")
