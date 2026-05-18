@@ -24,7 +24,7 @@
 
 ---
 
-## Phase 2: オーディオエンジン基盤 (進行中)
+## Phase 2: オーディオエンジン基盤 ✅
 
 ### 完了済み
 - [x] src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
@@ -33,27 +33,25 @@
 - [x] hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
 - [x] cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
 - [x] 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
-
-### 残タスク
-- [ ] [1] @B src/engine/mod.rs に cpal オーディオストリームのライフサイクル管理とチャンネル受信を追加する (対象: src/engine/mod.rs)
-- [ ] [2] @A src/app.rs で AudioEngine のインスタンス化とチャンネルの保持を実装する (対象: src/app.rs)
-- [ ] [3] @A src/ui/transport.rs のトランスポート操作（再生/停止）をチャンネル経由でエンジンに送信する (対象: src/ui/transport.rs)
-- [ ] [4] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正する (対象: src/engine/stream.rs, src/engine/channel.rs)
-- [ ] [5] `warden:` src/engine/mod.rs の doc コメント警告 (`empty_line_after_doc_comments` 等) を修正する (対象: src/engine/mod.rs)
-- [ ] [6] `warden:` src/state/mod.rs の doc コメント警告を修正する (対象: src/state/mod.rs)
-- [ ] [7] `warden:` src/midi/mod.rs の doc コメント警告を修正する (対象: src/midi/mod.rs)
-- [ ] [8] `warden:` src/util/mod.rs の doc コメント警告を修正する (対象: src/util/mod.rs)
+- [x] [1] @B src/engine/mod.rs に cpal オーディオストリームのライフサイクル管理とチャンネル受信を追加する (対象: src/engine/mod.rs)
+- [x] [2] @A src/app.rs で AudioEngine のインスタンス化とチャンネルの保持を実装する (対象: src/app.rs)
+- [x] [3] @A src/ui/transport.rs のトランスポート操作（再生/停止）をチャンネル経由でエンジンに送信する (対象: src/ui/transport.rs)
+- [x] [4] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正する (対象: src/engine/stream.rs, src/engine/channel.rs)
+- [x] [5] `warden:` src/engine/mod.rs の doc コメント警告 (`empty_line_after_doc_comments` 等) を修正する (対象: src/engine/mod.rs)
+- [x] [6] `warden:` src/state/mod.rs の doc コメント警告を修正する (対象: src/state/mod.rs)
+- [x] [7] `warden:` src/midi/mod.rs の doc コメント警告を修正する (対象: src/midi/mod.rs)
+- [x] [8] `warden:` src/util/mod.rs の doc コメント警告を修正する (対象: src/util/mod.rs)
 
 ---
 
-## Phase 3: マルチトラック & ミキシング
+## Phase 3: マルチトラック & ミキシング (進行中)
 
-- [ ] @A Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs)
-- [ ] @A トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
-- [ ] @A 各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
-- [ ] @B オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs)
-- [ ] @B ソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs)
-- [ ] @A rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
+- [ ] [1] @A src/state/track.rs を作成し、Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs, src/state/mod.rs)
+- [ ] [2] @A src/ui/tracks.rs を更新し、トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
+- [ ] [3] @A src/ui/mixer.rs を更新し、各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
+- [ ] [4] @A src/ui/import.rs を作成し、rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
+- [ ] [5] @B src/engine/mixer.rs を作成し、オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs, src/engine/mod.rs)
+- [ ] [6] @B src/engine/mixer.rs にソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs, src/engine/mod.rs)
 
 ---
 
