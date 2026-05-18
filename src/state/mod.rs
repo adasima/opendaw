@@ -7,6 +7,8 @@
 // pub mod project;   // プロジェクトの保存/読み込み
 pub mod track;        // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
 
+use crate::midi::sequence::Sequence;
+
 /// プロジェクト状態の将来のエントリポイント（Phase 3 で実装予定）
 pub struct ProjectState;
 
@@ -20,6 +22,7 @@ pub struct DawState {
     pub bpm: f32,
     pub tracks: Vec<track::Track>,
     pub next_track_id: usize,
+    pub active_sequence: Sequence,
 }
 
 impl Default for DawState {
@@ -33,6 +36,7 @@ impl Default for DawState {
             bpm: 120.0,
             tracks: Vec::new(),
             next_track_id: 1,
+            active_sequence: Sequence::new(),
         }
     }
 }
@@ -229,5 +233,21 @@ mod tests {
 
         state.remove_track(999); // 存在しないID
         assert_eq!(state.tracks.len(), 2);
+    }
+
+    #[test]
+    fn test_dawstate_sequence() {
+        let mut state = DawState::default();
+        assert_eq!(state.active_sequence.notes.len(), 0);
+
+        let id = state.active_sequence.add_note(60, 100, 0.0, 1.0);
+        assert_eq!(state.active_sequence.notes.len(), 1);
+        assert_eq!(id, 0);
+
+        let note = state.active_sequence.get_note(id).unwrap();
+        assert_eq!(note.pitch, 60);
+        assert_eq!(note.velocity, 100);
+        assert_eq!(note.start_beat, 0.0);
+        assert_eq!(note.duration_beats, 1.0);
     }
 }
