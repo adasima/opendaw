@@ -34,27 +34,35 @@ impl Default for DawState {
 }
 
 impl DawState {
+    /// マスターミュートの状態を切り替えます。
     pub fn toggle_mute(&mut self) {
         self.is_muted = !self.is_muted;
     }
 
+    /// 再生・一時停止の状態を切り替えます。
     pub fn toggle_playback(&mut self) {
         self.is_playing = !self.is_playing;
     }
 
+    /// 再生を停止し、プレイヘッドの位置を初期化（0.0）します。
     pub fn stop_playback(&mut self) {
         self.is_playing = false;
         self.playhead_pos = 0.0;
     }
 
+    /// ループ再生の有効・無効を切り替えます。
     pub fn toggle_loop(&mut self) {
         self.is_looping = !self.is_looping;
     }
 
+    /// プレイヘッドを指定された位置に移動させます。
+    /// 指定位置は `0.0` から `100.0` の範囲にクランプされます。
     pub fn seek_to(&mut self, pos: f32) {
         self.playhead_pos = pos.clamp(0.0, 100.0);
     }
 
+    /// 毎フレーム呼び出され、再生中の場合はプレイヘッドを進めます。
+    /// BPMに依存した速度でプレイヘッドの進行を調整します。
     pub fn tick_playback(&mut self) {
         if self.is_playing {
             // BPMに基づいて進行速度を調整 (120 BPM を基準 (1.0) とする)
