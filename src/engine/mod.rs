@@ -11,6 +11,7 @@
 //! - println!() やログ出力
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use ringbuf::traits::Consumer;
 use crate::engine::channel::AudioChannels;
 use std::sync::atomic::{AtomicBool, AtomicUsize};
 use std::sync::Arc;
@@ -115,6 +116,40 @@ impl AudioEngine {
             self.stream = Some(stream);
         }
     }
+
+    /// オーディオストリームを一時停止します
+    pub fn pause(&self) {
+        if let Some(stream) = &self.stream {
+            let _ = stream.pause();
+        }
+    }
+
+    /// オーディオストリームの再生を再開します
+    pub fn play(&self) {
+        if let Some(stream) = &self.stream {
+            let _ = stream.play();
+        }
+    }
+
+    /// オーディオストリームを停止し、破棄します
+    pub fn stop(&mut self) {
+        if let Some(stream) = &self.stream {
+            let _ = stream.pause();
+        }
+        self.stream = None;
+    }
+
+    /// オーディオスレッドからのメッセージを受信して処理します
+    /// 最新の再生位置(f32)があれば返します
+    pub fn poll_ui_messages(&self, ui_channels: &mut crate::engine::channel::UiChannels) -> Option<f32> {
+        let mut latest_pos = None;
+        while let Some(msg) = ui_channels.1.try_pop() {
+            match msg {
+                crate::engine::channel::AudioToUiMsg::PlaybackPosition(pos) => latest_pos = Some(pos),
+            }
+        }
+        latest_pos
+    }
 }
 
 #[cfg(test)]
@@ -145,5 +180,38 @@ mod tests {
         let (_, audio_channels) = crate::engine::channel::create_channels(CHANNEL_CAPACITY);
         engine.set_channels(audio_channels);
         assert!(engine.channels.is_some());
+    }
+
+    #[test]
+    fn test_audio_engine_lifecycle_methods() {
+        let mut engine = AudioEngine::new();
+
+        // ストリームがない状態で呼んでもエラーにならないことの確認
+        engine.pause();
+        engine.play();
+        engine.stop();
+
+        assert!(engine.stream.is_none());
+    }
+
+    #[test]
+    fn test_audio_engine_poll_ui_messages() {
+        use ringbuf::traits::Producer;
+        let engine = AudioEngine::new();
+        let (mut ui_channels, mut audio_channels) = crate::engine::channel::create_channels(10);
+
+        // メッセージがない場合
+        assert_eq!(engine.poll_ui_messages(&mut ui_channels), None);
+
+        // 複数のメッセージを送信
+        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(1.5));
+        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(2.5));
+        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(3.5));
+
+        // 最新のメッセージが返されること
+        assert_eq!(engine.poll_ui_messages(&mut ui_channels), Some(3.5));
+
+        // 取り切ったので次はNoneになること
+        assert_eq!(engine.poll_ui_messages(&mut ui_channels), None);
     }
 }
