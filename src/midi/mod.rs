@@ -4,7 +4,7 @@
 //! MIDIメッセージのパース、シーケンスデータの管理を担当する。
 
 // Phase 4 で実装予定
-// pub mod device;
+pub mod device;
 // pub mod message;
 // pub mod sequence;
 
