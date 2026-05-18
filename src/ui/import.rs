@@ -5,10 +5,11 @@ use crate::app::AuraDawApp;
 /// オーディオインポート用のUI（ボタン等）を描画します。
 pub fn draw_import_ui(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     if ui.button("📁 Import Audio").on_hover_text("WAVファイルなどをインポートします").clicked() {
-        if let Some(path) = FileDialog::new()
+        let picked_file = FileDialog::new()
             .add_filter("Audio", &["wav"])
-            .pick_file()
-        {
+            .pick_file();
+
+        if let Some(path) = picked_file {
             // パスからファイル名を取得
             let file_name = extract_file_name(&path);
 
