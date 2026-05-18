@@ -16,14 +16,18 @@
 - [x] BPMコントロール & Time表示 (#9)
 - [x] タイムラインのシーク機能（クリック・ドラッグ） (#7)
 - [x] ミュートボタンとツールチップ (#6)
+- [x] main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
 
 ### 残タスク
 
-- [ ] @A app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
-- [ ] @A app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
-- [ ] @A キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
-- [ ] @A app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
-- [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
+- [ ] [1] @A src/ui/tracks.rs を作成し、TracksパネルのUI描画を分離する (対象: src/ui/tracks.rs, src/ui/mod.rs)
+- [ ] [2] @A src/ui/ai_agent.rs を作成し、AI AgentパネルのUI描画を分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs)
+- [ ] [3] @B src/state/mod.rs へ状態管理ロジック（is_playing等）を分離する (対象: src/state/mod.rs, src/app.rs)
+- [ ] [4] @B Spaceキーでの再生/停止ショートカットを実装する (対象: src/app.rs)
+- [ ] `warden:` src/engine/mod.rs の doc コメントの警告 (empty_line_after_doc_comments 等) を修正する (対象: src/engine/mod.rs)
+- [ ] `warden:` src/state/mod.rs の doc コメントの警告 (empty_line_after_doc_comments 等) を修正する (対象: src/state/mod.rs)
+- [ ] `warden:` src/midi/mod.rs の doc コメントの警告 (empty_line_after_doc_comments 等) を修正する (対象: src/midi/mod.rs)
+- [ ] `warden:` src/util/mod.rs の doc コメントの警告 (empty_line_after_doc_comments 等) を修正する (対象: src/util/mod.rs)
 
 ---
 
