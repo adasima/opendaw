@@ -1,5 +1,6 @@
 pub mod mixer;
 pub mod timeline;
+pub mod tracks;
 pub mod transport;
 
 use eframe::egui;
@@ -20,15 +21,7 @@ pub fn setup_custom_style(ctx: &egui::Context) {
 pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
     crate::ui::mixer::draw_mixer_panel(ui, app);
 
-    #[allow(deprecated)]
-    egui::SidePanel::left("tracks_panel")
-        .resizable(true)
-        .show_inside(ui, |ui| {
-            ui.heading("Tracks");
-            ui.separator();
-            ui.label("Track 1 - Vocals");
-            ui.label("Track 2 - Synth");
-        });
+    crate::ui::tracks::draw_tracks_panel(ui, app);
 
     #[allow(deprecated)]
     egui::SidePanel::right("ai_agent_panel")
