@@ -9,6 +9,7 @@ cpal = "0.17.3"
 eframe = "0.34.2"
 egui = "0.34.2"
 hound = "3.5.1"
+log = "0.4.29"
 ringbuf = "0.5.0"
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.52.3", features = ["full"] }
