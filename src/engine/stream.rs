@@ -1,6 +1,8 @@
 use cpal::traits::DeviceTrait;
 use cpal::{Device, Stream, StreamConfig, SampleFormat};
 use crate::engine::audio_file::AudioBuffer;
+use crate::engine::channel::{AudioChannels, UiToAudioMsg, AudioToUiMsg};
+use ringbuf::traits::{Consumer, Producer};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 
@@ -23,6 +25,8 @@ pub struct PlaybackContext {
     pub position: Arc<AtomicUsize>,
     /// 再生中かどうか
     pub playing: Arc<AtomicBool>,
+    /// UI通信チャンネル
+    pub channels: Option<AudioChannels>,
 }
 
 /// f32バッファに無音（0.0）を書き込む
@@ -45,7 +49,7 @@ pub fn build_output_stream(
     device: &Device,
     config: &StreamConfig,
     sample_format: SampleFormat,
-    context: Option<PlaybackContext>,
+    mut context: Option<PlaybackContext>,
 ) -> Result<Stream, StreamBuildError> {
     let err_fn = |err| {
         // ロギング(アロケーション等)は避けるか、最小限のコンソール出力に留める
@@ -59,6 +63,17 @@ pub fn build_output_stream(
             device.build_output_stream(
                 config,
                 move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+                    if let Some(ctx) = context.as_mut() {
+                        let channels_opt = ctx.channels.as_mut();
+                        if let Some(channels) = channels_opt {
+                            while let Some(msg) = channels.0.try_pop() {
+                                match msg {
+                                    UiToAudioMsg::SetPlaying(playing) => ctx.playing.store(playing, Ordering::Relaxed),
+                                }
+                            }
+                        }
+                    }
+
                     let mut handled = false;
                     if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
                         let mut pos = ctx.position.load(Ordering::Relaxed);
@@ -76,6 +91,13 @@ pub fn build_output_stream(
                     if !handled {
                         write_silence_f32(data, channels);
                     }
+
+                    if let Some(ctx) = context.as_mut() {
+                        let channels_opt = ctx.channels.as_mut();
+                        if let Some(channels) = channels_opt {
+                            let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(ctx.position.load(Ordering::Relaxed) as f32));
+                        }
+                    }
                 },
                 err_fn,
                 None, // タイムアウトなし
@@ -85,6 +107,17 @@ pub fn build_output_stream(
             device.build_output_stream(
                 config,
                 move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
+                    if let Some(ctx) = context.as_mut() {
+                        let channels_opt = ctx.channels.as_mut();
+                        if let Some(channels) = channels_opt {
+                            while let Some(msg) = channels.0.try_pop() {
+                                match msg {
+                                    UiToAudioMsg::SetPlaying(playing) => ctx.playing.store(playing, Ordering::Relaxed),
+                                }
+                            }
+                        }
+                    }
+
                     let mut handled = false;
                     if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
                         let mut pos = ctx.position.load(Ordering::Relaxed);
@@ -102,6 +135,13 @@ pub fn build_output_stream(
                     }
                     if !handled {
                         write_silence_i16(data, channels);
+                    }
+
+                    if let Some(ctx) = context.as_mut() {
+                        let channels_opt = ctx.channels.as_mut();
+                        if let Some(channels) = channels_opt {
+                            let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(ctx.position.load(Ordering::Relaxed) as f32));
+                        }
                     }
                 },
                 err_fn,
@@ -151,6 +191,7 @@ mod tests {
             buffer,
             position: Arc::new(AtomicUsize::new(0)),
             playing: Arc::new(AtomicBool::new(false)),
+            channels: None,
         };
 
         assert_eq!(context.buffer.samples.len(), 4);
