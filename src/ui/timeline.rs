@@ -17,7 +17,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     {
         let relative_x = pos.x - rect.left();
         let percentage = (relative_x / rect.width()) * 100.0;
-        app.seek_to(percentage);
+        app.state.seek_to(percentage);
     }
 
     // 簡単な波形描画のモック
@@ -42,7 +42,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     }
 
     // プレイヘッド（縦線）の描画
-    let playhead_x = rect.left() + (rect.width() / 100.0) * app.playhead_pos;
+    let playhead_x = rect.left() + (rect.width() / 100.0) * app.state.playhead_pos;
     painter.line_segment(
         [
             egui::pos2(playhead_x, rect.top()),
