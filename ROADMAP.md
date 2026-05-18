@@ -44,25 +44,29 @@
 
 ---
 
-## Phase 3: マルチトラック & ミキシング (進行中)
+## Phase 3: マルチトラック & ミキシング ✅
 
+### 完了済み
 - [x] [1] @A src/state/track.rs を作成し、Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs, src/state/mod.rs)
 - [x] [2] @A src/ui/tracks.rs を更新し、トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
 - [x] [5] @B src/engine/mixer.rs を作成し、オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs, src/engine/mod.rs)
-- [ ] [3] nova: @A src/ui/mixer.rs で各トラックのボリュームコントロールUIを実装する (対象: src/ui/mixer.rs)
-- [ ] [4] nova: @A src/ui/mixer.rs で各トラックのパンコントロールUIとミュート・ソロボタンを実装する (対象: src/ui/mixer.rs)
-- [ ] [6] nova: @A src/ui/import.rs を作成し、rfdを使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs, src/ui/mod.rs, src/app.rs)
-- [ ] [7] nova: @B src/engine/stream.rs のオーディオコールバックで、engine::mixer::mix_tracksを使用するように実装を更新する (対象: src/engine/stream.rs)
+- [x] [3] nova: @A src/ui/mixer.rs で各トラックのボリュームコントロールUIを実装する (対象: src/ui/mixer.rs)
+- [x] [4] nova: @A src/ui/mixer.rs で各トラックのパンコントロールUIとミュート・ソロボタンを実装する (対象: src/ui/mixer.rs)
+- [x] [6] nova: @A src/ui/import.rs を作成し、rfdを使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs, src/ui/mod.rs, src/app.rs)
+- [x] [7] nova: @B src/engine/stream.rs のオーディオコールバックで、engine::mixer::mix_tracksを使用するように実装を更新する (対象: src/engine/stream.rs)
 
 ---
 
-## Phase 4: MIDI & シーケンシング
+## Phase 4: MIDI & シーケンシング (進行中)
 
-- [ ] @B midir を使った MIDI デバイスの列挙・接続を実装する (対象: Cargo.toml, src/midi/mod.rs)
-- [ ] @B MIDI メッセージの受信とパースを実装する (対象: src/midi/message.rs)
-- [ ] @A ピアノロール UI のスケルトンを作成する (対象: src/ui/piano_roll.rs)
-- [ ] @B MIDI ノートイベントのシーケンスデータ構造を定義する (対象: src/midi/sequence.rs)
-- [ ] @A ピアノロール上でノートの追加・削除を可能にする (対象: src/ui/piano_roll.rs)
+### 完了済み
+- [x] @B midir を使った MIDI デバイスの列挙・接続を実装する (対象: Cargo.toml, src/midi/mod.rs, src/midi/device.rs)
+- [x] @B MIDI メッセージの受信とパースを実装する (対象: src/midi/message.rs)
+- [x] @B MIDI ノートイベントのシーケンスデータ構造を定義する (対象: src/midi/sequence.rs)
+
+- [ ] [1] nova: @A src/ui/piano_roll.rs を作成し、ピアノロールUIのスケルトンを定義・表示する (対象: src/ui/piano_roll.rs, src/ui/mod.rs, src/app.rs)
+- [ ] [2] nova: @B src/state/mod.rs に MIDI シーケンス (Sequence) を保持する機能を追加する (対象: src/state/mod.rs)
+- [ ] [3] nova: @A src/ui/piano_roll.rs を更新し、マウスクリックによるノートの追加・削除UIを実装する (対象: src/ui/piano_roll.rs)
 
 ---
 

@@ -34,7 +34,8 @@ src/
 │       └── filter.rs    # Biquadフィルター
 │
 ├── midi/                # MIDI処理
-│   ├── mod.rs           # MIDIシステム初期化・デバイス管理 (midir)
+│   ├── mod.rs           # MIDIシステム初期化
+│   ├── device.rs        # MIDIデバイス列挙・接続管理 (midir)
 │   ├── message.rs       # MIDIメッセージのパース・生成
 │   └── sequence.rs      # MIDIシーケンスデータ構造
 │
