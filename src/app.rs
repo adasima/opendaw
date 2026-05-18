@@ -5,10 +5,30 @@ use crate::state::DawState;
 ///
 /// eframeのトップレベルとして機能し、オーディオエンジンの状態や
 /// UI全体の共有データ(`DawState`)を管理します。
-#[derive(Default)]
+/// チャンネルの初期容量
+const CHANNEL_CAPACITY: usize = 1024;
+
 pub struct AuraDawApp {
     /// DAWのコア状態（再生状態、ボリューム、プレイヘッド位置など）
     pub state: DawState,
+    /// オーディオエンジンのインスタンス
+    pub audio_engine: crate::engine::AudioEngine,
+    /// UI ↔ オーディオ間の通信チャンネル
+    pub ui_channels: Option<crate::engine::channel::UiChannels>,
+    /// オーディオエンジンに渡すまでの通信チャンネルの一時保持
+    pub audio_channels_temp: Option<crate::engine::channel::AudioChannels>,
+}
+
+impl Default for AuraDawApp {
+    fn default() -> Self {
+        let (ui_channels, audio_channels) = crate::engine::channel::create_channels(CHANNEL_CAPACITY);
+        Self {
+            state: DawState::default(),
+            audio_engine: crate::engine::AudioEngine::new(),
+            ui_channels: Some(ui_channels),
+            audio_channels_temp: Some(audio_channels),
+        }
+    }
 }
 
 impl AuraDawApp {
@@ -61,5 +81,7 @@ mod tests {
         let app = AuraDawApp::default();
         assert!(!app.state.is_playing);
         assert_eq!(app.state.playhead_pos, 0.0);
+        // チャンネルが初期化されていることを確認
+        assert!(app.ui_channels.is_some());
     }
 }
