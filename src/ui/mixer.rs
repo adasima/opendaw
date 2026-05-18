@@ -17,5 +17,40 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                     app.state.toggle_mute();
                 }
             });
+
+            ui.separator();
+
+            // 各トラックのミキサーコントロールを水平スクロール領域に表示
+            egui::ScrollArea::horizontal().show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    for track in &mut app.state.tracks {
+                        ui.group(|ui| {
+                            ui.set_width(120.0);
+                            ui.vertical(|ui| {
+                                ui.label(egui::RichText::new(&track.name).strong());
+                                ui.separator();
+
+                                ui.label("Volume");
+                                ui.add(egui::Slider::new(&mut track.volume, 0.0..=2.0).text(""));
+
+                                ui.label("Pan");
+                                ui.add(egui::Slider::new(&mut track.pan, -1.0..=1.0).text(""));
+
+                                ui.horizontal(|ui| {
+                                    let mute_text = if track.is_muted { "M (On)" } else { "M" };
+                                    if ui.button(mute_text).on_hover_text("Mute").clicked() {
+                                        track.toggle_mute();
+                                    }
+
+                                    let solo_text = if track.is_solo { "S (On)" } else { "S" };
+                                    if ui.button(solo_text).on_hover_text("Solo").clicked() {
+                                        track.toggle_solo();
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
+            });
         });
 }
