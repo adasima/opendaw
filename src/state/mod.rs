@@ -19,6 +19,7 @@ pub struct DawState {
     pub is_muted: bool,
     pub bpm: f32,
     pub tracks: Vec<track::Track>,
+    pub next_track_id: usize,
 }
 
 impl Default for DawState {
@@ -31,6 +32,7 @@ impl Default for DawState {
             is_muted: false,
             bpm: 120.0,
             tracks: Vec::new(),
+            next_track_id: 1,
         }
     }
 }
@@ -77,6 +79,18 @@ impl DawState {
                 }
             }
         }
+    }
+
+    /// 新しいトラックを追加します。
+    pub fn add_track(&mut self, name: impl Into<String>) {
+        let id = self.next_track_id;
+        self.next_track_id += 1;
+        self.tracks.push(track::Track::new(id, name));
+    }
+
+    /// 指定されたIDのトラックを削除します。
+    pub fn remove_track(&mut self, id: usize) {
+        self.tracks.retain(|t| t.id != id);
     }
 }
 
@@ -185,5 +199,35 @@ mod tests {
 
         // 240 BPMの場合は120 BPMの2倍進むはず
         assert_eq!(state120.playhead_pos * 2.0, state240.playhead_pos);
+    }
+
+    #[test]
+    fn test_add_remove_track() {
+        let mut state = DawState::default();
+        assert_eq!(state.tracks.len(), 0);
+
+        state.add_track("Track 1");
+        assert_eq!(state.tracks.len(), 1);
+        assert_eq!(state.tracks[0].name, "Track 1");
+        assert_eq!(state.tracks[0].id, 1);
+
+        state.add_track("Track 2");
+        assert_eq!(state.tracks.len(), 2);
+        assert_eq!(state.tracks[1].name, "Track 2");
+        assert_eq!(state.tracks[1].id, 2);
+
+        state.remove_track(1);
+        assert_eq!(state.tracks.len(), 1);
+        assert_eq!(state.tracks[0].name, "Track 2");
+        assert_eq!(state.tracks[0].id, 2);
+
+        // トラック削除後に追加してもIDが重複しないことを確認
+        state.add_track("Track 3");
+        assert_eq!(state.tracks.len(), 2);
+        assert_eq!(state.tracks[1].name, "Track 3");
+        assert_eq!(state.tracks[1].id, 3); // len()+1のロジックだと2になってしまう
+
+        state.remove_track(999); // 存在しないID
+        assert_eq!(state.tracks.len(), 2);
     }
 }
