@@ -17,6 +17,9 @@ pub enum StreamBuildError {
     CpalError(cpal::BuildStreamError),
 }
 
+/// I16用のミキシングバッファサイズ
+const MIX_BUFFER_SIZE: usize = 65536;
+
 /// 再生コンテキスト（ロックフリーにオーディオスレッドへ渡す状態）
 pub struct PlaybackContext {
     /// オーディオデータ
@@ -110,7 +113,7 @@ pub fn build_output_stream(
             ).map_err(StreamBuildError::CpalError)?
         },
         SampleFormat::I16 => {
-            let mut mix_buf = vec![0.0; 65536]; // 事前確保しておくミキシング用バッファ
+            let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
             device.build_output_stream(
                 config,
                 move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
