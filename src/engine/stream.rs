@@ -76,14 +76,21 @@ pub fn build_output_stream(
                     let mut handled = false;
                     if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
                         let mut pos = ctx.position.load(Ordering::Relaxed);
-                        for sample in data.iter_mut() {
-                            if pos < ctx.buffer.samples.len() {
-                                *sample = ctx.buffer.samples[pos];
-                                pos += 1;
-                            } else {
-                                *sample = 0.0;
-                            }
-                        }
+
+                        let remaining_samples = ctx.buffer.samples.len().saturating_sub(pos);
+                        let samples_to_read = remaining_samples.min(data.len());
+
+                        let track_data = crate::engine::mixer::TrackMixData {
+                            samples: &ctx.buffer.samples[pos..pos + samples_to_read],
+                            channels: ctx.buffer.channels,
+                            volume: 1.0,
+                            pan: 0.0,
+                            is_muted: false,
+                            is_solo: false,
+                        };
+
+                        crate::engine::mixer::mix_tracks(data, channels, &[track_data]);
+                        pos += samples_to_read;
                         ctx.position.store(pos, Ordering::Relaxed);
                         handled = true;
                     }
@@ -103,6 +110,7 @@ pub fn build_output_stream(
             ).map_err(StreamBuildError::CpalError)?
         },
         SampleFormat::I16 => {
+            let mut mix_buf = vec![0.0; 65536]; // 事前確保しておくミキシング用バッファ
             device.build_output_stream(
                 config,
                 move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
@@ -119,17 +127,34 @@ pub fn build_output_stream(
 
                     let mut handled = false;
                     if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
-                        let mut pos = ctx.position.load(Ordering::Relaxed);
-                        for sample in data.iter_mut() {
-                            if pos < ctx.buffer.samples.len() {
-                                let s = ctx.buffer.samples[pos];
-                                *sample = (s * i16::MAX as f32) as i16;
-                                pos += 1;
-                            } else {
-                                *sample = 0;
+                        let mut current_pos = ctx.position.load(Ordering::Relaxed);
+                        let mut remaining_samples = ctx.buffer.samples.len().saturating_sub(current_pos);
+
+                        for chunk in data.chunks_mut(mix_buf.len()) {
+                            let chunk_len = chunk.len();
+                            let samples_to_read = remaining_samples.min(chunk_len);
+                            let mix_slice = &mut mix_buf[..chunk_len];
+
+                            let track_data = crate::engine::mixer::TrackMixData {
+                                samples: &ctx.buffer.samples[current_pos..current_pos + samples_to_read],
+                                channels: ctx.buffer.channels,
+                                volume: 1.0,
+                                pan: 0.0,
+                                is_muted: false,
+                                is_solo: false,
+                            };
+
+                            crate::engine::mixer::mix_tracks(mix_slice, channels, &[track_data]);
+
+                            for (i, &f_sample) in mix_slice.iter().enumerate() {
+                                chunk[i] = (f_sample * i16::MAX as f32) as i16;
                             }
+
+                            current_pos += samples_to_read;
+                            remaining_samples = remaining_samples.saturating_sub(samples_to_read);
                         }
-                        ctx.position.store(pos, Ordering::Relaxed);
+
+                        ctx.position.store(current_pos, Ordering::Relaxed);
                         handled = true;
                     }
                     if !handled {
