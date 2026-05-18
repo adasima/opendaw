@@ -2,13 +2,7 @@
 
 use midir::{MidiInput, MidiInputConnection, Ignore};
 use std::sync::mpsc::{channel, Receiver};
-
-/// MIDIイベントを表す構造体（ダミー、後で message.rs で拡張）
-#[derive(Debug, Clone)]
-pub struct MidiEvent {
-    pub stamp: u64,
-    pub message: Vec<u8>,
-}
+use crate::midi::message::MidiEvent;
 
 /// 利用可能なMIDI入力デバイスのリストを取得する
 pub fn available_input_devices() -> Vec<String> {
@@ -39,10 +33,7 @@ pub fn connect_to_input(device_name: &str) -> Result<(MidiInputConnection<()>, R
 
     // コールバックは別スレッドで実行される
     let connection = midi_in.connect(&port, "OpenDAW Input Connection", move |stamp, message, _| {
-        let event = MidiEvent {
-            stamp,
-            message: message.to_vec(),
-        };
+        let event = MidiEvent::new(stamp, message);
         // エラーを無視する (受信側がドロップされた場合)
         let _ = tx.send(event);
     }, ())
