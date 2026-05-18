@@ -11,7 +11,7 @@
 //! - println!() やログ出力
 
 // Phase 2 で実装予定
-// pub mod device;
+pub mod device;
 // pub mod channel;
 // pub mod audio_file;
 // pub mod stream;
@@ -30,7 +30,7 @@ impl AudioEngine {
     /// 新しいAudioEngineインスタンスを作成する
     pub fn new() -> Self {
         Self {
-            device_name: None,
+            device_name: device::default_output_device_name(),
         }
     }
 
@@ -43,6 +43,11 @@ impl AudioEngine {
     pub fn device_name(&self) -> Option<&str> {
         self.device_name.as_deref()
     }
+
+    /// 利用可能なすべてのオーディオ出力デバイスのリストを取得する
+    pub fn available_devices(&self) -> Vec<String> {
+        device::available_output_device_names()
+    }
 }
 
 #[cfg(test)]
@@ -53,8 +58,9 @@ mod tests {
     fn test_audio_engine_device_selection() {
         let mut engine = AudioEngine::new();
 
-        // 初期状態ではデバイスはNone
-        assert_eq!(engine.device_name(), None);
+        // 初期化時はシステムのデフォルトデバイスが設定されるかNoneになる
+        let default_device = device::default_output_device_name();
+        assert_eq!(engine.device_name(), default_device.as_deref());
 
         // デバイス名を設定
         engine.set_device(Some("MacBook Pro Speakers".to_string()));
