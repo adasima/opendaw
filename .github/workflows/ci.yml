@@ -3,23 +3,35 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect code changes
+        id: changes
+        run: |
+          # src/ または Cargo.toml の変更があるか検出
+          if git diff --name-only HEAD~1..HEAD 2>/dev/null | grep -qE '^(src/|Cargo\.(toml|lock))'; then
+            echo "code_changed=true" >> $GITHUB_OUTPUT
+          elif git diff --name-only origin/main...HEAD | grep -qE '^(src/|Cargo\.(toml|lock))'; then
+            echo "code_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "code_changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Install Rust toolchain
+        if: steps.changes.outputs.code_changed == 'true'
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
 
       - name: Cache cargo
+        if: steps.changes.outputs.code_changed == 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -33,15 +45,23 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install system dependencies
+        if: steps.changes.outputs.code_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libxdo-dev libasound2-dev
 
       - name: cargo clippy
+        if: steps.changes.outputs.code_changed == 'true'
         run: cargo clippy -- -D warnings
 
       - name: cargo test
+        if: steps.changes.outputs.code_changed == 'true'
         run: cargo test --verbose
 
       - name: cargo check (release)
+        if: steps.changes.outputs.code_changed == 'true'
         run: cargo check --release
+
+      - name: Skip (docs/config only)
+        if: steps.changes.outputs.code_changed == 'false'
+        run: echo "✅ No code changes detected. Skipping cargo checks."
