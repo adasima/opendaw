@@ -12,7 +12,7 @@
 
 // Phase 2 で実装予定
 pub mod device;
-// pub mod channel;
+pub mod channel;
 // pub mod audio_file;
 // pub mod stream;
 // pub mod mixer;
