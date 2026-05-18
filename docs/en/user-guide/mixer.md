@@ -1,21 +1,38 @@
 # Mixer
 
-> Features to adjust the overall project volume (master volume) and mute state.
+> Features to adjust the overall project volume (master volume) and individual track mixing (volume, pan, mute, and solo).
 
 ## Overview
-The mixer panel is used to manage the final volume level of the audio output. It is located at the bottom of the screen as the "Mixer & Effects" panel, and currently allows operation of the master channel, which controls the overall volume at once.
+The mixer panel is used to manage the final volume level of the audio output and the balance of each track. It is located at the bottom of the screen as the "Mixer & Effects" panel, allowing you to operate the master channel and the mixer controls for each track (Volume, Pan, Mute, Solo).
 
 ## Basic Usage
+### Master Controls
 1. Drag the **Master Volume** slider left or right to adjust the overall output volume.
-2. Click the **🔊 (Unmute)** / **🔇 (Mute)** button to toggle the mute state of the overall audio output.
+2. Click the **🔊** / **🔇** button to toggle the mute state of the overall audio output.
+
+### Track Controls
+The following operations are available on each track's panel:
+1. Drag the **Volume** slider left or right to adjust the track's output volume.
+2. Drag the **Pan** slider left or right to adjust the track's panning (left-right positioning).
+3. Click the **M** or **M (On)** button to toggle the mute state of the track.
+4. Click the **S** or **S (On)** button to toggle the solo state of the track.
 
 ## Detailed Settings
-There are no detailed settings specific to this panel, but it manipulates the following parameters.
+The mixer panel manipulates the following parameters.
 
+### Master Channel
 | Parameter | Description | Default Value | Range |
 |:---|:---|:---|:---|
-| Master Volume | The final output volume of the entire project. | 0.8 | 0.0 to 1.0 |
-| Mute | The state of whether the overall audio is muted. | Off (🔊) | On (🔇) / Off (🔊) |
+| Master Volume | The final output volume of the entire project | 0.8 | 0.0 to 1.0 |
+| Mute | The state of whether the overall audio is muted | Off (🔊) | On (🔇) / Off (🔊) |
+
+### Individual Tracks
+| Parameter | Description | Default Value | Range |
+|:---|:---|:---|:---|
+| Volume | The individual output volume of the track | 1.0 | 0.0 to 2.0 (can be boosted) |
+| Pan | Panning (left-right positioning) | 0.0 | -1.0 (Left) to 1.0 (Right) |
+| Mute | The mute state for the track | Off (M) | On (M (On)) / Off (M) |
+| Solo | The solo state. If On, only tracks with Solo set to On will be played | Off (S) | On (S (On)) / Off (S) |
 
 ## Keyboard Shortcuts
 In the current version, there are no keyboard shortcuts dedicated to mixer operations.
@@ -25,4 +42,4 @@ In the current version, there are no keyboard shortcuts dedicated to mixer opera
 - [Effects](../user-guide/effects.md)
 
 ## Notes and Limitations
-> In the current version, only master volume adjustment is supported. Individual track volume adjustment and panning features are not yet implemented.
+> In the current version, only basic mixing features for the master and individual tracks are supported. Advanced routing, such as effect chains, will be added in future updates.
