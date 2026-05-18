@@ -2,7 +2,7 @@
 
 > このファイルは Architect エージェントが管理します。Nova / Warden は変更しないでください。
 
-## Phase 1: UI基盤 & アーキテクチャ ✅ (進行中)
+## Phase 1: UI基盤 & アーキテクチャ ✅
 
 ### 完了済み
 - [x] app.rs から Mixer & Effects パネルのUI描画を src/ui/mixer.rs に分離する (対象: src/ui/mixer.rs, src/ui/mod.rs, src/app.rs)
@@ -16,27 +16,33 @@
 - [x] BPMコントロール & Time表示 (#9)
 - [x] タイムラインのシーク機能（クリック・ドラッグ） (#7)
 - [x] ミュートボタンとツールチップ (#6)
-
-### 残タスク
-
 - [x] @A app.rs の状態管理ロジック（is_playing等）を src/state/mod.rs に分離する (対象: src/state/mod.rs, src/app.rs)
-- [ ] @A app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
-- [ ] @A キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
-- [ ] @A app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
-- [ ] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
+- [x] @A app.rs から Tracks パネルのUI描画を src/ui/tracks.rs に分離する (対象: src/ui/tracks.rs, src/ui/mod.rs, src/app.rs)
+- [x] @A キーボードショートカットを実装する: Space=再生/停止 (対象: src/app.rs)
+- [x] @A app.rs から AI Agent パネルのUI描画を src/ui/ai_agent.rs に分離する (対象: src/ui/ai_agent.rs, src/ui/mod.rs, src/app.rs)
+- [x] `warden:` main.rs の Tokio ランタイム起動部の unwrap を適切なエラーハンドリングに置換する (対象: src/main.rs)
 
 ---
 
-## Phase 2: オーディオエンジン基盤
+## Phase 2: オーディオエンジン基盤 (進行中)
 
-- [ ] @B src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
-- [ ] @B Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
-- [ ] @B ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
-- [ ] @B hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
-- [ ] @B cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
-- [ ] @A トランスポートUI の再生/停止をオーディオエンジンに接続する (対象: src/ui/transport.rs, src/engine/mod.rs)
-- [ ] @B 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
-- [ ] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正 (対象: src/engine/)
+### 完了済み
+- [x] src/engine/mod.rs の AudioEngine にデバイス選択メソッドを追加する (対象: src/engine/mod.rs)
+- [x] Cargo.toml に cpal を追加し、デフォルトオーディオデバイスの取得を実装する (対象: Cargo.toml, src/engine/device.rs)
+- [x] ringbuf を使ったUI↔オーディオスレッド間の通信チャンネルを構築する (対象: src/engine/channel.rs)
+- [x] hound を使った WAV ファイルの読み込みを実装する (対象: Cargo.toml, src/engine/audio_file.rs)
+- [x] cpal のオーディオストリーム（出力）を起動するコールバックのスケルトンを実装する (対象: src/engine/stream.rs)
+- [x] 読み込んだ WAV データをオーディオストリームで再生する機能を実装する (対象: src/engine/stream.rs)
+
+### 残タスク
+- [ ] [1] @B src/engine/mod.rs に cpal オーディオストリームのライフサイクル管理とチャンネル受信を追加する (対象: src/engine/mod.rs)
+- [ ] [2] @A src/app.rs で AudioEngine のインスタンス化とチャンネルの保持を実装する (対象: src/app.rs)
+- [ ] [3] @A src/ui/transport.rs のトランスポート操作（再生/停止）をチャンネル経由でエンジンに送信する (対象: src/ui/transport.rs)
+- [ ] [4] `warden:` オーディオコールバック内のヒープアロケーション・Mutex使用を監査・修正する (対象: src/engine/stream.rs, src/engine/channel.rs)
+- [ ] [5] `warden:` src/engine/mod.rs の doc コメント警告 (`empty_line_after_doc_comments` 等) を修正する (対象: src/engine/mod.rs)
+- [ ] [6] `warden:` src/state/mod.rs の doc コメント警告を修正する (対象: src/state/mod.rs)
+- [ ] [7] `warden:` src/midi/mod.rs の doc コメント警告を修正する (対象: src/midi/mod.rs)
+- [ ] [8] `warden:` src/util/mod.rs の doc コメント警告を修正する (対象: src/util/mod.rs)
 
 ---
 
