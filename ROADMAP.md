@@ -46,12 +46,13 @@
 
 ## Phase 3: マルチトラック & ミキシング (進行中)
 
-- [ ] [1] @A src/state/track.rs を作成し、Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs, src/state/mod.rs)
-- [ ] [2] @A src/ui/tracks.rs を更新し、トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
-- [ ] [3] @A src/ui/mixer.rs を更新し、各トラックに個別のボリューム・パンコントロールを追加する (対象: src/ui/mixer.rs)
-- [ ] [4] @A src/ui/import.rs を作成し、rfd を使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs)
-- [ ] [5] @B src/engine/mixer.rs を作成し、オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs, src/engine/mod.rs)
-- [ ] [6] @B src/engine/mixer.rs にソロ/ミュート機能をエンジンに接続する (対象: src/engine/mixer.rs, src/engine/mod.rs)
+- [x] [1] @A src/state/track.rs を作成し、Track 構造体を定義する（名前、ボリューム、パン、ミュート、ソロ） (対象: src/state/track.rs, src/state/mod.rs)
+- [x] [2] @A src/ui/tracks.rs を更新し、トラック一覧UIを実装し、トラックの追加/削除を可能にする (対象: src/ui/tracks.rs)
+- [x] [5] @B src/engine/mixer.rs を作成し、オーディオエンジンでマルチトラックミキシング（合算）を実装する (対象: src/engine/mixer.rs, src/engine/mod.rs)
+- [ ] [3] nova: @A src/ui/mixer.rs で各トラックのボリュームコントロールUIを実装する (対象: src/ui/mixer.rs)
+- [ ] [4] nova: @A src/ui/mixer.rs で各トラックのパンコントロールUIとミュート・ソロボタンを実装する (対象: src/ui/mixer.rs)
+- [ ] [6] nova: @A src/ui/import.rs を作成し、rfdを使ったオーディオファイルのインポートダイアログを実装する (対象: src/ui/import.rs, src/ui/mod.rs, src/app.rs)
+- [ ] [7] nova: @B src/engine/stream.rs のオーディオコールバックで、engine::mixer::mix_tracksを使用するように実装を更新する (対象: src/engine/stream.rs)
 
 ---
 
