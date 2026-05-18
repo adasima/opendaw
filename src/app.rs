@@ -79,6 +79,15 @@ impl eframe::App for AuraDawApp {
         }
 
         #[allow(deprecated)]
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.heading("OpenDAW");
+                ui.separator();
+                crate::ui::import::draw_import_ui(ui, self);
+            });
+        });
+
+        #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
              crate::ui::draw_main_ui(self, ui);
         });

@@ -1,4 +1,5 @@
 pub mod ai_agent;
+pub mod import;
 pub mod mixer;
 pub mod timeline;
 pub mod tracks;
