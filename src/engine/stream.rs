@@ -51,9 +51,8 @@ pub fn build_output_stream(
     sample_format: SampleFormat,
     mut context: Option<PlaybackContext>,
 ) -> Result<Stream, StreamBuildError> {
-    let err_fn = |err| {
-        // ロギング(アロケーション等)は避けるか、最小限のコンソール出力に留める
-        eprintln!("an error occurred on stream: {}", err);
+    let err_fn = |_err| {
+        // リアルタイムスレッドでのロギング(アロケーションやI/O)は避ける
     };
 
     let channels = config.channels;
