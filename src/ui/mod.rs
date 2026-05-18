@@ -1,6 +1,7 @@
 pub mod ai_agent;
 pub mod import;
 pub mod mixer;
+pub mod piano_roll;
 pub mod timeline;
 pub mod tracks;
 pub mod transport;
@@ -35,5 +36,8 @@ pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
         ui.separator();
 
         crate::ui::timeline::draw_timeline(ui, app);
+        ui.separator();
+
+        crate::ui::piano_roll::draw_piano_roll(ui, app);
     });
 }
