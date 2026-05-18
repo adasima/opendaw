@@ -19,5 +19,49 @@
 // pub mod effects;
 // pub mod export;
 
-/// オーディオエンジンの将来のエントリポイント（Phase 2 で実装予定）
-pub struct AudioEngine;
+/// オーディオエンジンのエントリポイント
+#[derive(Default)]
+pub struct AudioEngine {
+    /// 現在選択されているオーディオデバイスの名前
+    device_name: Option<String>,
+}
+
+impl AudioEngine {
+    /// 新しいAudioEngineインスタンスを作成する
+    pub fn new() -> Self {
+        Self {
+            device_name: None,
+        }
+    }
+
+    /// オーディオデバイス名を設定する
+    pub fn set_device(&mut self, name: Option<String>) {
+        self.device_name = name;
+    }
+
+    /// 現在設定されているオーディオデバイス名を取得する
+    pub fn device_name(&self) -> Option<&str> {
+        self.device_name.as_deref()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_audio_engine_device_selection() {
+        let mut engine = AudioEngine::new();
+
+        // 初期状態ではデバイスはNone
+        assert_eq!(engine.device_name(), None);
+
+        // デバイス名を設定
+        engine.set_device(Some("MacBook Pro Speakers".to_string()));
+        assert_eq!(engine.device_name(), Some("MacBook Pro Speakers"));
+
+        // デバイス名をクリア
+        engine.set_device(None);
+        assert_eq!(engine.device_name(), None);
+    }
+}
