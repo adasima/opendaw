@@ -31,18 +31,24 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                                 ui.separator();
 
                                 ui.label("Volume");
-                                ui.add(egui::Slider::new(&mut track.volume, 0.0..=2.0).text(""));
+                                ui.add(egui::Slider::new(&mut track.volume, 0.0..=2.0).text("Vol"));
 
                                 ui.label("Pan");
-                                ui.add(egui::Slider::new(&mut track.pan, -1.0..=1.0).text(""));
+                                ui.add(egui::Slider::new(&mut track.pan, -1.0..=1.0).text("L/R"));
 
                                 ui.horizontal(|ui| {
-                                    let mute_text = if track.is_muted { "M (On)" } else { "M" };
+                                    let mut mute_text = egui::RichText::new("M");
+                                    if track.is_muted {
+                                        mute_text = mute_text.color(egui::Color32::RED);
+                                    }
                                     if ui.button(mute_text).on_hover_text("Mute").clicked() {
                                         track.toggle_mute();
                                     }
 
-                                    let solo_text = if track.is_solo { "S (On)" } else { "S" };
+                                    let mut solo_text = egui::RichText::new("S");
+                                    if track.is_solo {
+                                        solo_text = solo_text.color(egui::Color32::YELLOW);
+                                    }
                                     if ui.button(solo_text).on_hover_text("Solo").clicked() {
                                         track.toggle_solo();
                                     }
