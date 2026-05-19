@@ -81,18 +81,19 @@
 
 ---
 
-## Phase 6: プロジェクト管理 & エクスポート (進行中)
+## Phase 6: プロジェクト管理 & エクスポート ✅
 
-- [ ] [1] nova: @A src/state/project.rs を作成し、プロジェクト状態の構造体とシリアライズ(serde)を定義する (対象: src/state/project.rs, src/state/mod.rs)
-- [ ] [2] nova: @A src/state/project.rs に bincode を用いたファイルへの保存(Save)機能を実装する (対象: src/state/project.rs)
-- [ ] [3] nova: @A src/state/project.rs に bincode を用いたファイルからの読み込み(Load)機能を実装する (対象: src/state/project.rs)
-- [ ] [4] nova: @B src/engine/export.rs を作成し、ミキサー出力をWAVファイルとして書き出す(hound)オフラインレンダリング機能を実装する (対象: src/engine/export.rs, src/engine/mod.rs)
-- [ ] [5] nova: @A src/ui/project.rs を作成し、UIからプロジェクトの保存・読み込みを実行する機能を実装する (対象: src/ui/project.rs, src/ui/mod.rs, src/app.rs)
+- [x] [1] nova: @A src/state/project.rs を作成し、プロジェクト状態の構造体とシリアライズ(serde)を定義する (対象: src/state/project.rs, src/state/mod.rs)
+- [x] [2] nova: @A src/state/project.rs に bincode を用いたファイルへの保存(Save)機能を実装する (対象: src/state/project.rs)
+- [x] [3] nova: @A src/state/project.rs に bincode を用いたファイルからの読み込み(Load)機能を実装する (対象: src/state/project.rs)
+- [x] [4] nova: @B src/engine/export.rs を作成し、ミキサー出力をWAVファイルとして書き出す(hound)オフラインレンダリング機能を実装する (対象: src/engine/export.rs, src/engine/mod.rs)
+- [x] [5] nova: @A src/ui/project.rs を作成し、UIからプロジェクトの保存・読み込みを実行する機能を実装する (対象: src/ui/project.rs, src/ui/mod.rs, src/app.rs)
 
 ---
 
-## Phase 7: AI統合 & MCP
+## Phase 7: AI統合 & MCP (進行中)
 
-- [ ] `nova:` MCP サーバーのスケルトンを Tokio ランタイム上に構築する (対象: src/mcp/mod.rs)
-- [ ] `nova:` MCP 経由でトランスポートコントロールを操作可能にする (対象: src/mcp/transport.rs)
-- [ ] `nova:` MCP 経由でトラックの追加・削除を可能にする (対象: src/mcp/tracks.rs)
+- [ ] [1] nova: @A src/mcp/mod.rs を作成し、MCP サーバーのスケルトンを Tokio ランタイム上に構築する (対象: src/mcp/mod.rs)
+- [ ] [2] nova: @A src/mcp/transport.rs を作成し、MCP 経由でトランスポートコントロール（再生・停止など）を操作するハンドラを実装する (対象: src/mcp/transport.rs, src/mcp/mod.rs)
+- [ ] [3] nova: @A src/mcp/tracks.rs を作成し、MCP 経由でトラックの追加・削除操作を行うハンドラを実装する (対象: src/mcp/tracks.rs, src/mcp/mod.rs)
+- [ ] [4] nova: @A src/mcp/mod.rs を更新し、main.rs の Tokio ランタイムから MCP サーバーを起動するように統合する (対象: src/main.rs, src/mcp/mod.rs)
