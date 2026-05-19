@@ -6,13 +6,14 @@
 /// トランスポートコントロールのハンドラ
 #[derive(Default)]
 pub struct TransportHandler {
+    pub sender: Option<crate::mcp::channel::McpCommandSender>,
     // 将来的にUiChannelsやSharedStateなどを持つ
 }
 
 impl TransportHandler {
     /// 新しい `TransportHandler` インスタンスを作成します。
     pub fn new() -> Self {
-        Self::default()
+        Self { sender: None }
     }
 
     /// 再生を開始します。
@@ -20,6 +21,9 @@ impl TransportHandler {
         // Phase 7タスク仕様に基づき、今回はMCP側のスケルトン実装に留めます。
         // 将来的にtokioチャンネルを使用してUIスレッド（app.rs）と連携します。
         log::info!("MCP: Playback started");
+        if let Some(sender) = &self.sender {
+            let _ = sender.try_send(crate::mcp::channel::McpCommand::Play);
+        }
         Ok(())
     }
 
@@ -27,6 +31,9 @@ impl TransportHandler {
     pub async fn stop(&self) -> Result<(), String> {
         // 将来的にUIスレッドに停止メッセージを送信します
         log::info!("MCP: Playback stopped");
+        if let Some(sender) = &self.sender {
+            let _ = sender.try_send(crate::mcp::channel::McpCommand::Stop);
+        }
         Ok(())
     }
 
@@ -34,6 +41,9 @@ impl TransportHandler {
     pub async fn toggle_loop(&self) -> Result<(), String> {
         // 将来的にUIスレッドにループ切り替えメッセージを送信します
         log::info!("MCP: Loop toggled");
+        if let Some(sender) = &self.sender {
+            let _ = sender.try_send(crate::mcp::channel::McpCommand::ToggleLoop);
+        }
         Ok(())
     }
 }

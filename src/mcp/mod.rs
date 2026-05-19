@@ -3,6 +3,7 @@
 
 pub mod transport;
 pub mod tracks;
+pub mod channel;
 
 /// AIエージェントと通信するためのMCP(Model Context Protocol)サーバー。
 #[derive(Default)]
