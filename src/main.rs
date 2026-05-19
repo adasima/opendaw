@@ -10,14 +10,21 @@ pub mod mcp;
 mod app;
 use app::AuraDawApp;
 
+const MCP_CHANNEL_CAPACITY: usize = 100;
+
 fn main() -> eframe::Result<()> {
+    let (mcp_tx, mcp_rx) = crate::mcp::channel::create_mcp_channel(MCP_CHANNEL_CAPACITY);
+
     // 別のスレッドでTokioランタイムを起動し、eframe/winitはメインスレッドで実行する
-    std::thread::spawn(|| {
+    std::thread::spawn(move || {
         match tokio::runtime::Runtime::new() {
             Ok(rt) => {
-                rt.block_on(async {
+                rt.block_on(async move {
                     println!("Tokio background runtime started. Waiting for connections...");
-                    let mcp_server = crate::mcp::McpServer::new();
+                    let mut mcp_server = crate::mcp::McpServer::new();
+                    mcp_server.transport_handler.sender = Some(mcp_tx.clone());
+                    mcp_server.tracks_handler.sender = Some(mcp_tx);
+
                     tokio::spawn(async move {
                         mcp_server.run().await;
                     });
@@ -46,6 +53,6 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "AuraDAW",
         native_options,
-        Box::new(|cc| Ok(Box::new(AuraDawApp::new(cc)))),
+        Box::new(move |cc| Ok(Box::new(AuraDawApp::new(cc, Some(mcp_rx))))),
     )
 }

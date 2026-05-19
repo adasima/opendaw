@@ -20,6 +20,8 @@ pub struct AuraDawApp {
     pub audio_channels_temp: Option<crate::engine::channel::AudioChannels>,
     /// エフェクトウィンドウを開いているトラックのID
     pub opened_effect_track_id: Option<usize>,
+    /// MCPサーバーからのコマンドを受信するチャンネル
+    pub mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>,
 }
 
 impl Default for AuraDawApp {
@@ -31,6 +33,7 @@ impl Default for AuraDawApp {
             ui_channels: Some(ui_channels),
             audio_channels_temp: Some(audio_channels),
             opened_effect_track_id: None,
+            mcp_receiver: None,
         }
     }
 }
@@ -39,16 +42,53 @@ impl AuraDawApp {
     /// アプリケーションの新しいインスタンスを作成します。
     ///
     /// ここでカスタムフォントやUIテーマ（ダークテーマ・グラスモーフィズム風）の初期化を行います。
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>, mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         crate::ui::setup_custom_style(&cc.egui_ctx);
-        Self::default()
+        Self {
+            mcp_receiver,
+            ..Default::default()
+        }
+    }
+
+    /// MCPサーバーからのコマンドを受信して状態を更新します。
+    pub fn poll_mcp_commands(&mut self) {
+        if let Some(mcp_receiver) = &self.mcp_receiver {
+            while let Ok(cmd) = mcp_receiver.try_recv() {
+                match cmd {
+                    crate::mcp::channel::McpCommand::Play => {
+                        self.state.is_playing = true;
+                        if let Some(ui_channels) = &mut self.ui_channels {
+                            let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(true));
+                        }
+                    }
+                    crate::mcp::channel::McpCommand::Stop => {
+                        self.state.stop_playback();
+                        if let Some(ui_channels) = &mut self.ui_channels {
+                            let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
+                        }
+                    }
+                    crate::mcp::channel::McpCommand::ToggleLoop => {
+                        self.state.toggle_loop();
+                    }
+                    crate::mcp::channel::McpCommand::AddTrack => {
+                        self.state.add_track("New Track (MCP)");
+                    }
+                    crate::mcp::channel::McpCommand::RemoveTrack(id) => {
+                        self.state.remove_track(id);
+                    }
+                }
+            }
+        }
     }
 }
 
 impl eframe::App for AuraDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // MCPサーバーからのメッセージを受信して状態を更新
+        self.poll_mcp_commands();
+
         // 初期化時にオーディオチャンネルをエンジンに渡す
         if let Some(audio_channels) = self.audio_channels_temp.take() {
             self.audio_engine.set_channels(audio_channels);
@@ -133,5 +173,35 @@ mod tests {
         assert!(app.audio_channels_temp.is_none());
         // channels 自体は private なので、間接的に送信して影響を確認するなどで代用するが、
         // 今回は audio_channels_temp が None になることのみを確認する。
+    }
+
+    #[test]
+    fn test_app_poll_mcp_commands() {
+        let mut app = AuraDawApp::default();
+        let (tx, rx) = crate::mcp::channel::create_mcp_channel(10);
+        app.mcp_receiver = Some(rx);
+
+        // Play command
+        tx.send(crate::mcp::channel::McpCommand::Play).unwrap();
+        app.poll_mcp_commands();
+        assert!(app.state.is_playing);
+
+        // Stop command
+        tx.send(crate::mcp::channel::McpCommand::Stop).unwrap();
+        app.poll_mcp_commands();
+        assert!(!app.state.is_playing);
+
+        // AddTrack command
+        assert_eq!(app.state.tracks.len(), 0);
+        tx.send(crate::mcp::channel::McpCommand::AddTrack).unwrap();
+        app.poll_mcp_commands();
+        assert_eq!(app.state.tracks.len(), 1);
+        assert_eq!(app.state.tracks[0].name, "New Track (MCP)");
+
+        // RemoveTrack command
+        let track_id = app.state.tracks[0].id;
+        tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id)).unwrap();
+        app.poll_mcp_commands();
+        assert_eq!(app.state.tracks.len(), 0);
     }
 }
