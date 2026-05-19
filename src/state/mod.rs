@@ -15,6 +15,7 @@ use crate::midi::sequence::Sequence;
 
 /// DAW のコア状態を管理する構造体
 #[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone)]
 pub struct DawState {
     #[serde(skip, default)]
     pub is_playing: bool,

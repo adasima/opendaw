@@ -89,6 +89,7 @@ impl eframe::App for AuraDawApp {
                 ui.heading("OpenDAW");
                 ui.separator();
                 crate::ui::import::draw_import_ui(ui, self);
+                crate::ui::project::draw_project_ui(ui, self);
             });
         });
 
