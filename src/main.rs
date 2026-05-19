@@ -6,6 +6,7 @@ pub mod engine;
 pub mod state;
 pub mod midi;
 pub mod util;
+pub mod mcp;
 mod app;
 use app::AuraDawApp;
 
