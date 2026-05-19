@@ -116,7 +116,7 @@ mod tests {
     }
 
     #[test]
-    fn test_load_wav_16bit() {
+    fn test_load_wav_16bit() -> Result<(), Box<dyn std::error::Error>> {
         // 16bitのダミーWAVデータを作成
         let spec = hound::WavSpec {
             channels: 1,
@@ -127,17 +127,17 @@ mod tests {
 
         let mut cursor = Cursor::new(Vec::new());
         {
-            let mut writer = hound::WavWriter::new(&mut cursor, spec).unwrap();
-            writer.write_sample(0i16).unwrap();
-            writer.write_sample(std::i16::MAX).unwrap();
-            writer.write_sample(std::i16::MIN).unwrap();
-            writer.finalize().unwrap();
+            let mut writer = hound::WavWriter::new(&mut cursor, spec)?;
+            writer.write_sample(0i16)?;
+            writer.write_sample(std::i16::MAX)?;
+            writer.write_sample(std::i16::MIN)?;
+            writer.finalize()?;
         }
 
         cursor.set_position(0);
 
         // 読み込んで確認
-        let buffer = load_wav_from_reader(cursor).unwrap();
+        let buffer = load_wav_from_reader(cursor)?;
         assert_eq!(buffer.channels, 1);
         assert_eq!(buffer.sample_rate, 44100);
         assert_eq!(buffer.samples.len(), 3);
@@ -145,10 +145,11 @@ mod tests {
         assert_eq!(buffer.samples[0], 0.0);
         assert_eq!(buffer.samples[1], 1.0);
         assert!((buffer.samples[2] - (-1.0000305)).abs() < 1e-6); // MIN / MAX => -32768 / 32767 = -1.0000305
+        Ok(())
     }
 
     #[test]
-    fn test_load_wav_float() {
+    fn test_load_wav_float() -> Result<(), Box<dyn std::error::Error>> {
         // 32bit FloatのダミーWAVデータを作成
         let spec = hound::WavSpec {
             channels: 2,
@@ -159,18 +160,18 @@ mod tests {
 
         let mut cursor = Cursor::new(Vec::new());
         {
-            let mut writer = hound::WavWriter::new(&mut cursor, spec).unwrap();
-            writer.write_sample(0.0f32).unwrap();
-            writer.write_sample(1.0f32).unwrap();
-            writer.write_sample(-0.5f32).unwrap();
-            writer.write_sample(0.5f32).unwrap();
-            writer.finalize().unwrap();
+            let mut writer = hound::WavWriter::new(&mut cursor, spec)?;
+            writer.write_sample(0.0f32)?;
+            writer.write_sample(1.0f32)?;
+            writer.write_sample(-0.5f32)?;
+            writer.write_sample(0.5f32)?;
+            writer.finalize()?;
         }
 
         cursor.set_position(0);
 
         // 読み込んで確認
-        let buffer = load_wav_from_reader(cursor).unwrap();
+        let buffer = load_wav_from_reader(cursor)?;
         assert_eq!(buffer.channels, 2);
         assert_eq!(buffer.sample_rate, 48000);
         assert_eq!(buffer.samples.len(), 4);
@@ -179,5 +180,6 @@ mod tests {
         assert_eq!(buffer.samples[1], 1.0);
         assert_eq!(buffer.samples[2], -0.5);
         assert_eq!(buffer.samples[3], 0.5);
+        Ok(())
     }
 }
