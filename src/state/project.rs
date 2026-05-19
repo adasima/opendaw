@@ -38,7 +38,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_project_state_serialization() {
+    fn test_project_state_serialization() -> Result<(), Box<dyn std::error::Error>> {
         // デフォルト状態で作成
         let mut state = ProjectState::default();
         state.daw_state.bpm = 140.0;
@@ -50,10 +50,10 @@ mod tests {
         state.daw_state.playhead_pos = 50.0;
 
         // シリアライズ
-        let encoded: Vec<u8> = bincode::serialize(&state).expect("Failed to serialize ProjectState");
+        let encoded: Vec<u8> = bincode::serialize(&state)?;
 
         // デシリアライズ
-        let decoded: ProjectState = bincode::deserialize(&encoded).expect("Failed to deserialize ProjectState");
+        let decoded: ProjectState = bincode::deserialize(&encoded)?;
 
         // 保存されるべきデータが復元されているか確認
         assert_eq!(decoded.daw_state.bpm, 140.0);
@@ -64,10 +64,11 @@ mod tests {
         // 一時的な状態はデフォルト値(false, 0.0)に戻っているか確認
         assert!(!decoded.daw_state.is_playing);
         assert_eq!(decoded.daw_state.playhead_pos, 0.0);
+        Ok(())
     }
 
     #[test]
-    fn test_save_load_file() {
+    fn test_save_load_file() -> Result<(), Box<dyn std::error::Error>> {
         let mut state = ProjectState::default();
         state.daw_state.bpm = 125.0;
         state.daw_state.add_track("File Track");
@@ -76,10 +77,10 @@ mod tests {
         let temp_dir = std::env::temp_dir();
         let file_path = temp_dir.join("test_project_state.bincode");
 
-        state.save_to_file(&file_path).expect("Failed to save to file");
+        state.save_to_file(&file_path)?;
 
         // ファイルからの読み込み
-        let loaded_state = ProjectState::load_from_file(&file_path).expect("Failed to load from file");
+        let loaded_state = ProjectState::load_from_file(&file_path)?;
 
         assert_eq!(loaded_state.daw_state.bpm, 125.0);
         assert_eq!(loaded_state.daw_state.tracks.len(), 1);
@@ -87,5 +88,6 @@ mod tests {
 
         // 一時ファイルの削除
         let _ = std::fs::remove_file(file_path);
+        Ok(())
     }
 }
