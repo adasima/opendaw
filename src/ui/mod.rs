@@ -1,4 +1,5 @@
 pub mod ai_agent;
+pub mod effects;
 pub mod import;
 pub mod mixer;
 pub mod piano_roll;

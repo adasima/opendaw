@@ -18,6 +18,8 @@ pub struct AuraDawApp {
     pub ui_channels: Option<crate::engine::channel::UiChannels>,
     /// オーディオエンジンに渡すまでの通信チャンネルの一時保持
     pub audio_channels_temp: Option<crate::engine::channel::AudioChannels>,
+    /// エフェクトウィンドウを開いているトラックのID
+    pub opened_effect_track_id: Option<usize>,
 }
 
 impl Default for AuraDawApp {
@@ -28,6 +30,7 @@ impl Default for AuraDawApp {
             audio_engine: crate::engine::AudioEngine::new(),
             ui_channels: Some(ui_channels),
             audio_channels_temp: Some(audio_channels),
+            opened_effect_track_id: None,
         }
     }
 }
@@ -77,6 +80,8 @@ impl eframe::App for AuraDawApp {
             self.state.tick_playback();
             ctx.request_repaint();
         }
+
+        crate::ui::effects::draw_effects_window(ctx, self);
 
         #[allow(deprecated)]
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
