@@ -21,7 +21,7 @@ impl ProjectState {
         let file = std::fs::File::create(path)?;
         let writer = std::io::BufWriter::new(file);
         bincode::serialize_into(writer, self)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+            .map_err(std::io::Error::other)
     }
 
     /// ファイルからプロジェクト状態を読み込みます。
@@ -29,7 +29,7 @@ impl ProjectState {
         let file = std::fs::File::open(path)?;
         let reader = std::io::BufReader::new(file);
         bincode::deserialize_from(reader)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+            .map_err(std::io::Error::other)
     }
 }
 
