@@ -84,12 +84,12 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_export_wav() {
+    fn test_export_wav() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = "test_export.wav";
         let samples1 = vec![0.5, 0.5, 0.5, 0.5]; // 4 frames
         let samples2 = vec![-0.5, -0.5, -0.5, -0.5]; // 4 frames
 
-        let mut track1 = TrackMixData {
+        let track1 = TrackMixData {
             samples: &samples1,
             channels: 1,
             volume: 1.0,
@@ -99,7 +99,7 @@ mod tests {
             effects: &mut [],
         };
 
-        let mut track2 = TrackMixData {
+        let track2 = TrackMixData {
             samples: &samples2,
             channels: 1,
             volume: 1.0,
@@ -116,10 +116,12 @@ mod tests {
 
         // 出力されたファイルを確認
         assert!(Path::new(file_path).exists());
-        let md = fs::metadata(file_path).unwrap();
+        let md = fs::metadata(file_path)?;
         assert!(md.len() > 0);
 
         // テスト用の一時ファイルを削除
         let _ = fs::remove_file(file_path);
+
+        Ok(())
     }
 }
