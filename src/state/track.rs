@@ -2,6 +2,37 @@
 //!
 //! 各トラックの名前、ボリューム、パン、ミュート、ソロ状態などを管理する構造体。
 
+/// エフェクトの種類
+#[derive(Clone, Debug, PartialEq)]
+pub enum EffectType {
+    /// ゲインエフェクト
+    Gain,
+    /// フィルターエフェクト
+    Filter,
+}
+
+/// トラックに適用されるエフェクトの設定
+#[derive(Clone, Debug, PartialEq)]
+pub struct EffectSetting {
+    /// エフェクトの一意なID
+    pub id: usize,
+    /// エフェクトの種類
+    pub effect_type: EffectType,
+    /// エフェクトが有効かどうか
+    pub is_enabled: bool,
+}
+
+impl EffectSetting {
+    /// 新しいエフェクト設定を作成します
+    pub fn new(id: usize, effect_type: EffectType) -> Self {
+        Self {
+            id,
+            effect_type,
+            is_enabled: true,
+        }
+    }
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug)]
 pub struct Track {
@@ -17,6 +48,8 @@ pub struct Track {
     pub is_muted: bool,
     /// ソロ状態（trueなら他のソロでないトラックはミュートされる）
     pub is_solo: bool,
+    /// トラックに適用されるエフェクトチェーン
+    pub effects: Vec<EffectSetting>,
 }
 
 impl Track {
@@ -29,6 +62,7 @@ impl Track {
             pan: 0.0,
             is_muted: false,
             is_solo: false,
+            effects: Vec::new(),
         }
     }
 
@@ -58,6 +92,24 @@ impl Track {
     pub fn toggle_solo(&mut self) {
         self.is_solo = !self.is_solo;
     }
+
+    /// エフェクトを追加します。
+    pub fn add_effect(&mut self, effect: EffectSetting) {
+        self.effects.push(effect);
+    }
+
+    /// 指定したIDのエフェクトを削除します。
+    pub fn remove_effect(&mut self, id: usize) {
+        self.effects.retain(|e| e.id != id);
+    }
+
+    /// エフェクトの順序を移動します。
+    pub fn move_effect(&mut self, from_index: usize, to_index: usize) {
+        if from_index < self.effects.len() && to_index < self.effects.len() {
+            let effect = self.effects.remove(from_index);
+            self.effects.insert(to_index, effect);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -73,6 +125,7 @@ mod tests {
         assert_eq!(track.pan, 0.0);
         assert!(!track.is_muted);
         assert!(!track.is_solo);
+        assert!(track.effects.is_empty());
     }
 
     #[test]
@@ -138,5 +191,43 @@ mod tests {
 
         track.toggle_solo();
         assert!(!track.is_solo);
+    }
+
+    #[test]
+    fn test_track_add_effect() {
+        let mut track = Track::new(1, "Vocals");
+        let effect = EffectSetting::new(1, EffectType::Gain);
+        track.add_effect(effect.clone());
+
+        assert_eq!(track.effects.len(), 1);
+        assert_eq!(track.effects[0], effect);
+    }
+
+    #[test]
+    fn test_track_remove_effect() {
+        let mut track = Track::new(1, "Vocals");
+        track.add_effect(EffectSetting::new(1, EffectType::Gain));
+        track.add_effect(EffectSetting::new(2, EffectType::Filter));
+
+        assert_eq!(track.effects.len(), 2);
+
+        track.remove_effect(1);
+        assert_eq!(track.effects.len(), 1);
+        assert_eq!(track.effects[0].id, 2);
+    }
+
+    #[test]
+    fn test_track_move_effect() {
+        let mut track = Track::new(1, "Vocals");
+        track.add_effect(EffectSetting::new(1, EffectType::Gain));
+        track.add_effect(EffectSetting::new(2, EffectType::Filter));
+        track.add_effect(EffectSetting::new(3, EffectType::Gain));
+
+        track.move_effect(0, 2);
+
+        assert_eq!(track.effects.len(), 3);
+        assert_eq!(track.effects[0].id, 2);
+        assert_eq!(track.effects[1].id, 3);
+        assert_eq!(track.effects[2].id, 1);
     }
 }
