@@ -2,11 +2,13 @@
 //! Tokioランタイム上で非同期に動作します。
 
 pub mod transport;
+pub mod tracks;
 
 /// AIエージェントと通信するためのMCP(Model Context Protocol)サーバー。
 #[derive(Default)]
 pub struct McpServer {
     pub transport_handler: transport::TransportHandler,
+    pub tracks_handler: tracks::TracksHandler,
 }
 
 impl McpServer {
