@@ -16,8 +16,11 @@ fn main() -> eframe::Result<()> {
         match tokio::runtime::Runtime::new() {
             Ok(rt) => {
                 rt.block_on(async {
-                    // ここで将来的にバックグラウンドのAPIサーバーなどを起動
                     println!("Tokio background runtime started. Waiting for connections...");
+                    let mcp_server = crate::mcp::McpServer::new();
+                    tokio::spawn(async move {
+                        mcp_server.run().await;
+                    });
                     // ランタイムが終了しないように待機
                     if let Err(e) = tokio::signal::ctrl_c().await {
                         eprintln!("Failed to wait for ctrl-c: {}", e);
