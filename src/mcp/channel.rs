@@ -26,9 +26,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_mcp_command_channel() {
+    fn test_mcp_command_channel() -> Result<(), Box<dyn std::error::Error>> {
         let (tx, rx) = create_mcp_channel(10);
-        tx.send(McpCommand::Play).unwrap();
-        assert_eq!(rx.recv().unwrap(), McpCommand::Play);
+        tx.send(McpCommand::Play)?;
+        assert_eq!(rx.recv()?, McpCommand::Play);
+        Ok(())
     }
 }
