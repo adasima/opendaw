@@ -24,7 +24,7 @@ pub mod channel;
 pub mod audio_file;
 pub mod stream;
 pub mod mixer;
-// pub mod effects;
+pub mod effects;
 // pub mod export;
 
 /// オーディオエンジンのエントリポイント
