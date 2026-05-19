@@ -1,10 +1,12 @@
 //! MCPサーバーの初期化およびルーティングを行うモジュール。
 //! Tokioランタイム上で非同期に動作します。
 
+pub mod transport;
+
 /// AIエージェントと通信するためのMCP(Model Context Protocol)サーバー。
 #[derive(Default)]
 pub struct McpServer {
-    // 将来的にルーティング情報やチャンネルなどを保持します
+    pub transport_handler: transport::TransportHandler,
 }
 
 impl McpServer {
