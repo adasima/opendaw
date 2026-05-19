@@ -20,6 +20,8 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
 
             ui.separator();
 
+            let mut opened_effect_id = None;
+
             // 各トラックのミキサーコントロールを水平スクロール領域に表示
             egui::ScrollArea::horizontal().show(ui, |ui| {
                 ui.horizontal(|ui| {
@@ -52,11 +54,19 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                                     if ui.button(solo_text).on_hover_text("Solo").clicked() {
                                         track.toggle_solo();
                                     }
+
+                                    if ui.button("FX").on_hover_text("Effects").clicked() {
+                                        opened_effect_id = Some(track.id);
+                                    }
                                 });
                             });
                         });
                     }
                 });
             });
+
+            if let Some(id) = opened_effect_id {
+                app.opened_effect_track_id = Some(id);
+            }
         });
 }
