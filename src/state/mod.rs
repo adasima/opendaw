@@ -4,18 +4,22 @@
 //! UIスレッドとオーディオスレッドの両方から参照される共有状態。
 
 // Phase 3 で実装予定
-// pub mod project;   // プロジェクトの保存/読み込み
+// pub mod project;
+pub mod project;
+pub use project::ProjectState;
 pub mod track;        // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
 
 use crate::midi::sequence::Sequence;
 
-/// プロジェクト状態の将来のエントリポイント（Phase 3 で実装予定）
-pub struct ProjectState;
+
 
 /// DAW のコア状態を管理する構造体
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct DawState {
+    #[serde(skip, default)]
     pub is_playing: bool,
     pub is_looping: bool,
+    #[serde(skip, default)]
     pub playhead_pos: f32,
     pub master_volume: f32,
     pub is_muted: bool,

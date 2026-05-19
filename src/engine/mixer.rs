@@ -281,7 +281,7 @@ mod tests {
         let mut effect = MockGainEffect { gain: 0.5 };
         let mut effects: [&mut dyn AudioEffect; 1] = [&mut effect];
 
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
@@ -303,7 +303,7 @@ mod tests {
     fn test_mix_tracks_invalid_channels() {
         let mut out = vec![0.0; 4];
         let samples = vec![1.0, 1.0, 1.0];
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 0, // 0チャンネルはエラーにならないようにスキップされる
             volume: 1.0,
@@ -316,7 +316,7 @@ mod tests {
         mix_tracks(&mut out, 2, &mut [track]);
         assert_eq!(out, vec![0.0, 0.0, 0.0, 0.0]);
 
-        let mut track2 = TrackMixData {
+        let track2 = TrackMixData {
             samples: &samples,
             channels: 3, // 3チャンネル以上も現在未対応なのでスキップされる
             volume: 1.0,
