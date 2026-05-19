@@ -57,25 +57,27 @@
 
 ---
 
-## Phase 4: MIDI & シーケンシング (進行中)
+## Phase 4: MIDI & シーケンシング ✅
 
 ### 完了済み
 - [x] @B midir を使った MIDI デバイスの列挙・接続を実装する (対象: Cargo.toml, src/midi/mod.rs, src/midi/device.rs)
 - [x] @B MIDI メッセージの受信とパースを実装する (対象: src/midi/message.rs)
 - [x] @B MIDI ノートイベントのシーケンスデータ構造を定義する (対象: src/midi/sequence.rs)
 
-- [ ] [1] nova: @A src/ui/piano_roll.rs を作成し、ピアノロールUIのスケルトンを定義・表示する (対象: src/ui/piano_roll.rs, src/ui/mod.rs, src/app.rs)
-- [ ] [2] nova: @B src/state/mod.rs に MIDI シーケンス (Sequence) を保持する機能を追加する (対象: src/state/mod.rs)
-- [ ] [3] nova: @A src/ui/piano_roll.rs を更新し、マウスクリックによるノートの追加・削除UIを実装する (対象: src/ui/piano_roll.rs)
+- [x] [1] nova: @A src/ui/piano_roll.rs を作成し、ピアノロールUIのスケルトンを定義・表示する (対象: src/ui/piano_roll.rs, src/ui/mod.rs, src/app.rs)
+- [x] [2] nova: @B src/state/mod.rs に MIDI シーケンス (Sequence) を保持する機能を追加する (対象: src/state/mod.rs)
+- [x] [3] nova: @A src/ui/piano_roll.rs を更新し、マウスクリックによるノートの追加・削除UIを実装する (対象: src/ui/piano_roll.rs)
 
 ---
 
-## Phase 5: エフェクト & プロセッシング
+## Phase 5: エフェクト & プロセッシング (進行中)
 
-- [ ] `nova:` エフェクトチェーンの抽象化（AudioEffect トレイト）を定義する (対象: src/engine/effects/mod.rs)
-- [ ] `nova:` Gain エフェクトを実装する（最もシンプルなエフェクトとして） (対象: src/engine/effects/gain.rs)
-- [ ] `nova:` ローパスフィルター（Biquad）を実装する (対象: src/engine/effects/filter.rs)
-- [ ] `nova:` エフェクトチェーンUIを実装する（追加・削除・並び替え） (対象: src/ui/effects.rs)
+- [ ] [1] nova: @A src/engine/effects/mod.rs を作成し、エフェクトチェーンの抽象化（AudioEffect トレイト）を定義する (対象: src/engine/effects/mod.rs)
+- [ ] [2] nova: @A src/engine/effects/gain.rs を作成し、Gain エフェクトを実装する (対象: src/engine/effects/gain.rs, src/engine/effects/mod.rs)
+- [ ] [3] nova: @A src/engine/effects/filter.rs を作成し、ローパスフィルター（Biquad）を実装する (対象: src/engine/effects/filter.rs, src/engine/effects/mod.rs)
+- [ ] [4] nova: @B src/state/track.rs を更新し、トラックごとにエフェクト設定を保持するデータ構造を追加する (対象: src/state/track.rs)
+- [ ] [5] nova: @A src/engine/mixer.rs を更新し、ミキシング時に各トラックのエフェクトチェーンを適用する処理を追加する (対象: src/engine/mixer.rs)
+- [ ] [6] nova: @B src/ui/effects.rs を作成し、トラックのエフェクトチェーンを編集するUIを実装する (対象: src/ui/effects.rs, src/ui/mod.rs, src/app.rs)
 
 ---
 
