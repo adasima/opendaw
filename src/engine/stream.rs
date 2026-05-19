@@ -83,16 +83,18 @@ pub fn build_output_stream(
                         let remaining_samples = ctx.buffer.samples.len().saturating_sub(pos);
                         let samples_to_read = remaining_samples.min(data.len());
 
-                        let track_data = crate::engine::mixer::TrackMixData {
+                        #[allow(unused_mut)]
+                        let mut track_data = crate::engine::mixer::TrackMixData {
                             samples: &ctx.buffer.samples[pos..pos + samples_to_read],
                             channels: ctx.buffer.channels,
                             volume: 1.0,
                             pan: 0.0,
                             is_muted: false,
                             is_solo: false,
+                            effects: &mut [],
                         };
 
-                        crate::engine::mixer::mix_tracks(data, channels, &[track_data]);
+                        crate::engine::mixer::mix_tracks(data, channels, &mut [track_data]);
                         pos += samples_to_read;
                         ctx.position.store(pos, Ordering::Relaxed);
                         handled = true;
@@ -138,16 +140,18 @@ pub fn build_output_stream(
                             let samples_to_read = remaining_samples.min(chunk_len);
                             let mix_slice = &mut mix_buf[..chunk_len];
 
-                            let track_data = crate::engine::mixer::TrackMixData {
+                            #[allow(unused_mut)]
+                            let mut track_data = crate::engine::mixer::TrackMixData {
                                 samples: &ctx.buffer.samples[current_pos..current_pos + samples_to_read],
                                 channels: ctx.buffer.channels,
                                 volume: 1.0,
                                 pan: 0.0,
                                 is_muted: false,
                                 is_solo: false,
+                                effects: &mut [],
                             };
 
-                            crate::engine::mixer::mix_tracks(mix_slice, channels, &[track_data]);
+                            crate::engine::mixer::mix_tracks(mix_slice, channels, &mut [track_data]);
 
                             for (i, &f_sample) in mix_slice.iter().enumerate() {
                                 chunk[i] = (f_sample * i16::MAX as f32) as i16;
