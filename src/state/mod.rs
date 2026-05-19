@@ -3,16 +3,20 @@
 //! プロジェクト全体の状態（トラック構成、再生位置、設定など）を管理する。
 //! UIスレッドとオーディオスレッドの両方から参照される共有状態。
 
+use serde::{Deserialize, Serialize};
+
 // Phase 3 で実装予定
-// pub mod project;   // プロジェクトの保存/読み込み
+pub mod project;   // プロジェクトの保存/読み込み
 pub mod track;        // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
 
 use crate::midi::sequence::Sequence;
 
 /// プロジェクト状態の将来のエントリポイント（Phase 3 で実装予定）
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ProjectState;
 
 /// DAW のコア状態を管理する構造体
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DawState {
     pub is_playing: bool,
     pub is_looping: bool,
