@@ -43,11 +43,10 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut AuraDawApp) {
                 ui.group(|ui| {
                     ui.horizontal(|ui| {
                         let effect_id = track.effects[i].id;
-                        let effect_type = track.effects[i].effect_type.clone();
 
                         ui.checkbox(&mut track.effects[i].is_enabled, "");
 
-                        let effect_name = match effect_type {
+                        let effect_name = match track.effects[i].effect_type {
                             EffectType::Gain => "Gain",
                             EffectType::Filter => "Filter",
                         };
