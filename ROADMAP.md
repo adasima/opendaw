@@ -93,7 +93,7 @@
 
 ## Phase 7: AI統合 & MCP (進行中)
 
-- [ ] [1] nova: @A src/mcp/mod.rs を作成し、MCP サーバーのスケルトンを Tokio ランタイム上に構築する (対象: src/mcp/mod.rs)
-- [ ] [2] nova: @A src/mcp/transport.rs を作成し、MCP 経由でトランスポートコントロール（再生・停止など）を操作するハンドラを実装する (対象: src/mcp/transport.rs, src/mcp/mod.rs)
+- [x] [1] nova: @A src/mcp/mod.rs を作成し、MCP サーバーのスケルトンを Tokio ランタイム上に構築する (対象: src/mcp/mod.rs)
+- [x] [2] nova: @A src/mcp/transport.rs を作成し、MCP 経由でトランスポートコントロール（再生・停止など）を操作するハンドラを実装する (対象: src/mcp/transport.rs, src/mcp/mod.rs)
 - [ ] [3] nova: @A src/mcp/tracks.rs を作成し、MCP 経由でトラックの追加・削除操作を行うハンドラを実装する (対象: src/mcp/tracks.rs, src/mcp/mod.rs)
-- [ ] [4] nova: @A src/mcp/mod.rs を更新し、main.rs の Tokio ランタイムから MCP サーバーを起動するように統合する (対象: src/main.rs, src/mcp/mod.rs)
+- [ ] [4] nova: @B main.rs の Tokio ランタイムから MCP サーバーを起動するように統合する (対象: src/main.rs)
