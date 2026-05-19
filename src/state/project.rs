@@ -15,6 +15,22 @@ impl ProjectState {
     pub fn new(daw_state: DawState) -> Self {
         Self { daw_state }
     }
+
+    /// プロジェクト状態をファイルに保存します。
+    pub fn save_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
+        let file = std::fs::File::create(path)?;
+        let writer = std::io::BufWriter::new(file);
+        bincode::serialize_into(writer, self)
+            .map_err(std::io::Error::other)
+    }
+
+    /// ファイルからプロジェクト状態を読み込みます。
+    pub fn load_from_file<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<Self> {
+        let file = std::fs::File::open(path)?;
+        let reader = std::io::BufReader::new(file);
+        bincode::deserialize_from(reader)
+            .map_err(std::io::Error::other)
+    }
 }
 
 #[cfg(test)]
@@ -48,5 +64,28 @@ mod tests {
         // 一時的な状態はデフォルト値(false, 0.0)に戻っているか確認
         assert!(!decoded.daw_state.is_playing);
         assert_eq!(decoded.daw_state.playhead_pos, 0.0);
+    }
+
+    #[test]
+    fn test_save_load_file() {
+        let mut state = ProjectState::default();
+        state.daw_state.bpm = 125.0;
+        state.daw_state.add_track("File Track");
+
+        // 一時ファイルへの保存
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join("test_project_state.bincode");
+
+        state.save_to_file(&file_path).expect("Failed to save to file");
+
+        // ファイルからの読み込み
+        let loaded_state = ProjectState::load_from_file(&file_path).expect("Failed to load from file");
+
+        assert_eq!(loaded_state.daw_state.bpm, 125.0);
+        assert_eq!(loaded_state.daw_state.tracks.len(), 1);
+        assert_eq!(loaded_state.daw_state.tracks[0].name, "File Track");
+
+        // 一時ファイルの削除
+        let _ = std::fs::remove_file(file_path);
     }
 }
