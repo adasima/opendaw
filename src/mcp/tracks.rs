@@ -6,13 +6,14 @@
 /// トラック操作のハンドラ
 #[derive(Default)]
 pub struct TracksHandler {
+    pub sender: Option<crate::mcp::channel::McpCommandSender>,
     // 将来的にUiChannelsやSharedStateなどを持つ
 }
 
 impl TracksHandler {
     /// 新しい `TracksHandler` インスタンスを作成します。
     pub fn new() -> Self {
-        Self::default()
+        Self { sender: None }
     }
 
     /// 新しいトラックを追加します。
@@ -20,13 +21,19 @@ impl TracksHandler {
         // Phase 7タスク仕様に基づき、今回はMCP側のスケルトン実装に留めます。
         // 将来的にtokioチャンネルを使用してUIスレッド（app.rs）と連携します。
         log::info!("MCP: Track added");
+        if let Some(sender) = &self.sender {
+            let _ = sender.try_send(crate::mcp::channel::McpCommand::AddTrack);
+        }
         Ok(())
     }
 
     /// 指定したトラックを削除します。
-    pub async fn remove_track(&self, _track_id: usize) -> Result<(), String> {
+    pub async fn remove_track(&self, track_id: usize) -> Result<(), String> {
         // 将来的にUIスレッドにトラック削除メッセージを送信します
         log::info!("MCP: Track removed");
+        if let Some(sender) = &self.sender {
+            let _ = sender.try_send(crate::mcp::channel::McpCommand::RemoveTrack(track_id));
+        }
         Ok(())
     }
 }
