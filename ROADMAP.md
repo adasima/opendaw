@@ -91,9 +91,20 @@
 
 ---
 
-## Phase 7: AI統合 & MCP (進行中)
+## Phase 7: AI統合 & MCP ✅
+### 完了済み
+
 
 - [x] [1] nova: @A src/mcp/mod.rs を作成し、MCP サーバーのスケルトンを Tokio ランタイム上に構築する (対象: src/mcp/mod.rs)
 - [x] [2] nova: @A src/mcp/transport.rs を作成し、MCP 経由でトランスポートコントロール（再生・停止など）を操作するハンドラを実装する (対象: src/mcp/transport.rs, src/mcp/mod.rs)
-- [ ] [3] nova: @A src/mcp/tracks.rs を作成し、MCP 経由でトラックの追加・削除操作を行うハンドラを実装する (対象: src/mcp/tracks.rs, src/mcp/mod.rs)
-- [ ] [4] nova: @B main.rs の Tokio ランタイムから MCP サーバーを起動するように統合する (対象: src/main.rs)
+- [x] [3] nova: @A src/mcp/tracks.rs を作成し、MCP 経由でトラックの追加・削除操作を行うハンドラを実装する (対象: src/mcp/tracks.rs, src/mcp/mod.rs)
+- [x] [4] nova: @B main.rs の Tokio ランタイムから MCP サーバーを起動するように統合する (対象: src/main.rs)
+
+---
+
+## Phase 8: MCPとUIスレッドの連携実装 (進行中)
+
+- [ ] [1] nova: @A src/mcp/channel.rs を作成し、MCPサーバーからUIへのコマンド送信用に crossbeam-channel を定義する (対象: src/mcp/channel.rs, src/mcp/mod.rs)
+- [ ] [2] nova: @A src/mcp/transport.rs を更新し、crossbeam-channel を通じてUIへトランスポートコマンドを送信する (対象: src/mcp/transport.rs)
+- [ ] [3] nova: @A src/mcp/tracks.rs を更新し、crossbeam-channel を通じてUIへトラック操作コマンドを送信する (対象: src/mcp/tracks.rs)
+- [ ] [4] nova: @B src/app.rs を更新し、MCPチャネルからコマンドを受信して状態を更新する処理を実装する (対象: src/app.rs)
