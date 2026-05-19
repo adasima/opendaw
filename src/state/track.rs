@@ -4,6 +4,7 @@
 
 /// エフェクトの種類
 #[derive(Clone, Debug, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub enum EffectType {
     /// ゲインエフェクト
     Gain,
@@ -13,6 +14,7 @@ pub enum EffectType {
 
 /// トラックに適用されるエフェクトの設定
 #[derive(Clone, Debug, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct EffectSetting {
     /// エフェクトの一意なID
     pub id: usize,
@@ -35,6 +37,7 @@ impl EffectSetting {
 
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Track {
     /// トラックの一意なID
     pub id: usize,
