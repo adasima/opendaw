@@ -28,6 +28,7 @@ src/
 │   ├── audio_file.rs    # オーディオファイル読み込み (hound, symphonia)
 │   ├── mixer.rs         # マルチトラックミキシング
 │   ├── export.rs        # WAVエクスポート（オフラインレンダリング）
+│   ├── synth.rs         # シンセサイザー基盤実装
 │   └── effects/         # オーディオエフェクト
 │       ├── mod.rs       # AudioEffect トレイト定義
 │       ├── gain.rs      # ゲインエフェクト
