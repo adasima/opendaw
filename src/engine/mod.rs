@@ -107,8 +107,8 @@ impl AudioEngine {
         let channels = self.channels.take();
         let context = PlaybackContext {
             buffer,
-            position: self.position.clone(),
-            playing: self.playing.clone(),
+            position: Arc::clone(&self.position),
+            playing: Arc::clone(&self.playing),
             channels,
         };
         if let Ok(stream) = build_output_stream(
