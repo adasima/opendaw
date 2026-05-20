@@ -41,6 +41,7 @@ ROADMAP.md のタスクには `@A`, `@B`, `@C` 等のスロットタグが付い
 - `unsafe` ブロックの新規追加（既存の unsafe の修正は可）
 - ROADMAP.md, ARCHITECTURE.md, DESIGN.md の変更（Architectの領域）
 - 既存テストの削除
+- **聖域ディレクトリ（`src/core/`, `src/plugin/` 等）の変更**: これらは人間が管理するコア基盤です。外部APIとして呼び出すことのみ許可され、Nova自身がこれらのファイル内を直接編集することは禁止されています。
 
 ## ⚡ リアルタイムオーディオの鉄則
 `engine/` モジュール内のオーディオコールバック（cpal の stream callback）では以下を **絶対に** 行わないこと:
