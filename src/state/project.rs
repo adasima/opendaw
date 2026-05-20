@@ -44,6 +44,12 @@ mod tests {
         state.daw_state.bpm = 140.0;
         state.daw_state.master_volume = 0.5;
         state.daw_state.add_track("Test Track");
+        if let Some(track) = state.daw_state.tracks.first_mut() {
+            track.synth = Some(crate::state::track::SynthState {
+                synth_type: crate::state::track::SynthType::SineOscillator,
+                is_enabled: true,
+            });
+        }
 
         // 一時的な状態の変更 (これらはシリアライズされないはず)
         state.daw_state.is_playing = true;
@@ -60,6 +66,11 @@ mod tests {
         assert_eq!(decoded.daw_state.master_volume, 0.5);
         assert_eq!(decoded.daw_state.tracks.len(), 1);
         assert_eq!(decoded.daw_state.tracks[0].name, "Test Track");
+        assert!(decoded.daw_state.tracks[0].synth.is_some());
+        assert_eq!(
+            decoded.daw_state.tracks[0].synth.as_ref().unwrap().synth_type,
+            crate::state::track::SynthType::SineOscillator
+        );
 
         // 一時的な状態はデフォルト値(false, 0.0)に戻っているか確認
         assert!(!decoded.daw_state.is_playing);

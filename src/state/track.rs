@@ -35,9 +35,28 @@ impl EffectSetting {
     }
 }
 
+/// シンセサイザーの種類
+#[derive(Clone, Debug, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub enum SynthType {
+    /// サイン波オシレータ
+    SineOscillator,
+}
+
+/// トラックのシンセサイザー状態
+#[derive(Clone, Debug, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct SynthState {
+    /// シンセの種類
+    pub synth_type: SynthType,
+    /// 有効かどうか
+    pub is_enabled: bool,
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug)]
 #[derive(serde::Serialize, serde::Deserialize)]
+
 pub struct Track {
     /// トラックの一意なID
     pub id: usize,
@@ -53,6 +72,9 @@ pub struct Track {
     pub is_solo: bool,
     /// トラックに適用されるエフェクトチェーン
     pub effects: Vec<EffectSetting>,
+    /// シンセサイザー状態
+    #[serde(default)]
+    pub synth: Option<SynthState>,
 }
 
 impl Track {
@@ -66,6 +88,7 @@ impl Track {
             is_muted: false,
             is_solo: false,
             effects: Vec::new(),
+            synth: None,
         }
     }
 
@@ -129,6 +152,7 @@ mod tests {
         assert!(!track.is_muted);
         assert!(!track.is_solo);
         assert!(track.effects.is_empty());
+        assert_eq!(track.synth, None);
     }
 
     #[test]
