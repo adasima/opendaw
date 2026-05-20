@@ -116,5 +116,4 @@
 ## Phase 9: パフォーマンスとコード品質の向上 (進行中)
 
 - [ ] [1] warden: src/engine/audio_file.rs のオーディオコールバック内から呼び出される可能性のある箇所の `Vec::new()` を除去する (対象: src/engine/audio_file.rs)
-- [ ] [2] warden: src/engine/export.rs のファイル操作エラーハンドリング時の `format!` を除去する (対象: src/engine/export.rs)
-- [ ] [3] warden: src/engine/mod.rs の `AudioEngine::default()` 内での `clone()` 使用を修正する (対象: src/engine/mod.rs)
+- [ ] [2] warden: src/engine/mod.rs の `start_stream` (または該当箇所) 内での不要な `clone()` 使用を修正する (対象: src/engine/mod.rs)
