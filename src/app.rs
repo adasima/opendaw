@@ -189,33 +189,33 @@ mod tests {
     }
 
     #[test]
-    fn test_app_poll_mcp_commands() {
+    fn test_app_poll_mcp_commands() -> Result<(), Box<dyn std::error::Error>> {
         let mut app = AuraDawApp::default();
         let (tx, rx) = crate::mcp::channel::create_mcp_channel(10);
         app.mcp_receiver = Some(rx);
 
         // Play command
-        tx.send(crate::mcp::channel::McpCommand::Play).unwrap();
+        tx.send(crate::mcp::channel::McpCommand::Play)?;
         app.poll_mcp_commands();
         assert!(app.state.is_playing);
 
         // Stop command
-        tx.send(crate::mcp::channel::McpCommand::Stop).unwrap();
+        tx.send(crate::mcp::channel::McpCommand::Stop)?;
         app.poll_mcp_commands();
         assert!(!app.state.is_playing);
 
         // AddTrack command
         assert_eq!(app.state.tracks.len(), 0);
-        tx.send(crate::mcp::channel::McpCommand::AddTrack).unwrap();
+        tx.send(crate::mcp::channel::McpCommand::AddTrack)?;
         app.poll_mcp_commands();
         assert_eq!(app.state.tracks.len(), 1);
         assert_eq!(app.state.tracks[0].name, "New Track (MCP)");
 
         // RemoveTrack command
         let track_id = app.state.tracks[0].id;
-        tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id))
-            .unwrap();
+        tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id))?;
         app.poll_mcp_commands();
         assert_eq!(app.state.tracks.len(), 0);
+        Ok(())
     }
 }
