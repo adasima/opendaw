@@ -16,6 +16,9 @@ The following operations are available on each track's panel:
 2. Drag the **Pan** slider left or right to adjust the track's panning (left-right positioning).
 3. Click the **M** or **M (On)** button to toggle the mute state of the track.
 4. Click the **S** or **S (On)** button to toggle the solo state of the track.
+5. Click the **FX** button to open the effects settings screen for the track.
+6. Click the **Synth** checkbox to toggle the synthesizer enabled/disabled.
+7. When Synth is enabled, drag the **Freq (Hz)** slider to adjust the synthesizer frequency.
 
 ## Detailed Settings
 The mixer panel manipulates the following parameters.
@@ -33,6 +36,9 @@ The mixer panel manipulates the following parameters.
 | Pan | Panning (left-right positioning) | 0.0 | -1.0 (Left) to 1.0 (Right) |
 | Mute | The mute state for the track | Off (M) | On (M (On)) / Off (M) |
 | Solo | The solo state. If On, only tracks with Solo set to On will be played | Off (S) | On (S (On)) / Off (S) |
+| FX | Open the effects settings screen | - | - |
+| Synth | The enabled/disabled state of the synthesizer | Off | On / Off |
+| Freq (Hz) | The frequency of the synthesizer (only when Synth is On) | 440.0 | 20.0 to 20000.0 |
 
 ## Keyboard Shortcuts
 In the current version, there are no keyboard shortcuts dedicated to mixer operations.
