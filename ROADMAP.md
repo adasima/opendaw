@@ -102,9 +102,19 @@
 
 ---
 
-## Phase 8: MCPとUIスレッドの連携実装 (進行中)
+## Phase 8: MCPとUIスレッドの連携実装 ✅
 
-- [ ] [1] nova: @A src/mcp/channel.rs を作成し、MCPサーバーからUIへのコマンド送信用に crossbeam-channel を定義する (対象: src/mcp/channel.rs, src/mcp/mod.rs)
-- [ ] [2] nova: @A src/mcp/transport.rs を更新し、crossbeam-channel を通じてUIへトランスポートコマンドを送信する (対象: src/mcp/transport.rs)
-- [ ] [3] nova: @A src/mcp/tracks.rs を更新し、crossbeam-channel を通じてUIへトラック操作コマンドを送信する (対象: src/mcp/tracks.rs)
-- [ ] [4] nova: @B src/app.rs を更新し、MCPチャネルからコマンドを受信して状態を更新する処理を実装する (対象: src/app.rs)
+### 完了済み
+
+- [x] [1] nova: @A src/mcp/channel.rs を作成し、MCPサーバーからUIへのコマンド送信用に crossbeam-channel を定義する (対象: src/mcp/channel.rs, src/mcp/mod.rs)
+- [x] [2] nova: @A src/mcp/transport.rs を更新し、crossbeam-channel を通じてUIへトランスポートコマンドを送信する (対象: src/mcp/transport.rs)
+- [x] [3] nova: @A src/mcp/tracks.rs を更新し、crossbeam-channel を通じてUIへトラック操作コマンドを送信する (対象: src/mcp/tracks.rs)
+- [x] [4] nova: @B src/app.rs を更新し、MCPチャネルからコマンドを受信して状態を更新する処理を実装する (対象: src/app.rs)
+
+---
+
+## Phase 9: パフォーマンスとコード品質の向上 (進行中)
+
+- [ ] [1] warden: src/engine/audio_file.rs のオーディオコールバック内から呼び出される可能性のある箇所の `Vec::new()` を除去する (対象: src/engine/audio_file.rs)
+- [ ] [2] warden: src/engine/export.rs のファイル操作エラーハンドリング時の `format!` を除去する (対象: src/engine/export.rs)
+- [ ] [3] warden: src/engine/mod.rs の `AudioEngine::default()` 内での `clone()` 使用を修正する (対象: src/engine/mod.rs)

@@ -46,6 +46,7 @@ src/
 │
 ├── mcp/                 # MCPサーバー（AI統合）
 │   ├── mod.rs           # MCPサーバー起動・ルーティング
+│   ├── channel.rs       # MCPとUI間の通信チャンネル (crossbeam-channel)
 │   ├── transport.rs     # トランスポート操作ハンドラ
 │   └── tracks.rs        # トラック操作ハンドラ
 │
