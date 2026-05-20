@@ -1,10 +1,10 @@
-use cpal::traits::DeviceTrait;
-use cpal::{Device, Stream, StreamConfig, SampleFormat};
 use crate::engine::audio_file::AudioBuffer;
-use crate::engine::channel::{AudioChannels, UiToAudioMsg, AudioToUiMsg};
+use crate::engine::channel::{AudioChannels, AudioToUiMsg, UiToAudioMsg};
+use cpal::traits::DeviceTrait;
+use cpal::{Device, SampleFormat, Stream, StreamConfig};
 use ringbuf::traits::{Consumer, Producer};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 /// オーディオストリームの構築エラー
 #[derive(Debug)]
@@ -62,123 +62,150 @@ pub fn build_output_stream(
 
     let stream = match sample_format {
         SampleFormat::F32 => {
-            device.build_output_stream(
-                config,
-                move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-                    if let Some(ctx) = context.as_mut() {
-                        let channels_opt = ctx.channels.as_mut();
-                        if let Some(channels) = channels_opt {
-                            while let Some(msg) = channels.0.try_pop() {
-                                match msg {
-                                    UiToAudioMsg::SetPlaying(playing) => ctx.playing.store(playing, Ordering::Relaxed),
+            device
+                .build_output_stream(
+                    config,
+                    move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+                        if let Some(ctx) = context.as_mut() {
+                            let channels_opt = ctx.channels.as_mut();
+                            if let Some(channels) = channels_opt {
+                                while let Some(msg) = channels.0.try_pop() {
+                                    match msg {
+                                        UiToAudioMsg::SetPlaying(playing) => {
+                                            ctx.playing.store(playing, Ordering::Relaxed)
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    let mut handled = false;
-                    if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
-                        let mut pos = ctx.position.load(Ordering::Relaxed);
+                        let mut handled = false;
+                        if let Some(ctx) = context
+                            .as_ref()
+                            .filter(|c| c.playing.load(Ordering::Relaxed))
+                        {
+                            let mut pos = ctx.position.load(Ordering::Relaxed);
 
-                        let remaining_samples = ctx.buffer.samples.len().saturating_sub(pos);
-                        let samples_to_read = remaining_samples.min(data.len());
-
-                        #[allow(unused_mut)]
-                        let mut track_data = crate::engine::mixer::TrackMixData {
-                            samples: &ctx.buffer.samples[pos..pos + samples_to_read],
-                            channels: ctx.buffer.channels,
-                            volume: 1.0,
-                            pan: 0.0,
-                            is_muted: false,
-                            is_solo: false,
-                            effects: &mut [],
-                        };
-
-                        crate::engine::mixer::mix_tracks(data, channels, &mut [track_data]);
-                        pos += samples_to_read;
-                        ctx.position.store(pos, Ordering::Relaxed);
-                        handled = true;
-                    }
-                    if !handled {
-                        write_silence_f32(data, channels);
-                    }
-
-                    if let Some(ctx) = context.as_mut() {
-                        let channels_opt = ctx.channels.as_mut();
-                        if let Some(channels) = channels_opt {
-                            let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(ctx.position.load(Ordering::Relaxed) as f32));
-                        }
-                    }
-                },
-                err_fn,
-                None, // タイムアウトなし
-            ).map_err(StreamBuildError::CpalError)?
-        },
-        SampleFormat::I16 => {
-            let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
-            device.build_output_stream(
-                config,
-                move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
-                    if let Some(ctx) = context.as_mut() {
-                        let channels_opt = ctx.channels.as_mut();
-                        if let Some(channels) = channels_opt {
-                            while let Some(msg) = channels.0.try_pop() {
-                                match msg {
-                                    UiToAudioMsg::SetPlaying(playing) => ctx.playing.store(playing, Ordering::Relaxed),
-                                }
-                            }
-                        }
-                    }
-
-                    let mut handled = false;
-                    if let Some(ctx) = context.as_ref().filter(|c| c.playing.load(Ordering::Relaxed)) {
-                        let mut current_pos = ctx.position.load(Ordering::Relaxed);
-                        let mut remaining_samples = ctx.buffer.samples.len().saturating_sub(current_pos);
-
-                        for chunk in data.chunks_mut(mix_buf.len()) {
-                            let chunk_len = chunk.len();
-                            let samples_to_read = remaining_samples.min(chunk_len);
-                            let mix_slice = &mut mix_buf[..chunk_len];
+                            let remaining_samples = ctx.buffer.samples.len().saturating_sub(pos);
+                            let samples_to_read = remaining_samples.min(data.len());
 
                             #[allow(unused_mut)]
                             let mut track_data = crate::engine::mixer::TrackMixData {
-                                samples: &ctx.buffer.samples[current_pos..current_pos + samples_to_read],
+                                samples: &ctx.buffer.samples[pos..pos + samples_to_read],
                                 channels: ctx.buffer.channels,
                                 volume: 1.0,
                                 pan: 0.0,
                                 is_muted: false,
                                 is_solo: false,
                                 effects: &mut [],
+                                oscillator: None,
                             };
 
-                            crate::engine::mixer::mix_tracks(mix_slice, channels, &mut [track_data]);
+                            crate::engine::mixer::mix_tracks(data, channels, &mut [track_data]);
+                            pos += samples_to_read;
+                            ctx.position.store(pos, Ordering::Relaxed);
+                            handled = true;
+                        }
+                        if !handled {
+                            write_silence_f32(data, channels);
+                        }
 
-                            for (i, &f_sample) in mix_slice.iter().enumerate() {
-                                chunk[i] = (f_sample * i16::MAX as f32) as i16;
+                        if let Some(ctx) = context.as_mut() {
+                            let channels_opt = ctx.channels.as_mut();
+                            if let Some(channels) = channels_opt {
+                                let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(
+                                    ctx.position.load(Ordering::Relaxed) as f32,
+                                ));
+                            }
+                        }
+                    },
+                    err_fn,
+                    None, // タイムアウトなし
+                )
+                .map_err(StreamBuildError::CpalError)?
+        }
+        SampleFormat::I16 => {
+            let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
+            device
+                .build_output_stream(
+                    config,
+                    move |data: &mut [i16], _: &cpal::OutputCallbackInfo| {
+                        if let Some(ctx) = context.as_mut() {
+                            let channels_opt = ctx.channels.as_mut();
+                            if let Some(channels) = channels_opt {
+                                while let Some(msg) = channels.0.try_pop() {
+                                    match msg {
+                                        UiToAudioMsg::SetPlaying(playing) => {
+                                            ctx.playing.store(playing, Ordering::Relaxed)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        let mut handled = false;
+                        if let Some(ctx) = context
+                            .as_ref()
+                            .filter(|c| c.playing.load(Ordering::Relaxed))
+                        {
+                            let mut current_pos = ctx.position.load(Ordering::Relaxed);
+                            let mut remaining_samples =
+                                ctx.buffer.samples.len().saturating_sub(current_pos);
+
+                            for chunk in data.chunks_mut(mix_buf.len()) {
+                                let chunk_len = chunk.len();
+                                let samples_to_read = remaining_samples.min(chunk_len);
+                                let mix_slice = &mut mix_buf[..chunk_len];
+
+                                #[allow(unused_mut)]
+                                let mut track_data = crate::engine::mixer::TrackMixData {
+                                    samples: &ctx.buffer.samples
+                                        [current_pos..current_pos + samples_to_read],
+                                    channels: ctx.buffer.channels,
+                                    volume: 1.0,
+                                    pan: 0.0,
+                                    is_muted: false,
+                                    is_solo: false,
+                                    effects: &mut [],
+                                    oscillator: None,
+                                };
+
+                                crate::engine::mixer::mix_tracks(
+                                    mix_slice,
+                                    channels,
+                                    &mut [track_data],
+                                );
+
+                                for (i, &f_sample) in mix_slice.iter().enumerate() {
+                                    chunk[i] = (f_sample * i16::MAX as f32) as i16;
+                                }
+
+                                current_pos += samples_to_read;
+                                remaining_samples =
+                                    remaining_samples.saturating_sub(samples_to_read);
                             }
 
-                            current_pos += samples_to_read;
-                            remaining_samples = remaining_samples.saturating_sub(samples_to_read);
+                            ctx.position.store(current_pos, Ordering::Relaxed);
+                            handled = true;
+                        }
+                        if !handled {
+                            write_silence_i16(data, channels);
                         }
 
-                        ctx.position.store(current_pos, Ordering::Relaxed);
-                        handled = true;
-                    }
-                    if !handled {
-                        write_silence_i16(data, channels);
-                    }
-
-                    if let Some(ctx) = context.as_mut() {
-                        let channels_opt = ctx.channels.as_mut();
-                        if let Some(channels) = channels_opt {
-                            let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(ctx.position.load(Ordering::Relaxed) as f32));
+                        if let Some(ctx) = context.as_mut() {
+                            let channels_opt = ctx.channels.as_mut();
+                            if let Some(channels) = channels_opt {
+                                let _ = channels.1.try_push(AudioToUiMsg::PlaybackPosition(
+                                    ctx.position.load(Ordering::Relaxed) as f32,
+                                ));
+                            }
                         }
-                    }
-                },
-                err_fn,
-                None, // タイムアウトなし
-            ).map_err(StreamBuildError::CpalError)?
-        },
+                    },
+                    err_fn,
+                    None, // タイムアウトなし
+                )
+                .map_err(StreamBuildError::CpalError)?
+        }
         _ => return Err(StreamBuildError::UnsupportedFormat(sample_format)),
     };
 

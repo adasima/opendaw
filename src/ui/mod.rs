@@ -1,9 +1,9 @@
-pub mod project;
 pub mod ai_agent;
 pub mod effects;
 pub mod import;
 pub mod mixer;
 pub mod piano_roll;
+pub mod project;
 pub mod timeline;
 pub mod tracks;
 pub mod transport;

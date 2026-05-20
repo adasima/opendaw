@@ -9,7 +9,8 @@ const BG_ROUNDING: f32 = 4.0;
 /// メインタイムライン領域（波形描画、プレイヘッドなど）を描画します。
 pub fn draw_timeline(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     // 波形のプレースホルダー領域
-    let (rect, response) = ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
+    let (rect, response) =
+        ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
 
     if let Some(pos) = response
         .interact_pointer_pos()

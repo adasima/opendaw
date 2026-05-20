@@ -1,5 +1,5 @@
-use eframe::egui;
 use crate::app::AuraDawApp;
+use eframe::egui;
 
 /// トラックパネルのID
 const TRACKS_PANEL_ID: &str = "tracks_panel";

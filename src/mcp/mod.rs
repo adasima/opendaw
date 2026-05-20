@@ -1,9 +1,9 @@
 //! MCPサーバーの初期化およびルーティングを行うモジュール。
 //! Tokioランタイム上で非同期に動作します。
 
-pub mod transport;
-pub mod tracks;
 pub mod channel;
+pub mod tracks;
+pub mod transport;
 
 /// AIエージェントと通信するためのMCP(Model Context Protocol)サーバー。
 #[derive(Default)]

@@ -3,8 +3,8 @@
 //! `hound` クレートを使用してWAVファイルを読み込み、
 //! 内部のオーディオ処理で扱いやすい `f32` のバッファに変換します。
 
-use std::path::Path;
 use std::io::{Read, Seek};
+use std::path::Path;
 
 /// WAVファイルから読み込んだオーディオデータを保持する構造体
 #[derive(Debug, Clone, PartialEq)]
@@ -48,7 +48,9 @@ pub fn load_wav_from_reader<R: Read + Seek>(reader: R) -> Result<AudioBuffer, St
 }
 
 /// WavReaderからサンプルを読み込み、-1.0 〜 1.0 に正規化してAudioBufferを生成する
-fn process_wav_reader<R: Read + Seek>(mut reader: hound::WavReader<R>) -> Result<AudioBuffer, String> {
+fn process_wav_reader<R: Read + Seek>(
+    mut reader: hound::WavReader<R>,
+) -> Result<AudioBuffer, String> {
     let spec = reader.spec();
     let sample_rate = spec.sample_rate;
     let channels = spec.channels;
@@ -64,29 +66,37 @@ fn process_wav_reader<R: Read + Seek>(mut reader: hound::WavReader<R>) -> Result
                 24 => 8_388_607.0, // 2^23 - 1
                 32 => i32::MAX as f32,
                 8 => 128.0, // 8-bit is unsigned, but hound returns it as i32 shifted. Actually 8-bit WAV is unsigned (0-255).
-                _ => return Err(format!("Unsupported integer bit depth: {}", spec.bits_per_sample)),
+                _ => {
+                    return Err(format!(
+                        "Unsupported integer bit depth: {}",
+                        spec.bits_per_sample
+                    ));
+                }
             };
 
             if spec.bits_per_sample == 8 {
-                 // 8-bit WAV is unsigned, hound handles it by returning i32.
-                 // Wait, hound returns i32 for all int formats up to 32 bits.
-                 for sample in reader.samples::<i32>() {
-                     let s = sample.map_err(|e| e.to_string())?;
-                     // 8-bit is 0..255, but hound converts it to i32.
-                     // Wait, hound's documentation says: for 8-bit, it returns the value directly (0..255).
-                     // We need to normalize 0..255 to -1.0..1.0
-                     samples.push((s as f32 - 128.0) / 128.0);
-                 }
+                // 8-bit WAV is unsigned, hound handles it by returning i32.
+                // Wait, hound returns i32 for all int formats up to 32 bits.
+                for sample in reader.samples::<i32>() {
+                    let s = sample.map_err(|e| e.to_string())?;
+                    // 8-bit is 0..255, but hound converts it to i32.
+                    // Wait, hound's documentation says: for 8-bit, it returns the value directly (0..255).
+                    // We need to normalize 0..255 to -1.0..1.0
+                    samples.push((s as f32 - 128.0) / 128.0);
+                }
             } else {
-                 for sample in reader.samples::<i32>() {
-                     let s = sample.map_err(|e| e.to_string())?;
-                     samples.push(s as f32 / max_val);
-                 }
+                for sample in reader.samples::<i32>() {
+                    let s = sample.map_err(|e| e.to_string())?;
+                    samples.push(s as f32 / max_val);
+                }
             }
         }
         hound::SampleFormat::Float => {
             if spec.bits_per_sample != 32 {
-                return Err(format!("Unsupported float bit depth: {}", spec.bits_per_sample));
+                return Err(format!(
+                    "Unsupported float bit depth: {}",
+                    spec.bits_per_sample
+                ));
             }
             for sample in reader.samples::<f32>() {
                 let s = sample.map_err(|e| e.to_string())?;

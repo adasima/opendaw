@@ -2,8 +2,8 @@
 //!
 //! 各トラックに適用可能なオーディオエフェクトの抽象化と実装を提供します。
 
-pub mod gain;
 pub mod filter;
+pub mod gain;
 
 /// 全てのオーディオエフェクトが実装すべきトレイト
 pub trait AudioEffect: Send + Sync {

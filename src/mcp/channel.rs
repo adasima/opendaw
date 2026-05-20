@@ -1,5 +1,5 @@
 //! MCPとUI間の通信チャンネル。
-use crossbeam_channel::{bounded, Receiver, Sender};
+use crossbeam_channel::{Receiver, Sender, bounded};
 
 /// MCPサーバーからUIへ送信されるコマンド。
 #[derive(Debug, Clone, PartialEq)]

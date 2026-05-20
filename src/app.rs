@@ -1,5 +1,5 @@
-use eframe::egui;
 use crate::state::DawState;
+use eframe::egui;
 use ringbuf::traits::Producer;
 
 /// OpenDAWのメインアプリケーション状態を保持する構造体。
@@ -26,7 +26,8 @@ pub struct AuraDawApp {
 
 impl Default for AuraDawApp {
     fn default() -> Self {
-        let (ui_channels, audio_channels) = crate::engine::channel::create_channels(CHANNEL_CAPACITY);
+        let (ui_channels, audio_channels) =
+            crate::engine::channel::create_channels(CHANNEL_CAPACITY);
         Self {
             state: DawState::default(),
             audio_engine: crate::engine::AudioEngine::new(),
@@ -42,7 +43,10 @@ impl AuraDawApp {
     /// アプリケーションの新しいインスタンスを作成します。
     ///
     /// ここでカスタムフォントやUIテーマ（ダークテーマ・グラスモーフィズム風）の初期化を行います。
-    pub fn new(cc: &eframe::CreationContext<'_>, mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>) -> Self {
+    pub fn new(
+        cc: &eframe::CreationContext<'_>,
+        mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>,
+    ) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         crate::ui::setup_custom_style(&cc.egui_ctx);
         Self {
@@ -59,13 +63,17 @@ impl AuraDawApp {
                     crate::mcp::channel::McpCommand::Play => {
                         self.state.is_playing = true;
                         if let Some(ui_channels) = &mut self.ui_channels {
-                            let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(true));
+                            let _ = ui_channels
+                                .0
+                                .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(true));
                         }
                     }
                     crate::mcp::channel::McpCommand::Stop => {
                         self.state.stop_playback();
                         if let Some(ui_channels) = &mut self.ui_channels {
-                            let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
+                            let _ = ui_channels
+                                .0
+                                .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
                         }
                     }
                     crate::mcp::channel::McpCommand::ToggleLoop => {
@@ -108,7 +116,12 @@ impl eframe::App for AuraDawApp {
         if focused.is_none() && ctx.input(|i| i.key_pressed(egui::Key::Space)) {
             self.state.toggle_playback();
             if let Some(ui_channels) = &mut self.ui_channels {
-                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(self.state.is_playing));
+                let send_result =
+                    ui_channels
+                        .0
+                        .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(
+                            self.state.is_playing,
+                        ));
                 if send_result.is_err() {
                     log::warn!("Failed to send SetPlaying message: channel full");
                 }
@@ -135,7 +148,7 @@ impl eframe::App for AuraDawApp {
 
         #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
-             crate::ui::draw_main_ui(self, ui);
+            crate::ui::draw_main_ui(self, ui);
         });
     }
 
@@ -200,7 +213,8 @@ mod tests {
 
         // RemoveTrack command
         let track_id = app.state.tracks[0].id;
-        tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id)).unwrap();
+        tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id))
+            .unwrap();
         app.poll_mcp_commands();
         assert_eq!(app.state.tracks.len(), 0);
     }

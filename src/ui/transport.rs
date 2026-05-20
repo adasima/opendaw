@@ -13,7 +13,12 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
             app.state.toggle_playback();
             if let Some(ui_channels) = &mut app.ui_channels {
-                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(app.state.is_playing));
+                let send_result =
+                    ui_channels
+                        .0
+                        .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(
+                            app.state.is_playing,
+                        ));
                 if send_result.is_err() {
                     log::warn!("Failed to send SetPlaying message: channel full");
                 }
@@ -22,7 +27,9 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         if ui.button("⏹").on_hover_text("Stop").clicked() {
             app.state.stop_playback();
             if let Some(ui_channels) = &mut app.ui_channels {
-                let send_result = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
+                let send_result = ui_channels
+                    .0
+                    .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
                 if send_result.is_err() {
                     log::warn!("Failed to send SetPlaying message: channel full");
                 }
@@ -50,6 +57,9 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         ui.separator();
 
         // 仮想的なタイム表示 (MM:SS.ms などに見立てる)
-        ui.label(format!("Time: {:.1}s", app.state.playhead_pos * TIME_SCALER));
+        ui.label(format!(
+            "Time: {:.1}s",
+            app.state.playhead_pos * TIME_SCALER
+        ));
     });
 }

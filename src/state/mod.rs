@@ -7,15 +7,12 @@
 // pub mod project;
 pub mod project;
 pub use project::ProjectState;
-pub mod track;        // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
+pub mod track; // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
 
 use crate::midi::sequence::Sequence;
 
-
-
 /// DAW のコア状態を管理する構造体
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct DawState {
     #[serde(skip, default)]
     pub is_playing: bool,

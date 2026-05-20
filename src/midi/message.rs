@@ -124,7 +124,10 @@ mod tests {
     fn test_parse_unknown() {
         // System Exclusive
         let msg = MidiMessage::parse(&[0xF0, 0x7E, 0x7F, 0x09, 0x01, 0xF7]);
-        assert_eq!(msg, MidiMessage::Unknown(vec![0xF0, 0x7E, 0x7F, 0x09, 0x01, 0xF7]));
+        assert_eq!(
+            msg,
+            MidiMessage::Unknown(vec![0xF0, 0x7E, 0x7F, 0x09, 0x01, 0xF7])
+        );
 
         // Incomplete message
         let msg = MidiMessage::parse(&[0x90, 60]);

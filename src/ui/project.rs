@@ -1,12 +1,16 @@
-use eframe::egui;
-use rfd::FileDialog;
 use crate::app::AuraDawApp;
 use crate::state::ProjectState;
+use eframe::egui;
+use rfd::FileDialog;
 
 /// プロジェクトの保存および読み込み用のUIを描画します。
 pub fn draw_project_ui(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     ui.horizontal(|ui| {
-        if ui.button("💾 Save Project").on_hover_text("現在のプロジェクトを保存します").clicked() {
+        if ui
+            .button("💾 Save Project")
+            .on_hover_text("現在のプロジェクトを保存します")
+            .clicked()
+        {
             let picked_file = FileDialog::new()
                 .add_filter("Aura Project", &["aura"])
                 .save_file();
@@ -19,7 +23,11 @@ pub fn draw_project_ui(ui: &mut egui::Ui, app: &mut AuraDawApp) {
             }
         }
 
-        if ui.button("📂 Load Project").on_hover_text("プロジェクトを読み込みます").clicked() {
+        if ui
+            .button("📂 Load Project")
+            .on_hover_text("プロジェクトを読み込みます")
+            .clicked()
+        {
             let picked_file = FileDialog::new()
                 .add_filter("Aura Project", &["aura"])
                 .pick_file();

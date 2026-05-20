@@ -1,5 +1,5 @@
-use ringbuf::traits::Split;
 use ringbuf::HeapRb;
+use ringbuf::traits::Split;
 use ringbuf::wrap::caching::CachingCons;
 use ringbuf::wrap::caching::CachingProd;
 
@@ -26,9 +26,15 @@ pub enum AudioToUiMsg {
 }
 
 /// UI用チャンネルペア
-pub type UiChannels = (UiToAudioProducer<UiToAudioMsg>, AudioToUiConsumer<AudioToUiMsg>);
+pub type UiChannels = (
+    UiToAudioProducer<UiToAudioMsg>,
+    AudioToUiConsumer<AudioToUiMsg>,
+);
 /// オーディオ用チャンネルペア
-pub type AudioChannels = (UiToAudioConsumer<UiToAudioMsg>, AudioToUiProducer<AudioToUiMsg>);
+pub type AudioChannels = (
+    UiToAudioConsumer<UiToAudioMsg>,
+    AudioToUiProducer<AudioToUiMsg>,
+);
 
 /// UIとオーディオスレッド間の通信チャンネルを作成する
 pub fn create_channels(capacity: usize) -> (UiChannels, AudioChannels) {
@@ -59,7 +65,11 @@ mod tests {
         }
 
         // Audio -> UI
-        assert!(audio_prod.try_push(AudioToUiMsg::PlaybackPosition(1.5)).is_ok());
+        assert!(
+            audio_prod
+                .try_push(AudioToUiMsg::PlaybackPosition(1.5))
+                .is_ok()
+        );
         if let Some(AudioToUiMsg::PlaybackPosition(pos)) = ui_cons.try_pop() {
             assert_eq!(pos, 1.5);
         } else {
