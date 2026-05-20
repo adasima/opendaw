@@ -33,6 +33,24 @@ impl EffectSetting {
     }
 }
 
+/// シンセサイザーの設定
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct SynthSetting {
+    /// シンセサイザーが有効かどうか
+    pub is_enabled: bool,
+    /// オシレーターの基本周波数 (Hz)
+    pub frequency: f32,
+}
+
+impl Default for SynthSetting {
+    fn default() -> Self {
+        Self {
+            is_enabled: false,
+            frequency: 440.0,
+        }
+    }
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Track {
@@ -50,6 +68,9 @@ pub struct Track {
     pub is_solo: bool,
     /// トラックに適用されるエフェクトチェーン
     pub effects: Vec<EffectSetting>,
+    /// シンセサイザーの設定
+    #[serde(default)]
+    pub synth: SynthSetting,
 }
 
 impl Track {
@@ -63,6 +84,7 @@ impl Track {
             is_muted: false,
             is_solo: false,
             effects: Vec::new(),
+            synth: SynthSetting::default(),
         }
     }
 
@@ -110,6 +132,17 @@ impl Track {
             self.effects.insert(to_index, effect);
         }
     }
+
+    /// シンセサイザーの有効/無効を切り替えます。
+    pub fn toggle_synth(&mut self) {
+        self.synth.is_enabled = !self.synth.is_enabled;
+    }
+
+    /// シンセサイザーの周波数を設定します。
+    pub fn set_synth_frequency(&mut self, freq: f32) {
+        // 一般的な可聴域と少しの余裕を持たせる (20.0Hz ~ 20000.0Hz)
+        self.synth.frequency = freq.clamp(20.0, 20000.0);
+    }
 }
 
 #[cfg(test)]
@@ -126,6 +159,8 @@ mod tests {
         assert!(!track.is_muted);
         assert!(!track.is_solo);
         assert!(track.effects.is_empty());
+        assert!(!track.synth.is_enabled);
+        assert_eq!(track.synth.frequency, 440.0);
     }
 
     #[test]
@@ -229,5 +264,23 @@ mod tests {
         assert_eq!(track.effects[0].id, 2);
         assert_eq!(track.effects[1].id, 3);
         assert_eq!(track.effects[2].id, 1);
+    }
+
+    #[test]
+    fn test_track_toggle_synth() {
+        let mut track = Track::new(1, "Synth Track");
+        assert!(!track.synth.is_enabled);
+        track.toggle_synth();
+        assert!(track.synth.is_enabled);
+    }
+
+    #[test]
+    fn test_track_set_synth_frequency() {
+        let mut track = Track::new(1, "Synth Track");
+        track.set_synth_frequency(880.0);
+        assert_eq!(track.synth.frequency, 880.0);
+
+        track.set_synth_frequency(10.0); // clamped to 20.0
+        assert_eq!(track.synth.frequency, 20.0);
     }
 }
