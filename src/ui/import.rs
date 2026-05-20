@@ -1,13 +1,15 @@
+use crate::app::AuraDawApp;
 use eframe::egui;
 use rfd::FileDialog;
-use crate::app::AuraDawApp;
 
 /// オーディオインポート用のUI（ボタン等）を描画します。
 pub fn draw_import_ui(ui: &mut egui::Ui, app: &mut AuraDawApp) {
-    if ui.button("📁 Import Audio").on_hover_text("WAVファイルなどをインポートします").clicked() {
-        let picked_file = FileDialog::new()
-            .add_filter("Audio", &["wav"])
-            .pick_file();
+    if ui
+        .button("📁 Import Audio")
+        .on_hover_text("WAVファイルなどをインポートします")
+        .clicked()
+    {
+        let picked_file = FileDialog::new().add_filter("Audio", &["wav"]).pick_file();
 
         if let Some(path) = picked_file {
             // パスからファイル名を取得

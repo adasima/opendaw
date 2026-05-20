@@ -2,11 +2,11 @@
 //!
 //! ミキサー出力をWAVファイルとして書き出す（オフラインレンダリング）機能を提供します。
 
-use hound::{WavSpec, WavWriter, SampleFormat};
-use std::path::Path;
+use crate::engine::mixer::{TrackMixData, mix_tracks};
+use hound::{SampleFormat, WavSpec, WavWriter};
 use std::fs::File;
 use std::io::BufWriter;
-use crate::engine::mixer::{mix_tracks, TrackMixData};
+use std::path::Path;
 
 /// トラックをミキシングして指定されたWAVファイルにエクスポートします。
 ///
@@ -30,7 +30,8 @@ pub fn export_project_to_wav<P: AsRef<Path>>(
 
     let file = File::create(path).map_err(|e| format!("ファイルの作成に失敗しました: {}", e))?;
     let buf_writer = BufWriter::new(file);
-    let mut writer = WavWriter::new(buf_writer, spec).map_err(|e| format!("WavWriterの作成に失敗しました: {}", e))?;
+    let mut writer = WavWriter::new(buf_writer, spec)
+        .map_err(|e| format!("WavWriterの作成に失敗しました: {}", e))?;
 
     const CHUNK_FRAMES: usize = 1024;
     let mut processed_samples = 0;
@@ -62,13 +63,17 @@ pub fn export_project_to_wav<P: AsRef<Path>>(
         // WAVに書き込み (f32 -> i16 変換)
         for &sample in mix_slice.iter() {
             let s_i16 = (sample.clamp(-1.0, 1.0) * i16::MAX as f32) as i16;
-            writer.write_sample(s_i16).map_err(|e| format!("サンプルの書き込みに失敗しました: {}", e))?;
+            writer
+                .write_sample(s_i16)
+                .map_err(|e| format!("サンプルの書き込みに失敗しました: {}", e))?;
         }
 
         processed_samples += current_chunk_frames;
     }
 
-    writer.finalize().map_err(|e| format!("WAVファイルの保存に失敗しました: {}", e))?;
+    writer
+        .finalize()
+        .map_err(|e| format!("WAVファイルの保存に失敗しました: {}", e))?;
 
     // トラックのサンプルスライスを元に戻す（呼び出し元に影響を与えないため）
     for (i, track) in tracks.iter_mut().enumerate() {
@@ -97,6 +102,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         let track2 = TrackMixData {
@@ -107,6 +113,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         let mut tracks = [track1, track2];

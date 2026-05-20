@@ -10,22 +10,22 @@
 //! - ファイルI/O, ネットワークI/O
 //! - println!() やログ出力
 
+use crate::engine::audio_file::AudioBuffer;
+use crate::engine::channel::AudioChannels;
+use crate::engine::stream::{PlaybackContext, build_output_stream};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use ringbuf::traits::Consumer;
-use crate::engine::channel::AudioChannels;
-use std::sync::atomic::{AtomicBool, AtomicUsize};
 use std::sync::Arc;
-use crate::engine::stream::{build_output_stream, PlaybackContext};
-use crate::engine::audio_file::AudioBuffer;
+use std::sync::atomic::{AtomicBool, AtomicUsize};
 
 // Phase 2 で実装予定
-pub mod device;
-pub mod channel;
 pub mod audio_file;
-pub mod stream;
-pub mod mixer;
+pub mod channel;
+pub mod device;
 pub mod effects;
 pub mod export;
+pub mod mixer;
+pub mod stream;
 
 /// オーディオエンジンのエントリポイント
 pub struct AudioEngine {
@@ -83,27 +83,27 @@ impl AudioEngine {
     pub fn start_playback(&mut self, buffer: AudioBuffer) {
         let host = cpal::default_host();
         let device = if let Some(name) = &self.device_name {
-            host.output_devices()
-                .ok()
-                .and_then(|mut devices| {
-                    devices.find(|d| {
-                        // The device_name module uses `name().unwrap_or_else()`, so we do the same matching logic.
-                        // However, to avoid new #[allow(deprecated)] we can use an alternative if available,
-                        // but since device.name() is deprecated we try to match without adding the flag again here,
-                        // by using the name attribute or deferring to the standard practice in this codebase.
-                        // The codebase already uses #[allow(deprecated)] in device.rs, but requests avoiding new ones.
-                        // We can just rely on the name() method and suppress it locally at the expression level if needed.
-                        #[allow(deprecated)]
-                        let dev_name = d.name();
-                        dev_name.ok().as_ref() == Some(name)
-                    })
+            host.output_devices().ok().and_then(|mut devices| {
+                devices.find(|d| {
+                    // The device_name module uses `name().unwrap_or_else()`, so we do the same matching logic.
+                    // However, to avoid new #[allow(deprecated)] we can use an alternative if available,
+                    // but since device.name() is deprecated we try to match without adding the flag again here,
+                    // by using the name attribute or deferring to the standard practice in this codebase.
+                    // The codebase already uses #[allow(deprecated)] in device.rs, but requests avoiding new ones.
+                    // We can just rely on the name() method and suppress it locally at the expression level if needed.
+                    #[allow(deprecated)]
+                    let dev_name = d.name();
+                    dev_name.ok().as_ref() == Some(name)
                 })
+            })
         } else {
             host.default_output_device()
         };
 
         let Some(device) = device else { return };
-        let Ok(config) = device.default_output_config() else { return };
+        let Ok(config) = device.default_output_config() else {
+            return;
+        };
         let channels = self.channels.take();
         let context = PlaybackContext {
             buffer,
@@ -111,7 +111,12 @@ impl AudioEngine {
             playing: self.playing.clone(),
             channels,
         };
-        if let Ok(stream) = build_output_stream(&device, &config.config(), config.sample_format(), Some(context)) {
+        if let Ok(stream) = build_output_stream(
+            &device,
+            &config.config(),
+            config.sample_format(),
+            Some(context),
+        ) {
             let _ = stream.play();
             self.stream = Some(stream);
         }
@@ -141,11 +146,16 @@ impl AudioEngine {
 
     /// オーディオスレッドからのメッセージを受信して処理します
     /// 最新の再生位置(f32)があれば返します
-    pub fn poll_ui_messages(&self, ui_channels: &mut crate::engine::channel::UiChannels) -> Option<f32> {
+    pub fn poll_ui_messages(
+        &self,
+        ui_channels: &mut crate::engine::channel::UiChannels,
+    ) -> Option<f32> {
         let mut latest_pos = None;
         while let Some(msg) = ui_channels.1.try_pop() {
             match msg {
-                crate::engine::channel::AudioToUiMsg::PlaybackPosition(pos) => latest_pos = Some(pos),
+                crate::engine::channel::AudioToUiMsg::PlaybackPosition(pos) => {
+                    latest_pos = Some(pos)
+                }
             }
         }
         latest_pos
@@ -204,9 +214,15 @@ mod tests {
         assert_eq!(engine.poll_ui_messages(&mut ui_channels), None);
 
         // 複数のメッセージを送信
-        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(1.5));
-        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(2.5));
-        let _ = audio_channels.1.try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(3.5));
+        let _ = audio_channels
+            .1
+            .try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(1.5));
+        let _ = audio_channels
+            .1
+            .try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(2.5));
+        let _ = audio_channels
+            .1
+            .try_push(crate::engine::channel::AudioToUiMsg::PlaybackPosition(3.5));
 
         // 最新のメッセージが返されること
         assert_eq!(engine.poll_ui_messages(&mut ui_channels), Some(3.5));

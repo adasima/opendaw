@@ -21,6 +21,8 @@ pub struct TrackMixData<'a> {
     pub is_solo: bool,
     /// 適用するエフェクトのチェーン
     pub effects: &'a mut [&'a mut dyn AudioEffect],
+    /// オシレーター（シンセサイザー）
+    pub oscillator: Option<&'a mut crate::engine::synth::Oscillator>,
 }
 
 /// 複数のトラックのサンプルをミックスし、指定されたバッファに出力します。
@@ -28,11 +30,7 @@ pub struct TrackMixData<'a> {
 /// `out_buffer` は出力先のバッファで、合算されたサンプルが上書きされます。
 /// `out_channels` は出力のチャンネル数です（現在は2（ステレオ）のみサポート）。
 /// `tracks` はミキシング対象のトラックのリストです。
-pub fn mix_tracks(
-    out_buffer: &mut [f32],
-    out_channels: u16,
-    tracks: &mut [TrackMixData<'_>],
-) {
+pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [TrackMixData<'_>]) {
     // 出力バッファを0クリア
     for sample in out_buffer.iter_mut() {
         *sample = 0.0;
@@ -83,6 +81,11 @@ pub fn mix_tracks(
 
             // 入力サンプルを一時バッファにコピー
             temp_buf[..actual_samples].copy_from_slice(&track.samples[start_idx..end_idx]);
+
+            // オシレーターのサンプルを加算
+            if let Some(osc) = track.oscillator.as_mut() {
+                osc.process_add(&mut temp_buf[..actual_samples], track.channels);
+            }
 
             // エフェクトの適用
             for effect in track.effects.iter_mut() {
@@ -135,6 +138,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -157,6 +161,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -178,6 +183,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -200,6 +206,7 @@ mod tests {
             is_muted: true, // Muted
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -218,6 +225,7 @@ mod tests {
             is_muted: false,
             is_solo: false, // Not solo
             effects: &mut [],
+            oscillator: None,
         };
 
         let samples2 = vec![0.5, 0.5];
@@ -229,6 +237,7 @@ mod tests {
             is_muted: false,
             is_solo: true, // Solo
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track1, track2]);
@@ -250,6 +259,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -268,8 +278,12 @@ mod tests {
                 *sample *= self.gain;
             }
         }
-        fn name(&self) -> &str { "Mock Gain" }
-        fn is_enabled(&self) -> bool { true }
+        fn name(&self) -> &str {
+            "Mock Gain"
+        }
+        fn is_enabled(&self) -> bool {
+            true
+        }
         fn set_enabled(&mut self, _enabled: bool) {}
     }
 
@@ -289,6 +303,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut effects,
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -297,6 +312,36 @@ mod tests {
         // input=1.0 -> effect_gain=0.5 -> 0.5
         // output = 0.5 * gain(0.5) = 0.25
         assert_eq!(out, vec![0.25, 0.25, 0.25, 0.25]);
+    }
+
+    #[test]
+    fn test_mix_tracks_with_oscillator() {
+        let mut out = vec![0.0; 4];
+        let samples = vec![0.0, 0.0]; // 無音のサンプル
+
+        let mut osc = crate::engine::synth::Oscillator::new(44100.0);
+        osc.set_frequency(1.0);
+        osc.set_active(true);
+        // sample 1: sin(0) = 0.0, sample 2: sin(2π * 1 / 44100) ≈ 0.000142...
+
+        let track = TrackMixData {
+            samples: &samples,
+            channels: 1,
+            volume: 1.0,
+            pan: 0.0,
+            is_muted: false,
+            is_solo: false,
+            effects: &mut [],
+            oscillator: Some(&mut osc),
+        };
+
+        mix_tracks(&mut out, 2, &mut [track]);
+
+        // オシレーターの出力がミックスされているか確認
+        assert_eq!(out[0], 0.0); // sample 1 L (0.0 * 0.5)
+        assert_eq!(out[1], 0.0); // sample 1 R (0.0 * 0.5)
+        assert!(out[2] > 0.0); // sample 2 L (sin(...) * 0.5)
+        assert!(out[3] > 0.0); // sample 2 R (sin(...) * 0.5)
     }
 
     #[test]
@@ -311,6 +356,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -324,6 +370,7 @@ mod tests {
             is_muted: false,
             is_solo: false,
             effects: &mut [],
+            oscillator: None,
         };
 
         mix_tracks(&mut out, 2, &mut [track2]);

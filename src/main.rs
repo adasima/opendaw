@@ -1,13 +1,13 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // releaseビルド時にコンソールを隠す
 
-pub mod ui;
-pub mod engine;
-pub mod state;
-pub mod midi;
-pub mod util;
-pub mod mcp;
 mod app;
+pub mod engine;
+pub mod mcp;
+pub mod midi;
+pub mod state;
+pub mod ui;
+pub mod util;
 use app::AuraDawApp;
 
 const MCP_CHANNEL_CAPACITY: usize = 100;

@@ -51,7 +51,13 @@ impl Sequence {
     }
 
     /// ノートを追加し、そのIDを返す
-    pub fn add_note(&mut self, pitch: u8, velocity: u8, start_beat: f64, duration_beats: f64) -> usize {
+    pub fn add_note(
+        &mut self,
+        pitch: u8,
+        velocity: u8,
+        start_beat: f64,
+        duration_beats: f64,
+    ) -> usize {
         let id = self.next_note_id;
         self.next_note_id += 1;
 

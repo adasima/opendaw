@@ -61,23 +61,40 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         let pitch_index = (rel_y / PITCH_HEIGHT).floor() as u8;
         let pitch = MAX_PITCH.saturating_sub(pitch_index); // 上がMAX_PITCH、下がMIN_PITCH
 
-        if beat >= 0.0 && beat < (VISIBLE_BEATS as f64) && (MIN_PITCH..=MAX_PITCH).contains(&pitch) {
+        if beat >= 0.0 && beat < (VISIBLE_BEATS as f64) && (MIN_PITCH..=MAX_PITCH).contains(&pitch)
+        {
             // 左クリックでノート追加
             if response.clicked() {
                 // 同じ位置にノートがないか確認
-                let exists = app.state.active_sequence.notes.iter().any(|n| {
-                    n.pitch == pitch && n.start_beat == beat
-                });
+                let exists = app
+                    .state
+                    .active_sequence
+                    .notes
+                    .iter()
+                    .any(|n| n.pitch == pitch && n.start_beat == beat);
                 if !exists {
-                    app.state.active_sequence.add_note(pitch, DEFAULT_VELOCITY, beat, DEFAULT_DURATION);
+                    app.state.active_sequence.add_note(
+                        pitch,
+                        DEFAULT_VELOCITY,
+                        beat,
+                        DEFAULT_DURATION,
+                    );
                 }
             }
 
             // 右クリックでノート削除
             if response.secondary_clicked() {
-                let note_to_remove = app.state.active_sequence.notes.iter().find(|n| {
-                    n.pitch == pitch && n.start_beat <= beat && n.start_beat + n.duration_beats > beat
-                }).map(|n| n.id);
+                let note_to_remove = app
+                    .state
+                    .active_sequence
+                    .notes
+                    .iter()
+                    .find(|n| {
+                        n.pitch == pitch
+                            && n.start_beat <= beat
+                            && n.start_beat + n.duration_beats > beat
+                    })
+                    .map(|n| n.id);
 
                 if let Some(id) = note_to_remove {
                     app.state.active_sequence.remove_note(id);
@@ -94,10 +111,8 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
             let x = rect.left() + (note.start_beat as f32) * BEAT_WIDTH;
             let w = (note.duration_beats as f32) * BEAT_WIDTH;
 
-            let note_rect = egui::Rect::from_min_size(
-                egui::pos2(x, y),
-                egui::vec2(w, PITCH_HEIGHT),
-            );
+            let note_rect =
+                egui::Rect::from_min_size(egui::pos2(x, y), egui::vec2(w, PITCH_HEIGHT));
 
             // ノートを描画（少し縮小して見やすくする）
             let display_rect = note_rect.shrink(NOTE_SHRINK);

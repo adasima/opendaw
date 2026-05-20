@@ -56,7 +56,9 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut AuraDawApp) {
                             if ui.button("X").on_hover_text("Remove").clicked() {
                                 action = Some(("remove", effect_id));
                             }
-                            if i < effects_len - 1 && ui.button("↓").on_hover_text("Move Down").clicked() {
+                            if i < effects_len - 1
+                                && ui.button("↓").on_hover_text("Move Down").clicked()
+                            {
                                 action = Some(("down", i));
                             }
                             if i > 0 && ui.button("↑").on_hover_text("Move Up").clicked() {

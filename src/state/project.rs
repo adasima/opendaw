@@ -1,11 +1,10 @@
-use serde::{Deserialize, Serialize};
 use crate::state::DawState;
+use serde::{Deserialize, Serialize};
 
 /// プロジェクトのファイル保存フォーマット
 /// `DawState` をラップし、将来のメタデータ（バージョン、作成日時など）を
 /// 追加しやすいようにしています。
-#[derive(Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct ProjectState {
     pub daw_state: DawState,
 }
@@ -20,16 +19,14 @@ impl ProjectState {
     pub fn save_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
         let file = std::fs::File::create(path)?;
         let writer = std::io::BufWriter::new(file);
-        bincode::serialize_into(writer, self)
-            .map_err(std::io::Error::other)
+        bincode::serialize_into(writer, self).map_err(std::io::Error::other)
     }
 
     /// ファイルからプロジェクト状態を読み込みます。
     pub fn load_from_file<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<Self> {
         let file = std::fs::File::open(path)?;
         let reader = std::io::BufReader::new(file);
-        bincode::deserialize_from(reader)
-            .map_err(std::io::Error::other)
+        bincode::deserialize_from(reader).map_err(std::io::Error::other)
     }
 }
 

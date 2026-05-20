@@ -8,7 +8,11 @@ pub fn available_output_device_names() -> Vec<String> {
     if let Ok(devices) = host.output_devices() {
         for device in devices {
             #[allow(deprecated)] // Fallback due to compilation issue with name() usage
-            names.push(device.name().unwrap_or_else(|_| "Unknown Device".to_string()));
+            names.push(
+                device
+                    .name()
+                    .unwrap_or_else(|_| "Unknown Device".to_string()),
+            );
         }
     }
 
@@ -19,7 +23,8 @@ pub fn available_output_device_names() -> Vec<String> {
 pub fn default_output_device_name() -> Option<String> {
     let host = cpal::default_host();
     #[allow(deprecated)] // Fallback due to compilation issue with name() usage
-    host.default_output_device().map(|dev| dev.name().unwrap_or_else(|_| "Unknown Device".to_string()))
+    host.default_output_device()
+        .map(|dev| dev.name().unwrap_or_else(|_| "Unknown Device".to_string()))
 }
 
 #[cfg(test)]
