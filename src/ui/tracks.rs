@@ -19,6 +19,13 @@ pub fn draw_tracks_panel(ui: &mut egui::Ui, app: &mut AuraDawApp) {
                     let next_num = app.state.next_track_id;
                     app.state.add_track(format!("Track {}", next_num));
                 }
+                if ui.button("+ Add Synth Track").clicked() {
+                    let next_num = app.state.next_track_id;
+                    app.state.add_track(format!("Synth {}", next_num));
+                    if let Some(track) = app.state.tracks.last_mut() {
+                        track.synth.is_enabled = true;
+                    }
+                }
             });
             ui.separator();
 
@@ -37,4 +44,31 @@ pub fn draw_tracks_panel(ui: &mut egui::Ui, app: &mut AuraDawApp) {
                 app.state.remove_track(id);
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    // use super::*;
+    use crate::app::AuraDawApp;
+
+
+    #[test]
+    fn test_add_synth_track_logic() {
+        // UIスレッドを模倣して、トラック追加ロジックの動作を確認する
+        let mut app = AuraDawApp::default();
+
+        let initial_count = app.state.tracks.len();
+
+        // Synthトラック追加時のロジック
+        let next_num = app.state.next_track_id;
+        app.state.add_track(format!("Synth {}", next_num));
+        if let Some(track) = app.state.tracks.last_mut() {
+            track.synth.is_enabled = true;
+        }
+
+        assert_eq!(app.state.tracks.len(), initial_count + 1);
+        let last_track = app.state.tracks.last().unwrap();
+        assert!(last_track.name.starts_with("Synth"));
+        assert!(last_track.synth.is_enabled);
+    }
 }
