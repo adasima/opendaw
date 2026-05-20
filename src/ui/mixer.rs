@@ -59,6 +59,15 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                                         opened_effect_id = Some(track.id);
                                     }
                                 });
+
+                                ui.separator();
+                                ui.checkbox(&mut track.synth.is_enabled, "Synth");
+                                if track.synth.is_enabled {
+                                    ui.label("Freq (Hz)");
+                                    ui.add(
+                                        egui::Slider::new(&mut track.synth.frequency, 20.0..=20000.0).logarithmic(true)
+                                    );
+                                }
                             });
                         });
                     }
@@ -69,4 +78,24 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                 app.opened_effect_track_id = Some(id);
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::app::AuraDawApp;
+
+    #[test]
+    fn test_mixer_synth_toggle() {
+        let mut app = AuraDawApp::default();
+        app.state.add_track("Test Track");
+
+        let track = app.state.tracks.last_mut().unwrap();
+        assert!(!track.synth.is_enabled);
+
+        // シンセサイザーを有効にする
+        track.toggle_synth();
+        assert!(track.synth.is_enabled);
+        track.set_synth_frequency(440.0);
+        assert_eq!(track.synth.frequency, 440.0);
+    }
 }
