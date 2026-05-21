@@ -62,6 +62,8 @@ pub fn build_output_stream(
 
     let stream = match sample_format {
         SampleFormat::F32 => {
+            let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+            let mut active_note_count = 0;
             device
                 .build_output_stream(
                     config,
@@ -74,8 +76,9 @@ pub fn build_output_stream(
                                         UiToAudioMsg::SetPlaying(playing) => {
                                             ctx.playing.store(playing, Ordering::Relaxed)
                                         }
-                                        UiToAudioMsg::ActiveNotes(_, _, _) => {
-                                            // TODO: Phase 11 Task 2 - Implement ActiveNotes processing
+                                        UiToAudioMsg::ActiveNotes(_id, notes, count) => {
+                                            active_notes = notes;
+                                            active_note_count = count;
                                         }
                                     }
                                 }
@@ -100,6 +103,8 @@ pub fn build_output_stream(
                                 pan: 0.0,
                                 is_muted: false,
                                 is_solo: false,
+                                active_notes,
+                                active_note_count,
                                 effects: &mut [],
                                 oscillator: None,
                             };
@@ -128,6 +133,8 @@ pub fn build_output_stream(
                 .map_err(StreamBuildError::CpalError)?
         }
         SampleFormat::I16 => {
+            let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+            let mut active_note_count = 0;
             let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
             device
                 .build_output_stream(
@@ -141,8 +148,9 @@ pub fn build_output_stream(
                                         UiToAudioMsg::SetPlaying(playing) => {
                                             ctx.playing.store(playing, Ordering::Relaxed)
                                         }
-                                        UiToAudioMsg::ActiveNotes(_, _, _) => {
-                                            // TODO: Phase 11 Task 2 - Implement ActiveNotes processing
+                                        UiToAudioMsg::ActiveNotes(_id, notes, count) => {
+                                            active_notes = notes;
+                                            active_note_count = count;
                                         }
                                     }
                                 }
@@ -172,6 +180,8 @@ pub fn build_output_stream(
                                     pan: 0.0,
                                     is_muted: false,
                                     is_solo: false,
+                                    active_notes,
+                                    active_note_count,
                                     effects: &mut [],
                                     oscillator: None,
                                 };
