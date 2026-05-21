@@ -23,6 +23,10 @@ pub struct TrackMixData<'a> {
     pub effects: &'a mut [&'a mut dyn AudioEffect],
     /// オシレーター（シンセサイザー）
     pub oscillator: Option<&'a mut crate::engine::synth::Oscillator>,
+    /// アクティブなノートの周波数
+    pub active_notes: [f32; crate::engine::channel::MAX_ACTIVE_NOTES],
+    /// アクティブなノートの数
+    pub active_note_count: usize,
 }
 
 /// 複数のトラックのサンプルをミックスし、指定されたバッファに出力します。
@@ -84,6 +88,12 @@ pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [Track
 
             // オシレーターのサンプルを加算
             if let Some(osc) = track.oscillator.as_mut() {
+                if track.active_note_count > 0 {
+                    osc.set_frequency(track.active_notes[0]);
+                    osc.set_active(true);
+                } else {
+                    osc.set_active(false);
+                }
                 osc.process_add(&mut temp_buf[..actual_samples], track.channels);
             }
 
@@ -139,6 +149,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -162,6 +174,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -184,6 +198,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -207,6 +223,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -226,6 +244,8 @@ mod tests {
             is_solo: false, // Not solo
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         let samples2 = vec![0.5, 0.5];
@@ -238,6 +258,8 @@ mod tests {
             is_solo: true, // Solo
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track1, track2]);
@@ -260,6 +282,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -304,6 +328,8 @@ mod tests {
             is_solo: false,
             effects: &mut effects,
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -321,16 +347,21 @@ mod tests {
 
         let mut osc = crate::engine::synth::Oscillator::new(44100.0);
         osc.set_frequency(1.0);
+        // active_notes[0] で周波数が上書きされるため 1.0 を設定
         osc.set_active(true);
         // sample 1: sin(0) = 0.0, sample 2: sin(2π * 1 / 44100) ≈ 0.000142...
 
-        let track = TrackMixData {
+        let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+        active_notes[0] = 1.0;
+        let mut track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
             pan: 0.0,
             is_muted: false,
             is_solo: false,
+            active_notes,
+            active_note_count: 1,
             effects: &mut [],
             oscillator: Some(&mut osc),
         };
@@ -357,6 +388,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track]);
@@ -371,6 +404,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         mix_tracks(&mut out, 2, &mut [track2]);

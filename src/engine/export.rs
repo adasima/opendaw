@@ -103,6 +103,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         let track2 = TrackMixData {
@@ -114,6 +116,8 @@ mod tests {
             is_solo: false,
             effects: &mut [],
             oscillator: None,
+            active_notes: [0.0; crate::engine::channel::MAX_ACTIVE_NOTES],
+            active_note_count: 0,
         };
 
         let mut tracks = [track1, track2];
