@@ -85,11 +85,11 @@ mod tests {
     use crate::app::AuraDawApp;
 
     #[test]
-    fn test_mixer_synth_toggle() {
+    fn test_mixer_synth_toggle() -> Result<(), Box<dyn std::error::Error>> {
         let mut app = AuraDawApp::default();
         app.state.add_track("Test Track");
 
-        let track = app.state.tracks.last_mut().unwrap();
+        let track = app.state.tracks.last_mut().ok_or("Track not found")?;
         assert!(!track.synth.is_enabled);
 
         // シンセサイザーを有効にする
@@ -97,5 +97,6 @@ mod tests {
         assert!(track.synth.is_enabled);
         track.set_synth_frequency(440.0);
         assert_eq!(track.synth.frequency, 440.0);
+        Ok(())
     }
 }
