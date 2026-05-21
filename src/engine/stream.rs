@@ -74,6 +74,9 @@ pub fn build_output_stream(
                                         UiToAudioMsg::SetPlaying(playing) => {
                                             ctx.playing.store(playing, Ordering::Relaxed)
                                         }
+                                        UiToAudioMsg::ActiveNotes(_, _, _) => {
+                                            // TODO: Phase 11 Task 2 - Implement ActiveNotes processing
+                                        }
                                     }
                                 }
                             }
@@ -137,6 +140,9 @@ pub fn build_output_stream(
                                     match msg {
                                         UiToAudioMsg::SetPlaying(playing) => {
                                             ctx.playing.store(playing, Ordering::Relaxed)
+                                        }
+                                        UiToAudioMsg::ActiveNotes(_, _, _) => {
+                                            // TODO: Phase 11 Task 2 - Implement ActiveNotes processing
                                         }
                                     }
                                 }

@@ -13,10 +13,15 @@ pub type UiToAudioProducer<T> = CachingProd<std::sync::Arc<HeapRb<T>>>;
 /// UIスレッドからオーディオスレッドへのコンシューマー
 pub type UiToAudioConsumer<T> = CachingCons<std::sync::Arc<HeapRb<T>>>;
 
+/// 最大同時発音数
+pub const MAX_ACTIVE_NOTES: usize = 16;
+
 /// UIからオーディオスレッドへのメッセージ
 pub enum UiToAudioMsg {
     /// 再生状態の変更
     SetPlaying(bool),
+    /// トラックIDとアクティブなノートの周波数配列、有効なノート数
+    ActiveNotes(usize, [f32; MAX_ACTIVE_NOTES], usize),
 }
 
 /// オーディオスレッドからUIへのメッセージ
@@ -62,6 +67,18 @@ mod tests {
             assert!(playing);
         } else {
             panic!("Message not received");
+        }
+
+        // UI -> Audio (ActiveNotes)
+        let mut notes = [0.0; MAX_ACTIVE_NOTES];
+        notes[0] = 440.0;
+        assert!(ui_prod.try_push(UiToAudioMsg::ActiveNotes(1, notes, 1)).is_ok());
+        if let Some(UiToAudioMsg::ActiveNotes(id, recv_notes, count)) = audio_cons.try_pop() {
+            assert_eq!(id, 1);
+            assert_eq!(count, 1);
+            assert_eq!(recv_notes[0], 440.0);
+        } else {
+            panic!("ActiveNotes message not received");
         }
 
         // Audio -> UI
