@@ -238,7 +238,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dawstate_sequence() {
+    fn test_dawstate_sequence() -> Result<(), Box<dyn std::error::Error>> {
         let mut state = DawState::default();
         assert_eq!(state.active_sequence.notes.len(), 0);
 
@@ -246,10 +246,11 @@ mod tests {
         assert_eq!(state.active_sequence.notes.len(), 1);
         assert_eq!(id, 0);
 
-        let note = state.active_sequence.get_note(id).unwrap();
+        let note = state.active_sequence.get_note(id).ok_or("Note not found")?;
         assert_eq!(note.pitch, 60);
         assert_eq!(note.velocity, 100);
         assert_eq!(note.start_beat, 0.0);
         assert_eq!(note.duration_beats, 1.0);
+        Ok(())
     }
 }
