@@ -27,7 +27,8 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                 ui.horizontal(|ui| {
                     for track in &mut app.state.tracks {
                         ui.group(|ui| {
-                            ui.set_width(120.0);
+                            const PANEL_WIDTH: f32 = 200.0;
+                            ui.set_width(PANEL_WIDTH);
                             ui.vertical(|ui| {
                                 ui.label(egui::RichText::new(&track.name).strong());
                                 ui.separator();
@@ -67,6 +68,33 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
                                     ui.add(
                                         egui::Slider::new(&mut track.synth.frequency, 20.0..=20000.0).logarithmic(true)
                                     );
+
+                                    ui.label("Waveform");
+                                    egui::ComboBox::from_id_source(format!("waveform_{}", track.id))
+                                        .selected_text(match track.synth.waveform {
+                                            crate::state::track::Waveform::Sine => "Sine",
+                                            crate::state::track::Waveform::Square => "Square",
+                                            crate::state::track::Waveform::Sawtooth => "Sawtooth",
+                                        })
+                                        .show_ui(ui, |ui| {
+                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Sine, "Sine");
+                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Square, "Square");
+                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Sawtooth, "Sawtooth");
+                                        });
+
+                                    ui.label("ADSR");
+                                    const MAX_ATTACK: f32 = 2.0;
+                                    const MAX_DECAY: f32 = 2.0;
+                                    const MAX_SUSTAIN: f32 = 1.0;
+                                    const MAX_RELEASE: f32 = 5.0;
+                                    ui.horizontal(|ui| {
+                                        ui.add(egui::Slider::new(&mut track.synth.adsr.attack, 0.0..=MAX_ATTACK).text("A"));
+                                        ui.add(egui::Slider::new(&mut track.synth.adsr.decay, 0.0..=MAX_DECAY).text("D"));
+                                    });
+                                    ui.horizontal(|ui| {
+                                        ui.add(egui::Slider::new(&mut track.synth.adsr.sustain, 0.0..=MAX_SUSTAIN).text("S"));
+                                        ui.add(egui::Slider::new(&mut track.synth.adsr.release, 0.0..=MAX_RELEASE).text("R"));
+                                    });
                                 }
                             });
                         });
