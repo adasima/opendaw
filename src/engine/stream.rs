@@ -64,6 +64,7 @@ pub fn build_output_stream(
         SampleFormat::F32 => {
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
+            let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
             device
                 .build_output_stream(
                     config,
@@ -79,6 +80,10 @@ pub fn build_output_stream(
                                         UiToAudioMsg::ActiveNotes(_id, notes, count) => {
                                             active_notes = notes;
                                             active_note_count = count;
+                                        }
+                                        UiToAudioMsg::UpdateSynthParams(_id, waveform, params) => {
+                                            track_oscillator.waveform = waveform;
+                                            track_oscillator.envelope.params = params;
                                         }
                                     }
                                 }
@@ -106,7 +111,7 @@ pub fn build_output_stream(
                                 active_notes,
                                 active_note_count,
                                 effects: &mut [],
-                                oscillator: None,
+                                oscillator: Some(&mut track_oscillator),
                             };
 
                             crate::engine::mixer::mix_tracks(data, channels, &mut [track_data]);
@@ -135,6 +140,7 @@ pub fn build_output_stream(
         SampleFormat::I16 => {
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
+            let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
             let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
             device
                 .build_output_stream(
@@ -151,6 +157,10 @@ pub fn build_output_stream(
                                         UiToAudioMsg::ActiveNotes(_id, notes, count) => {
                                             active_notes = notes;
                                             active_note_count = count;
+                                        }
+                                        UiToAudioMsg::UpdateSynthParams(_id, waveform, params) => {
+                                            track_oscillator.waveform = waveform;
+                                            track_oscillator.envelope.params = params;
                                         }
                                     }
                                 }
@@ -183,7 +193,7 @@ pub fn build_output_stream(
                                     active_notes,
                                     active_note_count,
                                     effects: &mut [],
-                                    oscillator: None,
+                                    oscillator: Some(&mut track_oscillator),
                                 };
 
                                 crate::engine::mixer::mix_tracks(

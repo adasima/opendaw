@@ -1,3 +1,4 @@
+use crate::engine::synth::{AdsrParams, Waveform};
 use ringbuf::HeapRb;
 use ringbuf::traits::Split;
 use ringbuf::wrap::caching::CachingCons;
@@ -22,6 +23,8 @@ pub enum UiToAudioMsg {
     SetPlaying(bool),
     /// トラックIDとアクティブなノートの周波数配列、有効なノート数
     ActiveNotes(usize, [f32; MAX_ACTIVE_NOTES], usize),
+    /// シンセサイザーパラメータの更新
+    UpdateSynthParams(usize, Waveform, AdsrParams),
 }
 
 /// オーディオスレッドからUIへのメッセージ
