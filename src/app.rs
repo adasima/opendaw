@@ -40,6 +40,37 @@ impl Default for AuraDawApp {
 }
 
 impl AuraDawApp {
+    /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
+    pub fn process_active_notes(&mut self) {
+        let current_pos = self.state.playhead_pos as f64;
+        let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+        let mut active_count = 0;
+
+        if self.state.is_playing {
+            for note in &self.state.active_sequence.notes {
+                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats {
+                    if active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                        active_freqs[active_count] = freq;
+                        active_count += 1;
+                    }
+                }
+            }
+        }
+
+        if let Some(ui_channels) = &mut self.ui_channels {
+            for track in &self.state.tracks {
+                if track.synth.is_enabled {
+                    let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
+                        track.id,
+                        active_freqs,
+                        active_count,
+                    ));
+                }
+            }
+        }
+    }
+
     /// アプリケーションの新しいインスタンスを作成します。
     ///
     /// ここでカスタムフォントやUIテーマ（ダークテーマ・グラスモーフィズム風）の初期化を行います。
@@ -134,6 +165,8 @@ impl eframe::App for AuraDawApp {
             ctx.request_repaint();
         }
 
+        self.process_active_notes();
+
         crate::ui::effects::draw_effects_window(ctx, self);
 
         #[allow(deprecated)]
@@ -186,6 +219,52 @@ mod tests {
         assert!(app.audio_channels_temp.is_none());
         // channels 自体は private なので、間接的に送信して影響を確認するなどで代用するが、
         // 今回は audio_channels_temp が None になることのみを確認する。
+    }
+
+
+    #[test]
+    fn test_process_active_notes() {
+        use ringbuf::traits::Consumer;
+        let mut app = AuraDawApp::default();
+        app.state.add_track("Synth Track");
+        app.state.tracks[0].synth.is_enabled = true;
+
+        app.state.active_sequence.add_note(69, 100, 0.0, 1.0); // A4 = 440Hz
+
+        // Not playing
+        app.state.is_playing = false;
+        app.state.playhead_pos = 0.5;
+        app.process_active_notes();
+
+        let mut received = false;
+        if let Some(audio_channels) = &mut app.audio_channels_temp {
+            while let Some(msg) = audio_channels.0.try_pop() {
+                if let crate::engine::channel::UiToAudioMsg::ActiveNotes(id, _freqs, count) = msg {
+                    assert_eq!(id, app.state.tracks[0].id);
+                    assert_eq!(count, 0);
+                    received = true;
+                }
+            }
+        }
+        assert!(received);
+
+        // Playing
+        app.state.is_playing = true;
+        app.state.playhead_pos = 0.5;
+        app.process_active_notes();
+
+        let mut received_playing = false;
+        if let Some(audio_channels) = &mut app.audio_channels_temp {
+            while let Some(msg) = audio_channels.0.try_pop() {
+                if let crate::engine::channel::UiToAudioMsg::ActiveNotes(id, freqs, count) = msg {
+                    assert_eq!(id, app.state.tracks[0].id);
+                    assert_eq!(count, 1);
+                    assert_eq!(freqs[0], 440.0);
+                    received_playing = true;
+                }
+            }
+        }
+        assert!(received_playing);
     }
 
     #[test]
