@@ -31,5 +31,5 @@ In the current version, there are no keyboard shortcuts dedicated specifically t
 - [Mixer](../user-guide/mixer.md)
 
 ## Notes and Limitations
-> - **In the current version, when the synthesizer (Synth) is enabled, it continuously outputs sound at the specified frequency, regardless of the project's playback state or MIDI note inputs.** To stop the sound, either enable track mute (**M**) or uncheck the Synth checkbox.
+> - In the current version, the synthesizer generates sound when it receives active MIDI notes (e.g., from the piano roll). If there are no active MIDI notes, it remains silent.
 > - The only waveform currently available is the Sine Wave. Additional waveforms (like Square or Sawtooth) and ADSR envelopes are planned for future updates.
