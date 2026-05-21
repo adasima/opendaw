@@ -67,8 +67,11 @@ mod tests {
         }
 
         assert_eq!(app.state.tracks.len(), initial_count + 1);
-        let last_track = app.state.tracks.last().unwrap();
-        assert!(last_track.name.starts_with("Synth"));
-        assert!(last_track.synth.is_enabled);
+        if let Some(last_track) = app.state.tracks.last() {
+            assert!(last_track.name.starts_with("Synth"));
+            assert!(last_track.synth.is_enabled);
+        } else {
+            panic!("Synth track was not added");
+        }
     }
 }
