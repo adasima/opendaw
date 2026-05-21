@@ -11,8 +11,10 @@
 ---
 
 ## Phase 11: MIDIノートとシンセサイザーの連携 (community) (進行中)
-- [ ] nova: [1] @A src/engine/stream.rs でプレイヘッド位置に基づきアクティブなノートを判定するロジックを実装 (対象: src/engine/stream.rs)
-- [ ] nova: [2] @A src/engine/mixer.rs で判定されたノートに基づきシンセサイザーの set_active, set_frequency を呼ぶロジックを追加 (対象: src/engine/mixer.rs)
+- [ ] nova: [1] @A src/engine/channel.rs を更新し、アクティブなMIDIノートの周波数を送受信するメッセージを追加する (対象: src/engine/channel.rs)
+- [ ] nova: [2] @A src/engine/stream.rs を更新し、受信したノート情報をTrackMixDataに含める処理を実装する (対象: src/engine/stream.rs)
+- [ ] nova: [3] @A src/engine/mixer.rs を更新し、TrackMixDataのノート情報でシンセサイザーを発音させるロジックを実装する (対象: src/engine/mixer.rs)
+- [ ] nova: [4] @B src/app.rs を更新し、プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信するロジックを実装する (対象: src/app.rs)
 
 ## Phase 12: ADSRエンベロープと波形選択 (community)
 - [ ] nova: [1] @A src/engine/synth.rs に波形(Sine, Square, Sawtooth)の列挙型と ADSR エンベロープの構造体および処理を実装 (対象: src/engine/synth.rs)
