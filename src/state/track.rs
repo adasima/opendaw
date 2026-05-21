@@ -84,6 +84,9 @@ pub struct SynthSetting {
     /// ADSRパラメータ
     #[serde(default)]
     pub adsr: AdsrParams,
+    /// 前回オーディオエンジンに送信した設定（変更検知用）
+    #[serde(skip)]
+    pub last_sent_params: Option<(Waveform, AdsrParams)>,
 }
 
 impl Default for SynthSetting {
@@ -93,6 +96,7 @@ impl Default for SynthSetting {
             frequency: 440.0,
             waveform: Waveform::default(),
             adsr: AdsrParams::default(),
+            last_sent_params: None,
         }
     }
 }
