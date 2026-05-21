@@ -149,18 +149,19 @@ mod tests {
     }
 
     #[test]
-    fn test_sequence_get_note() {
+    fn test_sequence_get_note() -> Result<(), Box<dyn std::error::Error>> {
         let mut seq = Sequence::new();
         let id1 = seq.add_note(60, 100, 0.0, 1.0);
 
         {
-            let note = seq.get_note_mut(id1).unwrap();
+            let note = seq.get_note_mut(id1).ok_or("Note not found")?;
             note.pitch = 61;
         }
 
-        let note = seq.get_note(id1).unwrap();
+        let note = seq.get_note(id1).ok_or("Note not found")?;
         assert_eq!(note.pitch, 61);
 
         assert!(seq.get_note(999).is_none());
+        Ok(())
     }
 }
