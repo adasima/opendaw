@@ -40,6 +40,38 @@ impl Default for AuraDawApp {
 }
 
 impl AuraDawApp {
+    /// UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信します。
+    pub fn poll_synth_params(&mut self) {
+        if let Some(ui_channels) = &mut self.ui_channels {
+            for track in &mut self.state.tracks {
+                if track.synth.is_enabled {
+                    let current_params = (track.synth.waveform.clone(), track.synth.adsr.clone());
+                    if track.synth.last_sent_params.as_ref() != Some(&current_params) {
+                        let waveform = match track.synth.waveform {
+                            crate::state::track::Waveform::Sine => crate::engine::synth::Waveform::Sine,
+                            crate::state::track::Waveform::Square => crate::engine::synth::Waveform::Square,
+                            crate::state::track::Waveform::Sawtooth => crate::engine::synth::Waveform::Sawtooth,
+                        };
+                        let adsr = crate::engine::synth::AdsrParams {
+                            attack: track.synth.adsr.attack,
+                            decay: track.synth.adsr.decay,
+                            sustain: track.synth.adsr.sustain,
+                            release: track.synth.adsr.release,
+                        };
+                        let msg = crate::engine::channel::UiToAudioMsg::UpdateSynthParams(
+                            track.id,
+                            waveform,
+                            adsr,
+                        );
+                        if ui_channels.0.try_push(msg).is_ok() {
+                            track.synth.last_sent_params = Some(current_params);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
     pub fn process_active_notes(&mut self) {
         let current_pos = self.state.playhead_pos as f64;
@@ -165,6 +197,7 @@ impl eframe::App for AuraDawApp {
             ctx.request_repaint();
         }
 
+        self.poll_synth_params();
         self.process_active_notes();
 
         crate::ui::effects::draw_effects_window(ctx, self);
@@ -272,7 +305,6 @@ mod tests {
         let mut app = AuraDawApp::default();
         let (tx, rx) = crate::mcp::channel::create_mcp_channel(10);
         app.mcp_receiver = Some(rx);
-
         // Play command
         tx.send(crate::mcp::channel::McpCommand::Play)?;
         app.poll_mcp_commands();
@@ -296,5 +328,33 @@ mod tests {
         app.poll_mcp_commands();
         assert_eq!(app.state.tracks.len(), 0);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests_synth {
+    use super::*;
+
+    #[test]
+    fn test_poll_synth_params() {
+        use ringbuf::traits::Consumer;
+        let mut app = AuraDawApp::default();
+        app.state.add_track("Synth Track");
+        app.state.tracks[0].synth.is_enabled = true;
+        app.state.tracks[0].synth.waveform = crate::state::track::Waveform::Square;
+
+        app.poll_synth_params();
+
+        let mut received = false;
+        if let Some(audio_channels) = &mut app.audio_channels_temp {
+            while let Some(msg) = audio_channels.0.try_pop() {
+                if let crate::engine::channel::UiToAudioMsg::UpdateSynthParams(id, waveform, _adsr) = msg {
+                    assert_eq!(id, app.state.tracks[0].id);
+                    assert_eq!(waveform, crate::engine::synth::Waveform::Square);
+                    received = true;
+                }
+            }
+        }
+        assert!(received);
     }
 }
