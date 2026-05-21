@@ -1,4 +1,10 @@
-//! シンセサイザーモジュール
+import re
+
+with open("src/engine/synth.rs", "r") as f:
+    content = f.read()
+
+# Generate new synth.rs
+new_content = """//! シンセサイザーモジュール
 //!
 //! ソフトウェアインストゥルメント（シンセサイザー）の基盤機能を提供します。
 //! 基本的なオシレータ、波形選択、ADSRエンベロープを実装します。
@@ -10,10 +16,8 @@ use std::f32::consts::PI;
 
 /// オシレーターの波形
 #[derive(Clone, Debug, PartialEq)]
-#[derive(Default)]
 pub enum Waveform {
     /// サイン波
-    #[default]
     Sine,
     /// 矩形波
     Square,
@@ -21,6 +25,11 @@ pub enum Waveform {
     Sawtooth,
 }
 
+impl Default for Waveform {
+    fn default() -> Self {
+        Self::Sine
+    }
+}
 
 /// ADSRエンベロープのパラメータ
 #[derive(Clone, Debug, PartialEq)]
@@ -271,11 +280,13 @@ mod tests {
         assert_eq!(env.state, AdsrState::Attack);
 
         // Attack phase: 0.1s * 100Hz = 10 samples
-        for _ in 0..11 {
+        for _ in 0..9 {
             env.next_value();
         }
+        assert_eq!(env.state, AdsrState::Attack);
+        let val = env.next_value();
         assert_eq!(env.state, AdsrState::Decay);
-        assert!((env.value - 1.0).abs() < 1e-4);
+        assert!((val - 1.0).abs() < 1e-4);
 
         // Note off
         env.note_off();
@@ -319,3 +330,7 @@ mod tests {
         assert!(val < 0.0); // (pi/2) / pi - 1 = -0.5
     }
 }
+"""
+
+with open("src/engine/synth.rs", "w") as f:
+    f.write(new_content)
