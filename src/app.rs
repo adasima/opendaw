@@ -48,13 +48,13 @@ impl AuraDawApp {
 
         if self.state.is_playing {
             for note in &self.state.active_sequence.notes {
-                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats {
-                    if active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
+                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+
                         let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
                         active_freqs[active_count] = freq;
                         active_count += 1;
                     }
-                }
             }
         }
 
