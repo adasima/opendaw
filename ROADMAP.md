@@ -16,16 +16,16 @@
 - [x] nova: [3] @A src/engine/mixer.rs を更新し、TrackMixDataのノート情報でシンセサイザーを発音させるロジックを実装する (対象: src/engine/mixer.rs)
 - [x] nova: [4] @B src/app.rs を更新し、プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信するロジックを実装する (対象: src/app.rs)
 
-## Phase 12: ADSRエンベロープと波形選択 (community) (進行中)
-- [ ] nova: [1] @A src/engine/synth.rs に波形(Sine, Square, Sawtooth)の列挙型と ADSR エンベロープの構造体を実装する (対象: src/engine/synth.rs)
-- [ ] nova: [2] @A src/engine/synth.rs などの関連ファイルを更新し、オシレーターで波形を生成し、エンベロープを適用する処理を実装する (対象: src/engine/synth.rs)
-- [ ] nova: [3] @B src/state/track.rs に ADSR パラメータと波形選択の設定を保持するフィールドを `SynthSetting` に追加し、デフォルト値を設定する (対象: src/state/track.rs)
+## Phase 12: ADSRエンベロープと波形選択 (community) (完了)
+- [x] [1] @A src/engine/synth.rs に波形(Sine, Square, Sawtooth)の列挙型と ADSR エンベロープの構造体を実装する (対象: src/engine/synth.rs)
+- [x] [2] @A src/engine/synth.rs などの関連ファイルを更新し、オシレーターで波形を生成し、エンベロープを適用する処理を実装する (対象: src/engine/synth.rs)
+- [x] [3] @B src/state/track.rs に ADSR パラメータと波形選択の設定を保持するフィールドを `SynthSetting` に追加し、デフォルト値を設定する (対象: src/state/track.rs)
 
-## Phase 13: UIからのパラメータ制御 (community)
-- [ ] nova: [1] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)を調整するUIを実装する (対象: src/ui/mixer.rs)
-- [ ] nova: [2] @B src/app.rs を更新し、UIで変更されたシンセサイザーのパラメータをオーディオエンジンに送信するロジックを実装する (対象: src/app.rs)
-- [ ] nova: [3] @A src/engine/channel.rs を更新し、シンセサイザーのパラメータ(波形、ADSR)を更新するメッセージを追加する (対象: src/engine/channel.rs)
-- [ ] nova: [4] @A src/engine/stream.rs または関連ファイルを更新し、受信したパラメータを各トラックのオシレーターに反映させる処理を実装する (対象: src/engine/stream.rs)
+## Phase 13: UIからのパラメータ制御 (community) (進行中)
+- [ ] [1] @A src/engine/channel.rs を更新し、シンセサイザーのパラメータ(波形、ADSR)を更新するメッセージ(例: UpdateSynthParams)を追加する (対象: src/engine/channel.rs)
+- [ ] [2] @A src/engine/stream.rs を更新し、受信したパラメータを各トラックのオシレーターに反映させる処理を実装する (対象: src/engine/stream.rs)
+- [ ] [3] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)を調整するUIを実装する (対象: src/ui/mixer.rs)
+- [ ] [4] @B src/app.rs を更新し、UIで変更されたシンセサイザーのパラメータをオーディオエンジンに送信するロジックを実装する (対象: src/app.rs)
 
 ## Phase 14: セッションビュー (Ableton Liveライク) の導入
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はUIの繋ぎ込みを担当してください。
