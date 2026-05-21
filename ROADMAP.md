@@ -15,12 +15,11 @@
 - [ ] nova: [2] @A src/engine/mixer.rs で判定されたノートに基づきシンセサイザーの set_active, set_frequency を呼ぶロジックを追加 (対象: src/engine/mixer.rs)
 
 ## Phase 12: ADSRエンベロープと波形選択 (community)
-- [ ] nova: [1] @A src/engine/synth.rs に ADSR エンベロープとオシレータ波形(Sine, Square, Sawtooth)の列挙型と処理を実装 (対象: src/engine/synth.rs)
-- [ ] nova: [2] @B src/state/track.rs に ADSR パラメータと波形選択の設定を保持するフィールドを追加 (対象: src/state/track.rs)
+- [ ] nova: [1] @A src/engine/synth.rs に波形(Sine, Square, Sawtooth)の列挙型と ADSR エンベロープの構造体および処理を実装 (対象: src/engine/synth.rs)
+- [ ] nova: [2] @B src/state/track.rs に ADSR パラメータと波形選択の設定を保持するフィールドを `SynthSetting` に追加し、デフォルト値を設定 (対象: src/state/track.rs)
 
 ## Phase 13: UIからのパラメータ制御 (community)
-- [ ] nova: [1] @B src/ui/mixer.rs を更新し、各トラックの波形選択と ADSR パラメータを調整するUIを実装 (対象: src/ui/mixer.rs)
-
+- [ ] nova: [1] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)を調整するUIを実装 (対象: src/ui/mixer.rs)
 
 ## Phase 14: セッションビュー (Ableton Liveライク) の導入
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はUIの繋ぎ込みを担当してください。
