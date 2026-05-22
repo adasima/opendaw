@@ -1,3 +1,4 @@
+pub mod session_view;
 pub mod ai_agent;
 pub mod effects;
 pub mod import;
