@@ -11,6 +11,7 @@ The screen is broadly divided into the following panels:
 1. **Menu Bar (Top)**
    - Handles global operations such as saving and loading projects (**Save Project** / **Load Project**).
    - Audio import (**Import Audio**) is also done from here.
+   - Use the **Arrangement** and **Session** buttons to toggle the main area view.
 2. **Tracks Panel (Left)**
    - Located on the left side of the screen, it displays a list of tracks in the current project. You can add or remove tracks here.
 3. **AI Agent Panel (Right)**
