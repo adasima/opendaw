@@ -231,4 +231,5 @@ mod tests {
         assert_eq!(engine.poll_ui_messages(&mut ui_channels), None);
     }
 }
+pub mod metronome;
 pub mod synth;
