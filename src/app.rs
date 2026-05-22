@@ -48,8 +48,12 @@ impl AuraDawApp {
         if let Some(ui_channels) = &mut self.ui_channels {
             for track in &mut self.state.tracks {
                 if track.synth.is_enabled {
-                    let current_params = (track.synth.waveform.clone(), track.synth.adsr.clone());
-                    if track.synth.last_sent_params.as_ref() != Some(&current_params) {
+                    let changed = match &track.synth.last_sent_params {
+                        Some(params) => params.0 != track.synth.waveform || params.1 != track.synth.adsr,
+                        None => true,
+                    };
+                    if changed {
+                        let current_params = (track.synth.waveform.clone(), track.synth.adsr.clone());
                         let waveform = match track.synth.waveform {
                             crate::state::track::Waveform::Sine => crate::engine::synth::Waveform::Sine,
                             crate::state::track::Waveform::Square => crate::engine::synth::Waveform::Square,
