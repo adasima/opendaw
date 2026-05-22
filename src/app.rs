@@ -22,6 +22,8 @@ pub struct AuraDawApp {
     pub opened_effect_track_id: Option<usize>,
     /// MCPサーバーからのコマンドを受信するチャンネル
     pub mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>,
+    /// 現在のビューがセッションビューかどうか
+    pub is_session_view: bool,
 }
 
 impl Default for AuraDawApp {
@@ -35,6 +37,7 @@ impl Default for AuraDawApp {
             audio_channels_temp: Some(audio_channels),
             opened_effect_track_id: None,
             mcp_receiver: None,
+            is_session_view: false,
         }
     }
 }
@@ -207,6 +210,10 @@ impl eframe::App for AuraDawApp {
             ui.horizontal(|ui| {
                 ui.heading("OpenDAW");
                 ui.separator();
+
+                ui.selectable_value(&mut self.is_session_view, false, "Arrangement");
+                ui.selectable_value(&mut self.is_session_view, true, "Session");
+                ui.separator();
                 crate::ui::import::draw_import_ui(ui, self);
                 crate::ui::project::draw_project_ui(ui, self);
             });
@@ -214,12 +221,20 @@ impl eframe::App for AuraDawApp {
 
         #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
-            crate::ui::draw_main_ui(self, ui);
+            if self.is_session_view {
+                crate::ui::session_view::draw_session_view(ui, self);
+            } else {
+                crate::ui::draw_main_ui(self, ui);
+            }
         });
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        crate::ui::draw_main_ui(self, ui);
+        if self.is_session_view {
+            crate::ui::session_view::draw_session_view(ui, self);
+        } else {
+            crate::ui::draw_main_ui(self, ui);
+        }
     }
 }
 
@@ -237,6 +252,18 @@ mod tests {
         assert_eq!(app.state.playhead_pos, 0.0);
         // チャンネルが初期化されていることを確認
         assert!(app.ui_channels.is_some());
+        // デフォルトではセッションビューが無効であることを確認
+        assert!(!app.is_session_view);
+    }
+
+    #[test]
+    fn test_view_switching() {
+        // ビュー切り替えのテスト
+        let mut app = AuraDawApp::default();
+        assert!(!app.is_session_view);
+
+        app.is_session_view = true;
+        assert!(app.is_session_view);
     }
 
     #[test]
