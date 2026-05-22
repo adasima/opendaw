@@ -17,6 +17,7 @@ pub struct DawState {
     #[serde(skip, default)]
     pub is_playing: bool,
     pub is_looping: bool,
+    pub is_metronome_enabled: bool,
     #[serde(skip, default)]
     pub playhead_pos: f32,
     pub master_volume: f32,
@@ -32,6 +33,7 @@ impl Default for DawState {
         Self {
             is_playing: false,
             is_looping: true,
+            is_metronome_enabled: false,
             playhead_pos: 0.0,
             master_volume: 0.8,
             is_muted: false,
@@ -63,6 +65,11 @@ impl DawState {
     /// ループ再生の有効・無効を切り替えます。
     pub fn toggle_loop(&mut self) {
         self.is_looping = !self.is_looping;
+    }
+
+    /// メトロノームの有効・無効を切り替えます。
+    pub fn toggle_metronome(&mut self) {
+        self.is_metronome_enabled = !self.is_metronome_enabled;
     }
 
     /// プレイヘッドを指定された位置に移動させます。
@@ -151,6 +158,18 @@ mod tests {
 
         state.toggle_loop();
         assert!(state.is_looping);
+    }
+
+    #[test]
+    fn test_toggle_metronome() {
+        let mut state = DawState::default();
+        assert!(!state.is_metronome_enabled);
+
+        state.toggle_metronome();
+        assert!(state.is_metronome_enabled);
+
+        state.toggle_metronome();
+        assert!(!state.is_metronome_enabled);
     }
 
     #[test]
