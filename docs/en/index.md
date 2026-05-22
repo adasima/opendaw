@@ -23,6 +23,7 @@ OpenDAW is a next-generation, portable DAW (Digital Audio Workstation) featuring
 - [Effects](user-guide/effects.md)
 - [Audio File Import](user-guide/audio-import.md)
 - [Export](user-guide/export.md)
+- [Metronome](user-guide/metronome.md)
 - [Plugin Browser](user-guide/browser.md)
 
 ### 📙 Reference
