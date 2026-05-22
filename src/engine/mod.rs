@@ -232,4 +232,5 @@ mod tests {
     }
 }
 pub mod metronome;
+pub mod recording;
 pub mod synth;
