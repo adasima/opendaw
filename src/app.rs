@@ -24,6 +24,8 @@ pub struct AuraDawApp {
     pub mcp_receiver: Option<crate::mcp::channel::McpCommandReceiver>,
     /// 現在のビューがセッションビューかどうか
     pub is_session_view: bool,
+    /// プラグインブラウザを開いているかどうか
+    pub is_plugin_browser_open: bool,
 }
 
 impl Default for AuraDawApp {
@@ -38,6 +40,7 @@ impl Default for AuraDawApp {
             opened_effect_track_id: None,
             mcp_receiver: None,
             is_session_view: false,
+            is_plugin_browser_open: false,
         }
     }
 }
@@ -209,6 +212,12 @@ impl eframe::App for AuraDawApp {
 
         crate::ui::effects::draw_effects_window(ctx, self);
 
+        if self.is_plugin_browser_open {
+            egui::Window::new("Plugin Browser").open(&mut self.is_plugin_browser_open).show(ctx, |ui| {
+                crate::ui::browser::draw_browser_panel(ui);
+            });
+        }
+
         #[allow(deprecated)]
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -217,6 +226,8 @@ impl eframe::App for AuraDawApp {
 
                 ui.selectable_value(&mut self.is_session_view, false, "Arrangement");
                 ui.selectable_value(&mut self.is_session_view, true, "Session");
+                ui.separator();
+                ui.toggle_value(&mut self.is_plugin_browser_open, "Browser");
                 ui.separator();
                 crate::ui::import::draw_import_ui(ui, self);
                 crate::ui::project::draw_project_ui(ui, self);
@@ -258,6 +269,16 @@ mod tests {
         assert!(app.ui_channels.is_some());
         // デフォルトではセッションビューが無効であることを確認
         assert!(!app.is_session_view);
+    }
+
+
+    #[test]
+    fn test_browser_switching() {
+        let mut app = AuraDawApp::default();
+        assert!(!app.is_plugin_browser_open);
+
+        app.is_plugin_browser_open = true;
+        assert!(app.is_plugin_browser_open);
     }
 
     #[test]
