@@ -21,16 +21,17 @@
 - [x] [2] @A src/engine/synth.rs などの関連ファイルを更新し、オシレーターで波形を生成し、エンベロープを適用する処理を実装する (対象: src/engine/synth.rs)
 - [x] [3] @B src/state/track.rs に ADSR パラメータと波形選択の設定を保持するフィールドを `SynthSetting` に追加し、デフォルト値を設定する (対象: src/state/track.rs)
 
-## Phase 13: UIからのパラメータ制御 (community) (進行中)
-- [ ] [1] @A src/engine/channel.rs に `UpdateSynthParams` メッセージを追加し、UIとエンジンの通信を拡張する (対象: src/engine/channel.rs)
-- [ ] [2] @A src/engine/stream.rs を更新し、受信した `UpdateSynthParams` を各トラックのオシレーターに反映させる (対象: src/engine/stream.rs)
-- [ ] [3] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)のUIを実装する (対象: src/ui/mixer.rs)
-- [ ] [4] @B src/app.rs を更新し、UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信する (対象: src/app.rs)
+## Phase 13: UIからのパラメータ制御 (community) (完了)
+- [x] [1] @A src/engine/channel.rs に `UpdateSynthParams` メッセージを追加し、UIとエンジンの通信を拡張する (対象: src/engine/channel.rs)
+- [x] [2] @A src/engine/stream.rs を更新し、受信した `UpdateSynthParams` を各トラックのオシレーターに反映させる (対象: src/engine/stream.rs)
+- [x] [3] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)のUIを実装する (対象: src/ui/mixer.rs)
+- [x] [4] @B src/app.rs を更新し、UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信する (対象: src/app.rs)
 
-## Phase 14: セッションビュー (Ableton Liveライク) の導入
+## Phase 14: セッションビュー (Ableton Liveライク) の導入 (進行中)
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はUIの繋ぎ込みを担当してください。
 - [ ] 人間: `Clip`, `Scene` データ構造の設計とコア基盤の実装 (対象: src/core/session.rs など)
-- [ ] Jules: eguiを用いたセッションビューのクリップグリッドUIの描画 (対象: src/ui/session_view.rs)
+- [ ] [1] @A src/ui/session_view.rs を作成し、ダミーデータを用いてセッションビューのスケルトンUI（クリップグリッド）を描画する (対象: src/ui/session_view.rs, src/ui/mod.rs)
+- [ ] [2] @B src/app.rs を更新し、メイン画面にセッションビューを統合する (対象: src/app.rs)
 
 ## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入
 > ⚠️ **ハイブリッド開発**: VST3/CLAPのFFIなど複雑な実装は人間が直接コミットします。AIはブラウザやUIを担当してください。
