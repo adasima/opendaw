@@ -30,8 +30,8 @@
 ## Phase 14: セッションビュー (Ableton Liveライク) の導入 (進行中)
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はUIの繋ぎ込みを担当してください。
 - [ ] 人間: `Clip`, `Scene` データ構造の設計とコア基盤の実装 (対象: src/core/session.rs など)
-- [ ] [1] @A src/ui/session_view.rs を作成し、ダミーデータを用いてセッションビューのスケルトンUI（クリップグリッド）を描画する (対象: src/ui/session_view.rs, src/ui/mod.rs)
-- [ ] [2] @B src/app.rs を更新し、メイン画面にセッションビューを統合する (対象: src/app.rs)
+- [x] [1] @A src/ui/session_view.rs を作成し、ダミーデータを用いてセッションビューのスケルトンUI（クリップグリッド）を描画する (対象: src/ui/session_view.rs, src/ui/mod.rs)
+- [x] [2] @B src/app.rs を更新し、メイン画面にセッションビューを統合する (対象: src/app.rs)
 
 ## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入
 > ⚠️ **ハイブリッド開発**: VST3/CLAPのFFIなど複雑な実装は人間が直接コミットします。AIはブラウザやUIを担当してください。
