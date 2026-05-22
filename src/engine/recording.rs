@@ -48,7 +48,9 @@ impl Recorder {
             host.input_devices()
                 .map_err(|e| e.to_string())?
                 .find(|d| {
-                    d.name().ok().as_deref() == Some(name)
+                    #[allow(deprecated)]
+                    let dev_name = d.name();
+                    dev_name.ok().as_deref() == Some(name)
                 })
         } else {
             host.default_input_device()
