@@ -23,6 +23,7 @@ OpenDAW は、**Discordライクな直感性 × グラスモーフィズムUI ×
 - [エフェクト](user-guide/effects.md)
 - [オーディオファイルのインポート](user-guide/audio-import.md)
 - [エクスポート](user-guide/export.md)
+- [メトロノーム](user-guide/metronome.md)
 - [プラグインブラウザ](user-guide/browser.md)
 
 ### 📙 リファレンス
