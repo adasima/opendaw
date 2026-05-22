@@ -33,8 +33,14 @@
 - [x] [1] @A src/ui/session_view.rs を作成し、ダミーデータを用いてセッションビューのスケルトンUI（クリップグリッド）を描画する (対象: src/ui/session_view.rs, src/ui/mod.rs)
 - [x] [2] @B src/app.rs を更新し、メイン画面にセッションビューを統合する (対象: src/app.rs)
 
-## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入 (進行中)
+## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入 (AI実装完了・人間の実装待ち)
 > ⚠️ **ハイブリッド開発**: VST3/CLAPのFFIなど複雑な実装は人間が直接コミットします。AIはブラウザやUIを担当してください。
 - [ ] 人間: `vst3-sys` 等を用いたプラグインロードの安全なラッパー層の実装 (対象: src/plugin/host.rs)
-- [ ] [1] @A src/ui/browser.rs を作成し、ダミーデータを用いてプラグイン一覧を表示するブラウザパネルUIのスケルトンを実装する (対象: src/ui/browser.rs, src/ui/mod.rs)
-- [ ] [2] @B src/app.rs を更新し、メイン画面または新規ウィンドウとしてプラグインブラウザパネルを統合する (対象: src/app.rs)
+- [x] [1] @A src/ui/browser.rs を作成し、ダミーデータを用いてプラグイン一覧を表示するブラウザパネルUIのスケルトンを実装する (対象: src/ui/browser.rs, src/ui/mod.rs)
+- [x] [2] @B src/app.rs を更新し、メイン画面または新規ウィンドウとしてプラグインブラウザパネルを統合する (対象: src/app.rs)
+
+## Phase 16: メトロノーム機能の追加 (進行中)
+- [ ] [1] @A src/engine/metronome.rs を作成し、BPMと再生位置に基づいてクリック音を生成する機能を実装する (対象: src/engine/metronome.rs, src/engine/mod.rs)
+- [ ] [2] @A src/engine/mixer.rs を更新し、メトロノーム音をマスター出力にミックスする処理を追加する (対象: src/engine/mixer.rs)
+- [ ] [3] @B src/state/mod.rs の `DawState` に `is_metronome_enabled` を追加する (対象: src/state/mod.rs)
+- [ ] [4] @B src/ui/transport.rs を更新し、メトロノームのオン/オフを切り替えるUIボタンを追加する (対象: src/ui/transport.rs)
