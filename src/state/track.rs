@@ -121,6 +121,9 @@ pub struct Track {
     /// シンセサイザーの設定
     #[serde(default)]
     pub synth: SynthSetting,
+    /// トラック内のオーディオクリップ
+    #[serde(default)]
+    pub clips: Vec<crate::state::clip::AudioClip>,
 }
 
 impl Track {
@@ -135,6 +138,7 @@ impl Track {
             is_solo: false,
             effects: Vec::new(),
             synth: SynthSetting::default(),
+            clips: Vec::new(),
         }
     }
 
@@ -211,6 +215,7 @@ mod tests {
         assert!(track.effects.is_empty());
         assert!(!track.synth.is_enabled);
         assert_eq!(track.synth.frequency, 440.0);
+        assert!(track.clips.is_empty());
     }
 
     #[test]
