@@ -18,7 +18,8 @@ src/
 │   ├── ai_agent.rs      # AIエージェントパネル
 │   ├── piano_roll.rs    # ピアノロールエディタ
 │   ├── effects.rs       # エフェクトチェーンUI
-│   └── import.rs        # ファイルインポートダイアログ
+│   ├── import.rs        # ファイルインポートダイアログ
+│   └── browser.rs       # プラグインブラウザパネル
 │
 ├── engine/              # オーディオエンジン（リアルタイムスレッド）
 │   ├── mod.rs           # AudioEngine 構造体、初期化・制御
