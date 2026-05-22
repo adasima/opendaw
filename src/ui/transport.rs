@@ -45,6 +45,15 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
             app.state.toggle_loop();
         }
 
+        let metronome_icon = if app.state.is_metronome_enabled {
+            "⏱ (On)"
+        } else {
+            "⏱ (Off)"
+        };
+        if ui.button(metronome_icon).on_hover_text("Toggle Metronome").clicked() {
+            app.state.toggle_metronome();
+        }
+
         ui.separator();
 
         // BPMコントロール
