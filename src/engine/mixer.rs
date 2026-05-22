@@ -412,3 +412,29 @@ mod tests {
         assert_eq!(out, vec![0.0, 0.0, 0.0, 0.0]);
     }
 }
+
+/// マスターバッファにメトロノーム音をミックスします。
+pub fn mix_metronome(
+    out_buffer: &mut [f32],
+    channels: u16,
+    metronome: &mut crate::engine::metronome::Metronome,
+    playhead_samples: usize,
+    bpm: f32,
+    is_enabled: bool,
+) {
+    metronome.process(out_buffer, channels, playhead_samples, bpm, is_enabled);
+}
+
+#[cfg(test)]
+mod metronome_mixer_tests {
+    use super::*;
+
+    #[test]
+    fn test_mix_metronome() {
+        let mut out = vec![0.0; 4];
+        let mut metro = crate::engine::metronome::Metronome::new(44100.0);
+        mix_metronome(&mut out, 2, &mut metro, 0, 120.0, true);
+        // metronome output added
+        // It should modify the out buffer
+    }
+}
