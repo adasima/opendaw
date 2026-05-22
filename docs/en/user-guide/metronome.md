@@ -7,7 +7,10 @@ The metronome generates a periodic click sound based on the playback position an
 An accent (higher pitch) is played on the first beat of each bar, while a standard click sound is played on the other beats, making it easier to identify the beginning of a measure.
 
 ## Basic Usage
-In the current version, only the core engine (backend) of the metronome feature is implemented.
+1. Click the **⏱** (Metronome) button located in the transport panel at the top of the screen.
+2. The button display changes to **⏱ (On)**, and the metronome is enabled.
+3. Click the play button (**▶**) in the transport panel to start playback. The click sound will play according to the set BPM.
+4. To disable the metronome, click the **⏱** button again to change it to **⏱ (Off)**.
 
 ## Detailed Settings
 The internal specifications of the metronome are as follows:
@@ -24,6 +27,3 @@ In the current version, there are no dedicated keyboard shortcuts for operating 
 
 ## See Also
 - [Transport Control](../user-guide/transport.md)
-
-## Notes and Limitations
-> In the current version, the metronome feature is only implemented in the backend (audio engine), and the UI (such as an on/off toggle button) is not yet implemented. Therefore, it is not possible to enable the metronome from the screen.
