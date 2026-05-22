@@ -27,13 +27,13 @@
 - [x] [3] @B src/ui/mixer.rs を更新し、各トラックの波形選択(ComboBox)と ADSR パラメータ(Slider)のUIを実装する (対象: src/ui/mixer.rs)
 - [x] [4] @B src/app.rs を更新し、UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信する (対象: src/app.rs)
 
-## Phase 14: セッションビュー (Ableton Liveライク) の導入 (進行中)
+## Phase 14: セッションビュー (Ableton Liveライク) の導入 (AI実装完了・人間の実装待ち)
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はUIの繋ぎ込みを担当してください。
 - [ ] 人間: `Clip`, `Scene` データ構造の設計とコア基盤の実装 (対象: src/core/session.rs など)
 - [x] [1] @A src/ui/session_view.rs を作成し、ダミーデータを用いてセッションビューのスケルトンUI（クリップグリッド）を描画する (対象: src/ui/session_view.rs, src/ui/mod.rs)
 - [x] [2] @B src/app.rs を更新し、メイン画面にセッションビューを統合する (対象: src/app.rs)
 
-## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入
+## Phase 15: モダン・プラグインホスト (VST3 / CLAP) の導入 (進行中)
 > ⚠️ **ハイブリッド開発**: VST3/CLAPのFFIなど複雑な実装は人間が直接コミットします。AIはブラウザやUIを担当してください。
 - [ ] 人間: `vst3-sys` 等を用いたプラグインロードの安全なラッパー層の実装 (対象: src/plugin/host.rs)
 - [ ] [1] @A src/ui/browser.rs を作成し、ダミーデータを用いてプラグイン一覧を表示するブラウザパネルUIのスケルトンを実装する (対象: src/ui/browser.rs, src/ui/mod.rs)
