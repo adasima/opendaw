@@ -140,7 +140,7 @@ mod tests {
     fn test_mix_tracks_mono_center() {
         let mut out = vec![0.0; 4]; // 2 frames stereo
         let samples = vec![0.5, 0.5];
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
@@ -165,7 +165,7 @@ mod tests {
     fn test_mix_tracks_mono_pan_left() {
         let mut out = vec![0.0; 4];
         let samples = vec![1.0, 1.0];
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
@@ -189,7 +189,7 @@ mod tests {
     fn test_mix_tracks_stereo() {
         let mut out = vec![0.0; 4];
         let samples = vec![0.5, 0.2, 0.5, 0.2]; // L, R, L, R
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 2,
             volume: 1.0,
@@ -214,7 +214,7 @@ mod tests {
     fn test_mix_tracks_mute() {
         let mut out = vec![0.0; 4];
         let samples = vec![1.0, 1.0];
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
@@ -273,7 +273,7 @@ mod tests {
     fn test_mix_tracks_volume() {
         let mut out = vec![0.0; 2];
         let samples = vec![1.0];
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 0.5, // Half volume
@@ -353,7 +353,7 @@ mod tests {
 
         let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
         active_notes[0] = 1.0;
-        let mut track = TrackMixData {
+        let track = TrackMixData {
             samples: &samples,
             channels: 1,
             volume: 1.0,
