@@ -14,6 +14,8 @@ The Synthesizer feature generates and outputs audio waveforms directly within th
 1. Locate the controls for the added track in the Mixer panel at the bottom of the screen.
 2. Adjust the volume using the **Volume** slider.
 3. Move the **Freq (Hz)** slider left or right to change the pitch of the generated sound.
+4. Select a waveform (Sine, Square, Sawtooth) from the **Waveform** drop-down menu.
+5. Adjust the envelope (A, D, S, R) using the sliders in the **ADSR** section.
 
 ## Detailed Settings
 Each synthesizer has the following parameters. These settings are saved in the project file (`.aura`).
@@ -23,10 +25,10 @@ Each synthesizer has the following parameters. These settings are saved in the p
 | Synth | The enabled/disabled state of the synthesizer | Off (On when adding a Synth track) | On / Off |
 | Freq (Hz) | The base frequency | 440.0 | 20.0 to 20000.0 |
 | Waveform | Oscillator waveform (Sine, Square, Sawtooth) | Sine | - |
-| Attack | ADSR: Attack time (seconds) | 0.01 | 0.0 or more |
-| Decay | ADSR: Decay time (seconds) | 0.1 | 0.0 or more |
+| Attack | ADSR: Attack time (seconds) | 0.01 | 0.0 to 2.0 |
+| Decay | ADSR: Decay time (seconds) | 0.1 | 0.0 to 2.0 |
 | Sustain | ADSR: Sustain level | 0.5 | 0.0 to 1.0 |
-| Release | ADSR: Release time (seconds) | 0.1 | 0.0 or more |
+| Release | ADSR: Release time (seconds) | 0.1 | 0.0 to 5.0 |
 
 ## Keyboard Shortcuts
 In the current version, there are no keyboard shortcuts dedicated specifically to synthesizer operations.
@@ -36,5 +38,4 @@ In the current version, there are no keyboard shortcuts dedicated specifically t
 - [Mixer](../user-guide/mixer.md)
 
 ## Notes and Limitations
-> - In the current version, while the selection of Waveform and the parameters for the ADSR envelope are implemented in the internal engine, there are no UI controls for them yet. Only the frequency (Freq) can be changed from the screen. These UI controls are planned for future updates.
 > - In the current version, the synthesizer generates sound when it receives active MIDI notes (e.g., from the piano roll). If there are no active MIDI notes, it remains silent.
