@@ -17,6 +17,8 @@ use crate::midi::sequence::Sequence;
 pub struct DawState {
     #[serde(skip, default)]
     pub is_playing: bool,
+    #[serde(skip, default)]
+    pub is_recording: bool,
     pub is_looping: bool,
     pub is_metronome_enabled: bool,
     #[serde(skip, default)]
@@ -33,6 +35,7 @@ impl Default for DawState {
     fn default() -> Self {
         Self {
             is_playing: false,
+            is_recording: false,
             is_looping: true,
             is_metronome_enabled: false,
             playhead_pos: 0.0,
@@ -55,6 +58,11 @@ impl DawState {
     /// 再生・一時停止の状態を切り替えます。
     pub fn toggle_playback(&mut self) {
         self.is_playing = !self.is_playing;
+    }
+
+    /// 録音状態を切り替えます。
+    pub fn toggle_recording(&mut self) {
+        self.is_recording = !self.is_recording;
     }
 
     /// 再生を停止し、プレイヘッドの位置を初期化（0.0）します。
@@ -138,8 +146,22 @@ mod tests {
         assert!(!state.is_playing);
     }
 
+
+    #[test]
+    fn test_toggle_recording() {
+        let mut state = DawState::default();
+        assert!(!state.is_recording);
+
+        state.toggle_recording();
+        assert!(state.is_recording);
+
+        state.toggle_recording();
+        assert!(!state.is_recording);
+    }
+
     #[test]
     fn test_stop_playback() {
+
         let mut state = DawState::default();
         state.is_playing = true;
         state.playhead_pos = 50.0;

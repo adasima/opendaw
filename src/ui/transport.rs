@@ -10,6 +10,16 @@ const TIME_SCALER: f32 = 0.1;
 pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
     ui.horizontal(|ui| {
         let play_icon = if app.state.is_playing { "⏸" } else { "▶" };
+
+        let record_icon = if app.state.is_recording { "⏺ (On)" } else { "⏺" };
+        let record_color = if app.state.is_recording {
+            egui::Color32::RED
+        } else {
+            ui.visuals().text_color()
+        };
+        if ui.add(egui::Button::new(egui::RichText::new(record_icon).color(record_color))).on_hover_text("Record").clicked() {
+            app.state.toggle_recording();
+        }
         if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
             app.state.toggle_playback();
             if let Some(ui_channels) = &mut app.ui_channels {
