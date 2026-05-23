@@ -27,6 +27,18 @@ pub enum UiToAudioMsg {
     UpdateSynthParams(usize, Waveform, AdsrParams),
     /// 録音されたオーディオデータの追加 (トラックID, 開始位置(サンプル数), オーディオデータ)
     AddRecordedClip(usize, usize, std::sync::Arc<Vec<f32>>),
+    /// エフェクトパラメータの更新 (トラックID, エフェクトID, パラメータ)
+    UpdateEffectParams(usize, usize, EffectParams),
+    /// エフェクトの有効/無効切り替え (トラックID, エフェクトID, 有効か)
+    SetEffectEnabled(usize, usize, bool),
+}
+
+/// エフェクトパラメータ
+#[derive(Clone, Debug, PartialEq)]
+pub enum EffectParams {
+    Gain(f32),
+    Filter { cutoff_freq: f32, filter_type: crate::engine::effects::filter::FilterType },
+    Delay { time_ms: f32, feedback: f32, mix: f32 },
 }
 
 /// オーディオスレッドからUIへのメッセージ
