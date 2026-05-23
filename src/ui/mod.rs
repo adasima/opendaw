@@ -45,3 +45,5 @@ pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
         crate::ui::piano_roll::draw_piano_roll(ui, app);
     });
 }
+
+pub mod theme;

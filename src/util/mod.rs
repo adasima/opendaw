@@ -6,3 +6,5 @@
 pub const PLAYHEAD_MIN: f32 = 0.0;
 /// プレイヘッド位置の最大値
 pub const PLAYHEAD_MAX: f32 = 100.0;
+
+pub mod media_index;

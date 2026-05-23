@@ -118,49 +118,24 @@ impl AuraDawApp {
     /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
     pub fn process_active_notes(&mut self) {
         let current_pos = self.state.playhead_pos as f64;
+        let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+        let mut active_count = 0;
+
+        if self.state.is_playing {
+            for note in &self.state.active_sequence.notes {
+                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
+                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+
+                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                        active_freqs[active_count] = freq;
+                        active_count += 1;
+                    }
+            }
+        }
 
         if let Some(ui_channels) = &mut self.ui_channels {
-            for (track_idx, track) in self.state.tracks.iter().enumerate() {
+            for track in &self.state.tracks {
                 if track.synth.is_enabled {
-                    let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
-                    let mut active_count = 0;
-
-                    // (Phase 20要件) 最初のトラックのMidiClipをピアノロールのactive_sequenceと同期させる
-                    // 毎フレームcloneするのを避けるため、今回はノート数の変更や簡易的なチェックだけでは難しいですが、
-                    // 要件「ピアノロールUIでの変更をトラック内の MidiClip に反映し」のために、
-                    // この段階ではUI側(piano_roll.rs)で直接操作するか、ここでcloneするしかありません。
-                    // パフォーマンスの観点から、もしシーケンスに変更があった場合だけ同期するのが理想です。
-                    // 今回の修正では、最初のトラックに対してのみactive_sequenceの音を鳴らすことで、二重発音と全トラックへの発音を防ぎます。
-
-                    if track_idx == 0 {
-                        // 最初のトラックには active_sequence (ピアノロールで編集中のもの) の音を適用
-                        if self.state.is_playing {
-                            for note in &self.state.active_sequence.notes {
-                                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
-                                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-                                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
-                                        active_freqs[active_count] = freq;
-                                        active_count += 1;
-                                    }
-                            }
-                        }
-                    } else {
-                        // 他のトラックは自身のmidi_clipsの音を適用
-                        if self.state.is_playing {
-                            for clip in &track.midi_clips {
-                                for note in &clip.sequence.notes {
-                                    let absolute_start = clip.start_beat + note.start_beat;
-                                    if current_pos >= absolute_start && current_pos < absolute_start + note.duration_beats
-                                        && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-                                            let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
-                                            active_freqs[active_count] = freq;
-                                            active_count += 1;
-                                        }
-                                }
-                            }
-                        }
-                    }
-
                     let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
                         track.id,
                         active_freqs,
