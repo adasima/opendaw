@@ -32,6 +32,10 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut AuraDawApp) {
                     let new_id = track.effects.iter().map(|e| e.id).max().unwrap_or(0) + 1;
                     track.add_effect(EffectSetting::new(new_id, EffectType::Filter));
                 }
+                if ui.button("Add Delay").clicked() {
+                    let new_id = track.effects.iter().map(|e| e.id).max().unwrap_or(0) + 1;
+                    track.add_effect(EffectSetting::new(new_id, EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 }));
+                }
             });
 
             ui.separator();
@@ -49,8 +53,19 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut AuraDawApp) {
                         let effect_name = match track.effects[i].effect_type {
                             EffectType::Gain => "Gain",
                             EffectType::Filter => "Filter",
+                            EffectType::Delay { .. } => "Delay",
                         };
                         ui.label(effect_name);
+
+                        match &mut track.effects[i].effect_type {
+                            EffectType::Gain => {}
+                            EffectType::Filter => {}
+                            EffectType::Delay { time_ms, feedback, mix } => {
+                                ui.add(egui::Slider::new(time_ms, 1.0..=2000.0).text("Time (ms)"));
+                                ui.add(egui::Slider::new(feedback, 0.0..=0.99).text("Feedback"));
+                                ui.add(egui::Slider::new(mix, 0.0..=1.0).text("Mix"));
+                            }
+                        }
 
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if ui.button("X").on_hover_text("Remove").clicked() {

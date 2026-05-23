@@ -51,6 +51,35 @@ impl Default for AuraDawApp {
 
 impl AuraDawApp {
     /// UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信します。
+    pub fn poll_effect_params(&mut self) {
+        if let Some(ui_channels) = &mut self.ui_channels {
+            for track in &mut self.state.tracks {
+                for effect in &mut track.effects {
+                    let changed = match &effect.last_sent_type {
+                        Some(last_type) => last_type != &effect.effect_type,
+                        None => true,
+                    };
+
+                    if changed {
+                        match &effect.effect_type {
+                            crate::state::track::EffectType::Delay { time_ms, feedback, mix } => {
+                                let params = crate::engine::channel::EffectParams::Delay {
+                                    time_ms: *time_ms,
+                                    feedback: *feedback,
+                                    mix: *mix,
+                                };
+                                let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::UpdateEffectParams(track.id, effect.id, params));
+                            }
+                            crate::state::track::EffectType::Gain => {}
+                            crate::state::track::EffectType::Filter => {}
+                        }
+                        effect.last_sent_type = Some(effect.effect_type.clone());
+                    }
+                }
+            }
+        }
+    }
+
     pub fn poll_synth_params(&mut self) {
         if let Some(ui_channels) = &mut self.ui_channels {
             for track in &mut self.state.tracks {
@@ -244,6 +273,7 @@ impl eframe::App for AuraDawApp {
         }
 
         self.poll_synth_params();
+        self.poll_effect_params();
         self.process_active_notes();
 
         crate::ui::effects::draw_effects_window(ctx, self);
@@ -444,5 +474,43 @@ mod tests_synth {
             }
         }
         assert!(received);
+    }
+    #[test]
+    fn test_poll_effect_params() {
+        use ringbuf::traits::Consumer;
+        let mut app = AuraDawApp::default();
+        app.state.add_track("Effect Track");
+
+        let delay_effect = crate::state::track::EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 };
+        app.state.tracks[0].add_effect(crate::state::track::EffectSetting::new(1, delay_effect));
+
+        app.poll_effect_params();
+
+        let mut received = false;
+        if let Some(audio_channels) = &mut app.audio_channels_temp {
+            while let Some(msg) = audio_channels.0.try_pop() {
+                if let crate::engine::channel::UiToAudioMsg::UpdateEffectParams(track_id, effect_id, params) = msg {
+                    assert_eq!(track_id, app.state.tracks[0].id);
+                    assert_eq!(effect_id, 1);
+                    if let crate::engine::channel::EffectParams::Delay { time_ms, feedback, mix } = params {
+                        assert_eq!(time_ms, 300.0);
+                        assert_eq!(feedback, 0.3);
+                        assert_eq!(mix, 0.5);
+                        received = true;
+                    }
+                }
+            }
+        }
+        assert!(received);
+
+        // Test that second poll without changes doesn't send anything
+        app.poll_effect_params();
+        let mut received_second = false;
+        if let Some(audio_channels) = &mut app.audio_channels_temp {
+            while let Some(_) = audio_channels.0.try_pop() {
+                received_second = true;
+            }
+        }
+        assert!(!received_second);
     }
 }

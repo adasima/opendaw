@@ -9,6 +9,8 @@ pub enum EffectType {
     Gain,
     /// フィルターエフェクト
     Filter,
+    /// ディレイエフェクト
+    Delay { time_ms: f32, feedback: f32, mix: f32 },
 }
 
 /// トラックに適用されるエフェクトの設定
@@ -20,6 +22,9 @@ pub struct EffectSetting {
     pub effect_type: EffectType,
     /// エフェクトが有効かどうか
     pub is_enabled: bool,
+    /// 前回オーディオエンジンに送信した種類（変更検知用）
+    #[serde(skip)]
+    pub last_sent_type: Option<EffectType>,
 }
 
 impl EffectSetting {
@@ -29,6 +34,7 @@ impl EffectSetting {
             id,
             effect_type,
             is_enabled: true,
+            last_sent_type: None,
         }
     }
 }
