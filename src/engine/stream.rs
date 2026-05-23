@@ -65,6 +65,9 @@ pub fn build_output_stream(
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
             let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
+            let mut track_delay = crate::engine::effects::delay::DelayEffect::new(config.sample_rate as f32);
+            let mut track_gain = crate::engine::effects::gain::GainEffect::new(1.0);
+            let mut track_filter = crate::engine::effects::filter::BiquadFilter::new(crate::engine::effects::filter::FilterType::LowPass, 1000.0, config.sample_rate as f32);
             const MAX_CLIPS: usize = 16;
             let mut recorded_clips: [Option<(usize, std::sync::Arc<Vec<f32>>)>; MAX_CLIPS] = Default::default();
             let mut next_clip_idx = 0;
@@ -94,6 +97,29 @@ pub fn build_output_stream(
                                                 next_clip_idx += 1;
                                             }
                                         }
+                                        UiToAudioMsg::UpdateEffectParams(_track_id, _effect_id, params) => {
+                                            match params {
+                                                crate::engine::channel::EffectParams::Delay { time_ms, feedback, mix } => {
+                                                    track_delay.set_params(time_ms, feedback, mix);
+                                                }
+                                                crate::engine::channel::EffectParams::Gain(gain) => {
+                                                    track_gain.set_gain(gain);
+                                                }
+                                                crate::engine::channel::EffectParams::Filter { cutoff_freq, filter_type } => {
+                                                    track_filter.set_cutoff(cutoff_freq);
+                                                    track_filter.set_type(filter_type);
+                                                }
+                                            }
+                                        }
+                                        UiToAudioMsg::SetEffectEnabled(_track_id, effect_id, enabled) => {
+                                            use crate::engine::effects::AudioEffect;
+                                            // 簡易的にeffect_idで区別 (0: Gain, 1: Filter, 2: Delay)
+                                            match effect_id {
+                                                0 => track_gain.set_enabled(enabled),
+                                                1 => track_filter.set_enabled(enabled),
+                                                _ => track_delay.set_enabled(enabled),
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -119,7 +145,7 @@ pub fn build_output_stream(
                                 is_solo: false,
                                 active_notes,
                                 active_note_count,
-                                effects: &mut [],
+                                effects: &mut [&mut track_gain as &mut dyn crate::engine::effects::AudioEffect, &mut track_filter as &mut dyn crate::engine::effects::AudioEffect, &mut track_delay as &mut dyn crate::engine::effects::AudioEffect],
                                 oscillator: Some(&mut track_oscillator),
                             };
 
@@ -169,6 +195,9 @@ pub fn build_output_stream(
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
             let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
+            let mut track_delay = crate::engine::effects::delay::DelayEffect::new(config.sample_rate as f32);
+            let mut track_gain = crate::engine::effects::gain::GainEffect::new(1.0);
+            let mut track_filter = crate::engine::effects::filter::BiquadFilter::new(crate::engine::effects::filter::FilterType::LowPass, 1000.0, config.sample_rate as f32);
             let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
             const MAX_CLIPS: usize = 16;
             let mut recorded_clips: [Option<(usize, std::sync::Arc<Vec<f32>>)>; MAX_CLIPS] = Default::default();
@@ -197,6 +226,29 @@ pub fn build_output_stream(
                                             if next_clip_idx < MAX_CLIPS {
                                                 recorded_clips[next_clip_idx] = Some((start_pos, data));
                                                 next_clip_idx += 1;
+                                            }
+                                        }
+                                        UiToAudioMsg::UpdateEffectParams(_track_id, _effect_id, params) => {
+                                            match params {
+                                                crate::engine::channel::EffectParams::Delay { time_ms, feedback, mix } => {
+                                                    track_delay.set_params(time_ms, feedback, mix);
+                                                }
+                                                crate::engine::channel::EffectParams::Gain(gain) => {
+                                                    track_gain.set_gain(gain);
+                                                }
+                                                crate::engine::channel::EffectParams::Filter { cutoff_freq, filter_type } => {
+                                                    track_filter.set_cutoff(cutoff_freq);
+                                                    track_filter.set_type(filter_type);
+                                                }
+                                            }
+                                        }
+                                        UiToAudioMsg::SetEffectEnabled(_track_id, effect_id, enabled) => {
+                                            use crate::engine::effects::AudioEffect;
+                                            // 簡易的にeffect_idで区別 (0: Gain, 1: Filter, 2: Delay)
+                                            match effect_id {
+                                                0 => track_gain.set_enabled(enabled),
+                                                1 => track_filter.set_enabled(enabled),
+                                                _ => track_delay.set_enabled(enabled),
                                             }
                                         }
                                     }
@@ -229,7 +281,7 @@ pub fn build_output_stream(
                                     is_solo: false,
                                     active_notes,
                                     active_note_count,
-                                    effects: &mut [],
+                                    effects: &mut [&mut track_gain as &mut dyn crate::engine::effects::AudioEffect, &mut track_filter as &mut dyn crate::engine::effects::AudioEffect, &mut track_delay as &mut dyn crate::engine::effects::AudioEffect],
                                     oscillator: Some(&mut track_oscillator),
                                 };
 

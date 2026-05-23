@@ -58,8 +58,7 @@
 - [x] [3] @B src/app.rs を更新し、録音停止時にキャプチャしたオーディオデータを新しいクリップとしてトラックに追加する処理を実装する (対象: src/app.rs)
 
 ## Phase 19: エフェクトプラグイン対応 (進行中)
-- [x] [1] @A src/engine/effects/mod.rs に新しいエフェクト（例：ディレイ、リバーブ）の構造体とトレイト実装を追加する (対象: src/engine/effects/mod.rs, src/engine/effects/delay.rs)
-- [ ] [2] @B src/state/track.rs を更新し、EffectType に新エフェクトを追加する (対象: src/state/track.rs)
-- [ ] [3] @B src/ui/effects.rs を更新し、新しいエフェクトのパラメータを調整するUIコンポーネントを追加する (対象: src/ui/effects.rs)
-- [ ] [4] @A src/engine/channel.rs にエフェクトパラメータ更新用のメッセージを追加し、UIからの変更をエンジンに伝達できるようにする (対象: src/engine/channel.rs)
-- [ ] [5] @A src/engine/mixer.rs または src/engine/stream.rs を更新し、エフェクトをオーディオパイプラインに組み込む (対象: src/engine/mixer.rs, src/engine/stream.rs)
+- [ ] [1] @A src/engine/effects/mod.rs に新しいエフェクト（例：ディレイ、リバーブ）の構造体とトレイト実装を追加する (対象: src/engine/effects/mod.rs, src/engine/effects/delay.rs)
+- [ ] [2] @B src/ui/effects.rs を更新し、新しいエフェクトのパラメータを調整するUIコンポーネントを追加する (対象: src/ui/effects.rs)
+- [ ] [3] @A src/engine/channel.rs にエフェクトパラメータ更新用のメッセージを追加し、UIからの変更をエンジンに伝達できるようにする (対象: src/engine/channel.rs)
+- [ ] [4] @A src/engine/mixer.rs または src/engine/stream.rs を更新し、エフェクトをオーディオパイプラインに組み込む (対象: src/engine/mixer.rs, src/engine/stream.rs)
