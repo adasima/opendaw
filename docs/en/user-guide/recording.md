@@ -31,4 +31,3 @@ In the current version, there are no keyboard shortcuts dedicated to recording o
 ## Notes and Limitations
 > - In the current version, you cannot manually select the input device from the UI. The system's default input device is used.
 > - Recorded clips are always added to the first track (Track ID 0). Routing settings to arbitrary tracks will be supported in a future update.
-> - Actual playback of recorded audio clips is currently under development. The waveform can be viewed, but no sound will be heard during playback.
