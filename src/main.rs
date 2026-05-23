@@ -2,12 +2,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // releaseビルド時にコンソールを隠す
 
 mod app;
+pub mod core;
 pub mod engine;
 pub mod mcp;
 pub mod midi;
 pub mod state;
 pub mod ui;
 pub mod util;
+pub mod plugin;
 use app::AuraDawApp;
 
 const MCP_CHANNEL_CAPACITY: usize = 100;
