@@ -64,7 +64,9 @@
 - [x] [4] @A src/engine/mixer.rs または src/engine/stream.rs を更新し、エフェクトをオーディオパイプラインに組み込む (対象: src/engine/mixer.rs, src/engine/stream.rs)
 
 ## Phase 20: ピアノロール機能の拡充とMIDIクリップ編集 (進行中)
-- [ ] [1] @A src/midi/sequence.rs を更新し、ノートの追加・削除・移動（位置・長さ・ベロシティ）を管理するメソッドを実装する (対象: src/midi/sequence.rs)
-- [ ] [2] @A src/state/clip.rs に `MidiClip` 構造体を追加し、ノート列（シーケンス）とクリップ長等のメタデータを保持する (対象: src/state/clip.rs, src/state/mod.rs)
-- [ ] [3] @B src/ui/piano_roll.rs を更新し、ノートの追加（マウスクリック）、削除、ドラッグでの移動/長さ変更を可能にするUIインタラクションを実装する (対象: src/ui/piano_roll.rs)
-- [ ] [4] @B src/app.rs を更新し、ピアノロールUIでの変更を `state` の `MidiClip` に反映し、再生エンジン（アクティブノート）と同期する (対象: src/app.rs)
+- [x] [1] @A src/midi/sequence.rs を更新し、ノートの追加・削除・移動（位置・長さ・ベロシティ）を管理するメソッドを実装する (対象: src/midi/sequence.rs)
+- [x] [2] @A src/state/clip.rs に `MidiClip` 構造体を追加し、ノート列（シーケンス）とクリップ長等のメタデータを保持する (対象: src/state/clip.rs, src/state/mod.rs)
+- [x] [3] @B src/ui/piano_roll.rs を更新し、ノートの追加（マウスクリック）および削除のUIインタラクションを実装する (対象: src/ui/piano_roll.rs)
+- [ ] [4] @A src/ui/piano_roll.rs を更新し、ノートのドラッグでの移動（位置・ピッチ変更）および長さ変更を可能にするUIインタラクションを実装する (対象: src/ui/piano_roll.rs)
+- [ ] [5] @B src/state/track.rs を更新し、Track構造体に `MidiClip` を保持するフィールドを追加する (対象: src/state/track.rs)
+- [ ] [6] @B src/app.rs を更新し、ピアノロールUIでの変更をトラック内の `MidiClip` に反映し、再生エンジンと同期する (対象: src/app.rs)
