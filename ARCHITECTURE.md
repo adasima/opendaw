@@ -19,7 +19,8 @@ src/
 │   ├── piano_roll.rs    # ピアノロールエディタ
 │   ├── effects.rs       # エフェクトチェーンUI
 │   ├── import.rs        # ファイルインポートダイアログ
-│   └── browser.rs       # プラグインブラウザパネル
+│   ├── browser.rs       # プラグインブラウザパネル
+│   └── session_view.rs  # セッションビューパネル
 │
 ├── engine/              # オーディオエンジン（リアルタイムスレッド）
 │   ├── mod.rs           # AudioEngine 構造体、初期化・制御
@@ -30,6 +31,8 @@ src/
 │   ├── mixer.rs         # マルチトラックミキシング
 │   ├── export.rs        # WAVエクスポート（オフラインレンダリング）
 │   ├── synth.rs         # シンセサイザー基盤実装
+│   ├── metronome.rs     # メトロノーム音生成
+│   ├── recording.rs     # オーディオ録音処理
 │   └── effects/         # オーディオエフェクト
 │       ├── mod.rs       # AudioEffect トレイト定義
 │       ├── gain.rs      # ゲインエフェクト
@@ -50,7 +53,8 @@ src/
 ├── state/               # アプリケーション状態（UIとエンジンの橋渡し）
 │   ├── mod.rs           # グローバル状態管理
 │   ├── project.rs       # プロジェクト保存/読み込み (serde + bincode)
-│   └── track.rs         # トラック状態定義
+│   ├── track.rs         # トラック状態定義
+│   └── clip.rs          # オーディオ/MIDIクリップ状態定義
 │
 ├── mcp/                 # MCPサーバー（AI統合）
 │   ├── mod.rs           # MCPサーバー起動・ルーティング
