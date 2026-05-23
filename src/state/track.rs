@@ -34,7 +34,7 @@ impl EffectSetting {
 }
 
 /// 波形の列挙型 (state用)
-#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[derive(Default)]
 pub enum Waveform {
     /// サイン波
@@ -48,7 +48,7 @@ pub enum Waveform {
 
 
 /// ADSRパラメータ (state用)
-#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct AdsrParams {
     /// アタックタイム (秒)
     pub attack: f32,
