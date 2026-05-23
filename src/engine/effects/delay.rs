@@ -68,8 +68,8 @@ impl AudioEffect for DelayEffect {
 
         // チャンネル単位のアライメントを維持するため、channelsの倍数に丸める
         let c = channels as usize;
-        if c > 0 {
-            delay_samples = (delay_samples / c) * c;
+        if let Some(div_result) = delay_samples.checked_div(c) {
+            delay_samples = div_result * c;
         }
 
         // バッファが空または遅延が0の場合は処理しない
