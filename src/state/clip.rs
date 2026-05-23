@@ -37,6 +37,34 @@ impl AudioClip {
     }
 }
 
+/// MIDIクリップのデータを保持する構造体
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MidiClip {
+    /// クリップの一意なID
+    pub id: usize,
+    /// クリップ名
+    pub name: String,
+    /// タイムライン上の開始位置 (拍単位など)
+    pub start_beat: f64,
+    /// クリップの長さ (拍単位など)
+    pub length_beats: f64,
+    /// ノート列データ
+    pub sequence: crate::midi::sequence::Sequence,
+}
+
+impl MidiClip {
+    /// 新しいMIDIクリップを作成します。
+    pub fn new(id: usize, name: impl Into<String>, start_beat: f64, length_beats: f64) -> Self {
+        Self {
+            id,
+            name: name.into(),
+            start_beat,
+            length_beats,
+            sequence: crate::midi::sequence::Sequence::new(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -57,5 +85,15 @@ mod tests {
         clip.set_waveform_summary(vec![0.1, 0.5, 0.8, 0.3]);
         assert_eq!(clip.waveform_summary.len(), 4);
         assert_eq!(clip.waveform_summary[2], 0.8);
+    }
+
+    #[test]
+    fn test_midi_clip_new() {
+        let clip = MidiClip::new(1, "Synth Melody", 0.0, 4.0);
+        assert_eq!(clip.id, 1);
+        assert_eq!(clip.name, "Synth Melody");
+        assert_eq!(clip.start_beat, 0.0);
+        assert_eq!(clip.length_beats, 4.0);
+        assert_eq!(clip.sequence.notes.len(), 0);
     }
 }

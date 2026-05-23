@@ -6,6 +6,7 @@
 // Phase 3 で実装予定
 // pub mod project;
 pub mod clip;
+pub use clip::MidiClip;
 pub mod project;
 pub use project::ProjectState;
 pub mod track; // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
