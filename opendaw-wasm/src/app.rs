@@ -287,6 +287,7 @@ impl eframe::App for OpenDawApp {
         // 新しいカスタムタイトルバーとメインレイアウトの統合
         crate::ui::title_bar::TitleBar::new("OpenDAW Genesis").show(ctx);
 
+        #[allow(deprecated)]
         egui::TopBottomPanel::bottom("piano_roll_panel")
             .resizable(true)
             .default_height(300.0)
@@ -296,6 +297,7 @@ impl eframe::App for OpenDawApp {
                 ui.label("Piano roll component is active.");
             });
 
+        #[allow(deprecated)]
         egui::SidePanel::left("track_panel")
             .resizable(true)
             .default_width(200.0)
@@ -305,6 +307,7 @@ impl eframe::App for OpenDawApp {
                 crate::ui::project::draw_project_ui(ui, self);
             });
 
+        #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.is_session_view {
                 crate::ui::session_view::draw_session_view(ui, self);

@@ -12,8 +12,8 @@
 | エージェント | 役割 | 頻度 | 管轄 |
 |:---:|:---|:---:|:---|
 | 🏗️ **Architect** | 設計・計画・ロードマップ管理 | 4時間ごと | `ROADMAP.md`, `ARCHITECTURE.md`, `DESIGN.md` |
-| 🚀 **Nova** ×N | 新機能の追加（スロット `@A`/`@B`/... で並列制御） | 毎時 | `src/`, `Cargo.toml` |
-| 🛡️ **Warden** | コード品質・パフォーマンス・安全性 | 4時間ごと | `src/` |
+| 🚀 **Nova** ×N | 新機能の追加（スロット `@A`/`@B`/... で並列制御） | 毎時 | `src-tauri/`, `src/`, `opendaw-wasm/` |
+| 🛡️ **Warden** | コード品質・パフォーマンス・安全性 | 4時間ごと | `src-tauri/`, `src/`, `opendaw-wasm/` |
 | 📝 **Scribe** | ユーザーマニュアルの整備（日英対応） | 4時間ごと | `docs/` |
 
 ### 仕組み
@@ -37,9 +37,9 @@ Scribe が実装済み機能のドキュメントを日英で整備
 
 ## ✨ 主な特徴 (Features)
 
-- 🎨 **Glassmorphic UI** — Discordにインスパイアされた、半透明の美しいグラスモーフィズムと動的なライティング。従来の重厚なミキサー画面を撤廃。
+- 🎨 **Glassmorphic UI** — Discordにインスパイアされた、半透明の美しいグラスモーフィズムと動的なライティング。従来の重厚なミキサー画面を撤廃。Svelteコンポーネントにより美しくレンダリングされます。
 - ⚡ **Ultra Lightweight & Portable** — インストール不要。数MBの単一バイナリをダブルクリックするだけで一瞬起動。
-- 🦀 **Powered by Rust & egui** — ミリ秒以下の超低遅延オーディオ処理のため、Rustスタックを全面採用。
+- 🦀 **Powered by Tauri + Svelte + egui(WASM)** — 高速で安全なRust(Tauri)のバックエンド、柔軟で美しいUIを可能にするSvelteフロントエンド、そして高速な波形描画を実現するWASM(egui)のモダンなハイブリッドアーキテクチャ。
 - 🤖 **AI Agent統合** — MCPサーバー内蔵により、AIエージェントからDAWを直接操作可能。
 - 📖 **日英ドキュメント完備** — 商用ソフトウェア水準のユーザーマニュアルを自動整備。
 
@@ -52,11 +52,12 @@ Scribe が実装済み機能のドキュメントを日英で整備
 2. ZIPを解凍し、中にある `opendaw.exe` をダブルクリックするだけで起動します。
 
 ### 🛠️ ソースコードからビルドする
-Rust環境がお手元にある場合は、以下のコマンドでビルドできます。
+Tauriの要件(Node.js, Rust環境)がお手元にある場合は、以下のコマンドでビルドできます。
 ```bash
 git clone https://github.com/adasima/opendaw.git
 cd opendaw
-cargo run --release
+npm install
+npm run tauri dev
 ```
 
 ---
@@ -69,7 +70,9 @@ cargo run --release
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | モジュール構造・スレッドモデル・設計原則 |
 | [`DESIGN.md`](DESIGN.md) | UIデザインシステム（カラー・レイアウト・美学） |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | フィードバックガイド（Issue受付） |
-| `src/` | ソースコード（Rust） |
+| `src-tauri/` | バックエンドソースコード（Rust / Tauri） |
+| `src/` | フロントエンドソースコード（Svelte / TypeScript） |
+| `opendaw-wasm/` | WASM描画エンジンソースコード（Rust / egui） |
 | `persona/` | AIエージェントプロンプト定義 |
 | `docs/ja/` | ユーザーマニュアル（日本語・正本） |
 | `docs/en/` | ユーザーマニュアル（英語・翻訳版） |

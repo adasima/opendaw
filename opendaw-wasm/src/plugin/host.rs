@@ -18,6 +18,7 @@ pub trait PluginInstance: Send + Sync {
     fn set_parameter(&mut self, index: u32, value: f32);
 }
 
+#[allow(dead_code)]
 pub struct Host {
     plugins: Vec<Box<dyn PluginInstance>>,
 }

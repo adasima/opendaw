@@ -1,23 +1,27 @@
 use crate::app::OpenDawApp;
 use eframe::egui;
+#[cfg(not(target_arch = "wasm32"))]
 use rfd::FileDialog;
 
 /// オーディオインポート用のUI（ボタン等）を描画します。
-pub fn draw_import_ui(ui: &mut egui::Ui, app: &mut OpenDawApp) {
+pub fn draw_import_ui(ui: &mut egui::Ui, _app: &mut OpenDawApp) {
     if ui
         .button("📁 Import Audio")
         .on_hover_text("WAVファイルなどをインポートします")
         .clicked()
     {
-        let picked_file = FileDialog::new().add_filter("Audio", &["wav"]).pick_file();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let picked_file = FileDialog::new().add_filter("Audio", &["wav"]).pick_file();
 
-        if let Some(path) = picked_file {
-            // パスからファイル名を取得
-            let file_name = extract_file_name(&path);
+            if let Some(path) = picked_file {
+                // パスからファイル名を取得
+                let file_name = extract_file_name(&path);
 
-            // TODO: ファイルの読み込み処理（オーディオエンジンへの送信）は Phase 3/4 にて拡張
-            // 今回はトラックの追加のみを実施
-            app.state.add_track(file_name);
+                // TODO: ファイルの読み込み処理（オーディオエンジンへの送信）は Phase 3/4 にて拡張
+                // 今回はトラックの追加のみを実施
+                app.state.add_track(file_name);
+            }
         }
     }
 }

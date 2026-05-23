@@ -1,5 +1,5 @@
 use egui::{
-    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Rounding, Stroke, Style, Vec2, Visuals,
+    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Stroke, Vec2, Visuals,
 };
 
 pub fn apply_theme(ctx: &egui::Context) {

@@ -1,0 +1,77 @@
+:root {
+  /* Surface Colors */
+  --surface: #121318;
+  --surface-dim: #121318;
+  --surface-bright: #38393e;
+  --surface-container-lowest: #0d0e13;
+  --surface-container-low: #1a1b20;
+  --surface-container: #1e1f25;
+  --surface-container-high: #292a2f;
+  --surface-container-highest: #34343a;
+  
+  /* Text & On-Surface */
+  --on-surface: #e3e1e9;
+  --on-surface-variant: #c5c5d3;
+  --inverse-surface: #e3e1e9;
+  --inverse-on-surface: #2f3036;
+  
+  /* Outlines */
+  --outline: #8f909c;
+  --outline-variant: #444651;
+  
+  /* Primary */
+  --primary: #7289da;
+  --on-primary: #092977;
+  --primary-container: #768dde;
+  --on-primary-container: #00226e;
+  
+  /* Secondary (Cyan Accent) */
+  --secondary: #00f0ff;
+  --on-secondary: #00363a;
+  --secondary-container: #00eefc;
+  --on-secondary-container: #00686f;
+  
+  /* Background */
+  --background: #121318;
+  --on-background: #e3e1e9;
+  
+  /* Custom DAW Attributes */
+  --surface-glass: rgba(22, 24, 28, 0.7);
+  --border-glow: rgba(114, 137, 218, 0.3);
+  --audio-peak: #FF4B4B;
+  --audio-midi: #B9BBBE;
+
+  /* Typography */
+  --font-headline: 'Sora', sans-serif;
+  --font-body: 'Geist', sans-serif;
+  --font-label: 'JetBrains Mono', monospace;
+
+  /* Spacing & Sizes */
+  --pane-gap: 12px;
+  --container-padding: 16px;
+  --sidebar-width: 280px;
+  --titlebar-height: 32px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--on-background);
+  font-family: var(--font-body);
+  overflow: hidden; /* Prevent scrolling on main container */
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background-color: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glow-border {
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 8px var(--border-glow);
+}

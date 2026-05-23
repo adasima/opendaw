@@ -10,7 +10,7 @@ ROADMAP.md のタスクには `@A`, `@B`, `@C` 等のスロットタグが付い
 
 ## 最初に必ず読むファイル（この順番で）
 1. **ROADMAP.md** — 現在のフェーズと自分のスロットのタスクを確認する
-2. **ARCHITECTURE.md** — モジュール構造と設計原則を確認する
+2. **ARCHITECTURE.md** — Tauri + Svelte + WASM のモジュール構造と設計原則を確認する
 3. **DESIGN.md** — UI美学のガイドラインを確認する
 
 ## タスクの選び方
@@ -21,57 +21,50 @@ ROADMAP.md のタスクには `@A`, `@B`, `@C` 等のスロットタグが付い
    - 既存コードの日本語docコメント追加を行う
    - または **何もせずPRを作らない**（待機する）
 
-## 許可済み依存（Cargo.tomlに自由に追加してよい）
+## 許可済み依存（Cargo.toml や package.json に自由に追加してよい）
+Rust (Tauri / WASM):
 - `cpal` — クロスプラットフォームオーディオI/O
 - `midir` — MIDI入出力
 - `hound` — WAV読み書き
-- `symphonia` — オーディオデコーダー（MP3, FLAC, OGG等）
+- `symphonia` — オーディオデコーダー
 - `ringbuf` — lock-free ring buffer
 - `crossbeam-channel` — lock-free MPSC チャンネル
-- `atomic_float` — アトミック浮動小数点
-- `rfd` — ネイティブファイルダイアログ
-- `rubato` — サンプルレート変換
-- `log` + `env_logger` — ログ出力
+- `serde`, `tauri` 等のTauri関連クレート
+- `egui`, `eframe` (WASM側)
+
+TypeScript/Svelte (UI):
+- TailwindCSS (利用している場合)
+- Lucide 等のアイコンライブラリ
 
 ## 禁止事項
 🚫 以下は絶対に行わないこと:
 - **他のスロットのタスクへの着手**
-- 上記リスト以外の新規依存の追加
-- Webフレームワーク（actix, axum, rocket等）の使用
+- バックエンドWebフレームワーク（actix, axum等）の使用（Tauriを使用するため）
 - `unsafe` ブロックの新規追加（既存の unsafe の修正は可）
 - ROADMAP.md, ARCHITECTURE.md, DESIGN.md の変更（Architectの領域）
 - 既存テストの削除
-- **聖域ディレクトリ（`src/core/`, `src/plugin/` 等）の変更**: これらは人間が管理するコア基盤です。外部APIとして呼び出すことのみ許可され、Nova自身がこれらのファイル内を直接編集することは禁止されています。
+- **聖域ディレクトリ（`src-tauri/src/core/`, `src-tauri/src/plugin/` 等）の変更**: これらは人間が管理するコア基盤です。外部APIとして呼び出すことのみ許可され、Nova自身がこれらのファイル内を直接編集することは禁止されています。
 
-## ⚡ リアルタイムオーディオの鉄則
-`engine/` モジュール内のオーディオコールバック（cpal の stream callback）では以下を **絶対に** 行わないこと:
+## ⚡ リアルタイムオーディオの鉄則 (Tauri バックエンド)
+`src-tauri/src/engine/` モジュール内のオーディオコールバック（cpal の stream callback）では以下を **絶対に** 行わないこと:
 - ヒープアロケーション（`Vec::new()`, `Box::new()`, `String::new()`, `format!()` 等）
 - `Mutex::lock()`, `RwLock` — デッドロックやオーディオグリッチの原因
 - ファイルI/O, ネットワークI/O
 - `println!()` やログ出力
 - `.unwrap()` — 代わりに `.unwrap_or_default()` を使用
 
-UIスレッド ↔ オーディオスレッド間の通信:
-- `ringbuf` の Producer/Consumer を使用する
-- `AtomicBool`, `AtomicU32` 等の atomic 変数を使用する
-- `Arc<Mutex<T>>` は絶対に使用しない
-
 ## モジュール配置ルール
 新しいファイルを作成する場合は ARCHITECTURE.md のモジュール構造に従うこと:
-- UIコンポーネント → `src/ui/`
-- オーディオエンジン → `src/engine/`
-- MIDI処理 → `src/midi/`
-- プロジェクト状態管理 → `src/state/`
-- ユーティリティ → `src/util/`
-
-新しいモジュールを作成した場合、親の `mod.rs` に `pub mod` を追加すること。
+- フロントエンド(Svelte)コンポーネント → `src/components/`
+- オーディオエンジン (Rust) → `src-tauri/src/engine/`
+- MIDI処理 (Rust) → `src-tauri/src/midi/`
+- WASMキャンバスUI (Rust) → `opendaw-wasm/src/ui/`
+- Tauriコマンド/状態管理 → `src-tauri/src/app.rs` など
 
 ## コーディング規約
 - 1つのPRで変更するのは **150行以内**（テストコードを除く）
 - 新しいロジックには必ずユニットテストを追加する
-- マジックナンバーは定数（`const`）に置き換える
 - public な構造体・関数には日本語の doc コメント (`///`) を付ける
-- `#[allow(deprecated)]` の新規追加は避ける
 
 ## PRの作成
 - タイトル: "🚀 Nova(@スロットID): [機能/改善の要約]"
@@ -79,7 +72,7 @@ UIスレッド ↔ オーディオスレッド間の通信:
   - 💡 **何を**: 実装内容の要約
   - 🎯 **なぜ**: ROADMAP.md のどのタスクに対応するか（スロットタグを明記）
   - 📁 **変更ファイル**: 変更・追加したファイルの一覧
-  - ✅ **検証**: `cargo test` と `cargo clippy` の実行結果
+  - ✅ **検証**: `cargo test`, `npm run build` などの検証結果
 - 末尾に `PR created automatically by Jules` を必ず含める
 
 ## 出力規約

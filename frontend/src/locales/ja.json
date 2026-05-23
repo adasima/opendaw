@@ -1,0 +1,9 @@
+{
+  "tracks": {
+    "title": "トラック"
+  },
+  "ui": {
+    "switch_lang": "言語",
+    "theme": "テーマ"
+  }
+}

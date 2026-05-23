@@ -1,3 +1,4 @@
+#[allow(deprecated)]
 use egui::{Align, Context, Frame, Layout, Sense, TopBottomPanel, ViewportCommand};
 
 pub struct TitleBar<'a> {
@@ -14,6 +15,7 @@ impl<'a> TitleBar<'a> {
 
         let frame = Frame::new().fill(ctx.global_style().visuals.window_fill());
 
+        #[allow(deprecated)]
         TopBottomPanel::top("custom_title_bar")
             .frame(frame)
             .exact_size(title_bar_height)

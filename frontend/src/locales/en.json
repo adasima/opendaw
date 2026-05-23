@@ -1,0 +1,9 @@
+{
+  "tracks": {
+    "title": "Tracks"
+  },
+  "ui": {
+    "switch_lang": "Language",
+    "theme": "Theme"
+  }
+}

@@ -153,7 +153,7 @@ impl PianoRoll {
         // ================= Drawing Phase =================
 
         // 1. Draw Keyboard Background & Keys
-        let mut kb_painter = ui.painter().with_clip_rect(keyboard_rect);
+        let kb_painter = ui.painter().with_clip_rect(keyboard_rect);
         kb_painter.rect_filled(keyboard_rect, 0.0, Color32::from_gray(30));
         
         for p in 0..=127 {
@@ -181,7 +181,7 @@ impl PianoRoll {
         }
 
         // 2. Draw Grid Background & Lines
-        let mut grid_painter = ui.painter().with_clip_rect(grid_rect);
+        let grid_painter = ui.painter().with_clip_rect(grid_rect);
         grid_painter.rect_filled(grid_rect, 0.0, Color32::from_gray(40));
         
         // Horizontal key lanes

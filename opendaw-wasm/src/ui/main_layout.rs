@@ -1,5 +1,6 @@
 use eframe::egui;
 
+#[allow(deprecated)]
 pub fn render(ctx: &egui::Context) {
     // カスタムタイトルバー (Top)
     egui::TopBottomPanel::top("title_bar")
