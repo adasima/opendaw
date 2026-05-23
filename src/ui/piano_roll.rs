@@ -52,6 +52,15 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         );
     }
 
+    // 現在選択されているトラックのインデックスを取得（ここではUIで選択させる仕組みがないため、最初のシンセトラックを使用）
+    let mut target_track_idx = None;
+    for (i, track) in app.state.tracks.iter().enumerate() {
+        if track.synth.is_enabled {
+            target_track_idx = Some(i);
+            break;
+        }
+    }
+
     // インタラクションの処理
     if let Some(hover_pos) = response.hover_pos() {
         let rel_x = hover_pos.x - rect.left();
@@ -65,46 +74,63 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         {
             // 左クリックでノート追加
             if response.clicked() {
-                // 同じ位置にノートがないか確認
-                let exists = app
-                    .state
-                    .active_sequence
-                    .notes
-                    .iter()
-                    .any(|n| n.pitch == pitch && n.start_beat == beat);
-                if !exists {
-                    app.state.active_sequence.add_note(
-                        pitch,
-                        DEFAULT_VELOCITY,
-                        beat,
-                        DEFAULT_DURATION,
-                    );
+                // target_track_idx がある場合、そのトラックの最初のMidiClipに追加を試みる。なければactive_sequence。
+                if let Some(idx) = target_track_idx {
+                    let track = &mut app.state.tracks[idx];
+                    if track.midi_clips.is_empty() {
+                        track.midi_clips.push(crate::state::clip::MidiClip::new(0, "Midi Clip", 0.0, VISIBLE_BEATS as f64));
+                    }
+                    let clip = &mut track.midi_clips[0];
+                    let exists = clip.sequence.notes.iter().any(|n| n.pitch == pitch && n.start_beat == beat);
+                    if !exists {
+                        clip.sequence.add_note(pitch, DEFAULT_VELOCITY, beat, DEFAULT_DURATION);
+                    }
+                } else {
+                    let exists = app.state.active_sequence.notes.iter().any(|n| n.pitch == pitch && n.start_beat == beat);
+                    if !exists {
+                        app.state.active_sequence.add_note(pitch, DEFAULT_VELOCITY, beat, DEFAULT_DURATION);
+                    }
                 }
             }
 
             // 右クリックでノート削除
             if response.secondary_clicked() {
-                let note_to_remove = app
-                    .state
-                    .active_sequence
-                    .notes
-                    .iter()
-                    .find(|n| {
-                        n.pitch == pitch
-                            && n.start_beat <= beat
-                            && n.start_beat + n.duration_beats > beat
-                    })
-                    .map(|n| n.id);
+                if let Some(idx) = target_track_idx {
+                    let track = &mut app.state.tracks[idx];
+                    if let Some(clip) = track.midi_clips.get_mut(0) {
+                        let note_to_remove = clip.sequence.notes.iter().find(|n| {
+                            n.pitch == pitch && n.start_beat <= beat && n.start_beat + n.duration_beats > beat
+                        }).map(|n| n.id);
+                        if let Some(id) = note_to_remove {
+                            clip.sequence.remove_note(id);
+                        }
+                    }
+                } else {
+                    let note_to_remove = app.state.active_sequence.notes.iter().find(|n| {
+                        n.pitch == pitch && n.start_beat <= beat && n.start_beat + n.duration_beats > beat
+                    }).map(|n| n.id);
 
-                if let Some(id) = note_to_remove {
-                    app.state.active_sequence.remove_note(id);
+                    if let Some(id) = note_to_remove {
+                        app.state.active_sequence.remove_note(id);
+                    }
                 }
             }
         }
     }
 
     // 既存ノートの描画
-    for note in &app.state.active_sequence.notes {
+    let mut notes_to_draw = Vec::new();
+
+    if let Some(idx) = target_track_idx {
+        let track = &app.state.tracks[idx];
+        if let Some(clip) = track.midi_clips.first() {
+            notes_to_draw.extend(clip.sequence.notes.iter().cloned());
+        }
+    } else {
+        notes_to_draw.extend(app.state.active_sequence.notes.iter().cloned());
+    }
+
+    for note in notes_to_draw {
         if (MIN_PITCH..=MAX_PITCH).contains(&note.pitch) {
             let pitch_index = MAX_PITCH.saturating_sub(note.pitch) as f32;
             let y = rect.top() + pitch_index * PITCH_HEIGHT;

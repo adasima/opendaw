@@ -68,5 +68,5 @@
 - [x] [2] @A src/state/clip.rs に `MidiClip` 構造体を追加し、ノート列（シーケンス）とクリップ長等のメタデータを保持する (対象: src/state/clip.rs, src/state/mod.rs)
 - [x] [3] @B src/ui/piano_roll.rs を更新し、ノートの追加（マウスクリック）および削除のUIインタラクションを実装する (対象: src/ui/piano_roll.rs)
 - [ ] [4] @A src/ui/piano_roll.rs を更新し、ノートのドラッグでの移動（位置・ピッチ変更）および長さ変更を可能にするUIインタラクションを実装する (対象: src/ui/piano_roll.rs)
-- [ ] [5] @B src/state/track.rs を更新し、Track構造体に `MidiClip` を保持するフィールドを追加する (対象: src/state/track.rs)
-- [ ] [6] @B src/app.rs を更新し、ピアノロールUIでの変更をトラック内の `MidiClip` に反映し、再生エンジンと同期する (対象: src/app.rs)
+- [x] [5] @B src/state/track.rs を更新し、Track構造体に `MidiClip` を保持するフィールドを追加する (対象: src/state/track.rs)
+- [x] [6] @B src/app.rs を更新し、ピアノロールUIでの変更をトラック内の `MidiClip` に反映し、再生エンジンと同期する (対象: src/app.rs)

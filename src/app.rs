@@ -118,24 +118,45 @@ impl AuraDawApp {
     /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
     pub fn process_active_notes(&mut self) {
         let current_pos = self.state.playhead_pos as f64;
-        let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
-        let mut active_count = 0;
-
-        if self.state.is_playing {
-            for note in &self.state.active_sequence.notes {
-                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
-                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-
-                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
-                        active_freqs[active_count] = freq;
-                        active_count += 1;
-                    }
-            }
-        }
 
         if let Some(ui_channels) = &mut self.ui_channels {
             for track in &self.state.tracks {
                 if track.synth.is_enabled {
+                    let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+                    let mut active_count = 0;
+
+                    if self.state.is_playing {
+                        // 1. Process global active_sequence
+                        for note in &self.state.active_sequence.notes {
+                            if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
+                                && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+
+                                    let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                    active_freqs[active_count] = freq;
+                                    active_count += 1;
+                                }
+                        }
+
+                        // 2. Process track-specific MidiClips
+                        for clip in &track.midi_clips {
+                            // Convert playhead_pos (which is in beats in tick_playback logic basically)
+                            // to clip-relative time. Note: tick_playback currently increments playhead_pos
+                            // directly, we assume playhead_pos maps 1:1 to beats for this logic.
+                            let clip_end = clip.start_beat + clip.length_beats;
+                            if current_pos >= clip.start_beat && current_pos < clip_end {
+                                let relative_pos = current_pos - clip.start_beat;
+                                for note in &clip.sequence.notes {
+                                    if relative_pos >= note.start_beat && relative_pos < note.start_beat + note.duration_beats
+                                        && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                                            let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                            active_freqs[active_count] = freq;
+                                            active_count += 1;
+                                        }
+                                }
+                            }
+                        }
+                    }
+
                     let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
                         track.id,
                         active_freqs,
