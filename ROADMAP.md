@@ -45,8 +45,14 @@
 - [x] [3] @B src/state/mod.rs の `DawState` に `is_metronome_enabled` を追加する (対象: src/state/mod.rs)
 - [x] [4] @B src/ui/transport.rs を更新し、メトロノームのオン/オフを切り替えるUIボタンを追加する (対象: src/ui/transport.rs)
 
-## Phase 17: オーディオクリップの録音と波形表示 (進行中)
-- [ ] [1] @A src/engine/recording.rs を作成し、オーディオ入力の録音処理とバッファ管理を実装する (対象: src/engine/recording.rs, src/engine/mod.rs)
-- [ ] [2] @B src/state/clip.rs を作成し、録音されたオーディオデータのメタデータ(長さ、波形サマリー等)を保持する構造体を実装する (対象: src/state/clip.rs, src/state/mod.rs)
-- [ ] [3] @B src/ui/timeline.rs を更新し、録音済みオーディオクリップの波形描画を実装する (対象: src/ui/timeline.rs)
-- [ ] [4] @B src/ui/transport.rs を更新し、録音ボタンの追加と録音状態の切り替えUIを実装する (対象: src/ui/transport.rs)
+## Phase 17: オーディオクリップの録音と波形表示 (完了)
+- [x] [1] @A src/engine/recording.rs を作成し、オーディオ入力の録音処理とバッファ管理を実装する (対象: src/engine/recording.rs, src/engine/mod.rs)
+- [x] [2] @B src/state/clip.rs を作成し、録音されたオーディオデータのメタデータ(長さ、波形サマリー等)を保持する構造体を実装する (対象: src/state/clip.rs, src/state/mod.rs)
+- [x] [3] @B src/ui/timeline.rs を更新し、録音済みオーディオクリップの波形描画を実装する (対象: src/ui/timeline.rs)
+- [x] [4] @B src/ui/transport.rs を更新し、録音ボタンの追加と録音状態の切り替えUIを実装する (対象: src/ui/transport.rs)
+
+
+## Phase 18: 録音済みオーディオクリップの再生 (進行中)
+- [ ] [1] @A src/engine/channel.rs を更新し、録音したデータをエンジンのバッファに送信するメッセージを追加する (対象: src/engine/channel.rs)
+- [ ] [2] @A src/engine/stream.rs を更新し、録音したオーディオデータの再生処理を実装する (対象: src/engine/stream.rs)
+- [ ] [3] @B src/app.rs を更新し、録音停止時にキャプチャしたオーディオデータを新しいクリップとしてトラックに追加する処理を実装する (対象: src/app.rs)
