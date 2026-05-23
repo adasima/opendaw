@@ -130,6 +130,9 @@ pub struct Track {
     /// トラック内のオーディオクリップ
     #[serde(default)]
     pub clips: Vec<crate::state::clip::AudioClip>,
+    /// トラック内のMIDIクリップ
+    #[serde(default)]
+    pub midi_clips: Vec<crate::state::clip::MidiClip>,
 }
 
 impl Track {
@@ -145,6 +148,7 @@ impl Track {
             effects: Vec::new(),
             synth: SynthSetting::default(),
             clips: Vec::new(),
+            midi_clips: Vec::new(),
         }
     }
 
@@ -222,6 +226,7 @@ mod tests {
         assert!(!track.synth.is_enabled);
         assert_eq!(track.synth.frequency, 440.0);
         assert!(track.clips.is_empty());
+        assert!(track.midi_clips.is_empty());
     }
 
     #[test]
