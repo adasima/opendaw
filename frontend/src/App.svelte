@@ -17,13 +17,14 @@
 
   let wasmReady = $state(false);
   let wasmError = $state('');
+  let wasmModule;
 
   onMount(async () => {
     try {
-      const wasm = await import('../../opendaw-wasm/pkg/opendaw_wasm.js');
-      await wasm.default();
+      wasmModule = await import('../../opendaw-wasm/pkg/opendaw_wasm.js');
+      await wasmModule.default();
       console.log("Wasm module initialized.");
-      wasm.start("egui_canvas");
+      wasmModule.start("egui_canvas");
       wasmReady = true;
       console.log("egui canvas started.");
     } catch (e) {
@@ -31,6 +32,24 @@
       wasmError = String(e);
     }
   });
+
+  function handlePlay() {
+    if (wasmModule && wasmModule.play) wasmModule.play();
+  }
+
+  function handleStop() {
+    if (wasmModule && wasmModule.stop) wasmModule.stop();
+  }
+
+  function handleToggleLoop() {
+    if (wasmModule && wasmModule.toggle_loop) wasmModule.toggle_loop();
+  }
+
+  function handleMasterVolume(event) {
+    if (wasmModule && wasmModule.set_master_volume) {
+      wasmModule.set_master_volume(parseFloat(event.target.value) / 100.0);
+    }
+  }
 </script>
 
 <TitleBar />
@@ -90,17 +109,17 @@
     <!-- 下部ミキサー・トランスポートパネルのモック -->
     <footer class="bottom-panel glass-panel">
       <div class="transport-controls">
-        <button class="transport-btn">⏮</button>
-        <button class="transport-btn play">▶</button>
-        <button class="transport-btn">⏹</button>
-        <button class="transport-btn record">⏺</button>
+        <button class="transport-btn" onclick={handleToggleLoop} title="Toggle Loop">🔁</button>
+        <button class="transport-btn play" onclick={handlePlay} title="Play">▶</button>
+        <button class="transport-btn" onclick={handleStop} title="Stop">⏹</button>
+        <button class="transport-btn record" title="Record">⏺</button>
       </div>
       <div class="time-display">
         <span>00:01:23.456</span>
       </div>
       <div class="master-fader">
         <span>Master</span>
-        <input type="range" min="0" max="100" value="80" class="fader">
+        <input type="range" min="0" max="100" value="80" class="fader" oninput={handleMasterVolume}>
       </div>
     </footer>
   </div>

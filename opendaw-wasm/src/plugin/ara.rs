@@ -1,7 +1,7 @@
 // src/plugin/ara.rs
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 /// ARA2におけるテンポ情報の構造体
 #[derive(Debug, Clone, PartialEq)]
@@ -123,5 +123,114 @@ impl AraPluginExtension for VocalSynthAraExtension {
             }
         }
         // ここで音声合成エンジン(SV2等)にレンダリング指示を出す
+    }
+}
+
+/// DAWホスト側のARAモック実装。
+/// テンポやノート・歌詞データをプラグインと同期するためのインターフェースとして機能します。
+pub struct MockDawHost {
+    tempo: RwLock<TempoInfo>,
+    transport: RwLock<TransportInfo>,
+    notes: RwLock<Vec<AraNote>>,
+}
+
+impl MockDawHost {
+    pub fn new() -> Self {
+        Self {
+            tempo: RwLock::new(TempoInfo {
+                bpm: 120.0,
+                time_signature_numerator: 4,
+                time_signature_denominator: 4,
+            }),
+            transport: RwLock::new(TransportInfo {
+                is_playing: false,
+                position_seconds: 0.0,
+                position_beats: 0.0,
+            }),
+            notes: RwLock::new(Vec::new()),
+        }
+    }
+
+    /// テンポを更新します。
+    pub fn set_tempo(&self, bpm: f64) {
+        if let Ok(mut tempo) = self.tempo.write() {
+            tempo.bpm = bpm;
+        }
+    }
+
+    /// トランスポート状態を更新します。
+    pub fn set_transport(&self, is_playing: bool, position_seconds: f64) {
+        if let Ok(mut t) = self.transport.write() {
+            t.is_playing = is_playing;
+            t.position_seconds = position_seconds;
+            if let Ok(tempo) = self.tempo.read() {
+                t.position_beats = position_seconds * (tempo.bpm / 60.0);
+            }
+        }
+    }
+
+    /// ノート（歌詞データ含む）を追加します。
+    pub fn add_note(&self, note: AraNote) {
+        if let Ok(mut notes) = self.notes.write() {
+            notes.push(note);
+        }
+    }
+
+    /// ノートを全てクリアします。
+    pub fn clear_notes(&self) {
+        if let Ok(mut notes) = self.notes.write() {
+            notes.clear();
+        }
+    }
+}
+
+impl AraHostAccess for MockDawHost {
+    fn get_tempo_info(&self) -> TempoInfo {
+        self.tempo.read().unwrap().clone()
+    }
+
+    fn get_transport_info(&self) -> TransportInfo {
+        self.transport.read().unwrap().clone()
+    }
+
+    fn get_notes_in_range(&self, start_sec: f64, end_sec: f64) -> Vec<AraNote> {
+        self.notes.read().unwrap().iter()
+            .filter(|n| n.start_seconds >= start_sec && n.start_seconds < end_sec)
+            .cloned()
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_ara_sync() {
+        let host = Arc::new(MockDawHost::new());
+        let mut plugin = VocalSynthAraExtension::new(host.clone());
+
+        // 初期同期
+        plugin.sync_with_host();
+        assert_eq!(plugin.current_tempo.bpm, 120.0);
+
+        // ホスト側でテンポ変更
+        host.set_tempo(140.0);
+        
+        // ホスト側でノート追加
+        host.add_note(AraNote {
+            start_seconds: 1.0,
+            duration_seconds: 0.5,
+            pitch: 60,
+            velocity: 100,
+            lyric: Some("あ".to_string()),
+        });
+
+        // プラグイン側で再度同期
+        plugin.sync_with_host();
+        
+        assert_eq!(plugin.current_tempo.bpm, 140.0);
+        assert_eq!(plugin.cached_notes.len(), 1);
+        assert_eq!(plugin.cached_notes.get(&0).unwrap().lyric.as_deref(), Some("あ"));
     }
 }

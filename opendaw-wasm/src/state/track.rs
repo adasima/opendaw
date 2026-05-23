@@ -107,6 +107,25 @@ impl Default for SynthSetting {
     }
 }
 
+/// トラックの種類
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+pub enum TrackType {
+    /// 通常のオーディオ・インストゥルメントトラック
+    #[default]
+    Normal,
+    /// ARA2 / SV2(合成音声) 専用トラック
+    VocalSynth,
+}
+
+/// ARA/SV2等のボーカルシンセ専用の設定
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize, Default)]
+pub struct VocalSynthSetting {
+    /// 音声合成エンジンが有効かどうか
+    pub is_enabled: bool,
+    /// 選択されているシンガーのIDや名前など
+    pub singer_id: Option<String>,
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Track {
@@ -127,6 +146,12 @@ pub struct Track {
     /// シンセサイザーの設定
     #[serde(default)]
     pub synth: SynthSetting,
+    /// トラックの種類
+    #[serde(default)]
+    pub track_type: TrackType,
+    /// ボーカルシンセ(ARA/SV2)の設定
+    #[serde(default)]
+    pub vocal_synth: VocalSynthSetting,
     /// トラック内のオーディオクリップ
     #[serde(default)]
     pub clips: Vec<crate::state::clip::AudioClip>,
@@ -144,6 +169,8 @@ impl Track {
             is_solo: false,
             effects: Vec::new(),
             synth: SynthSetting::default(),
+            track_type: TrackType::default(),
+            vocal_synth: VocalSynthSetting::default(),
             clips: Vec::new(),
         }
     }
@@ -203,6 +230,11 @@ impl Track {
         // 一般的な可聴域と少しの余裕を持たせる (20.0Hz ~ 20000.0Hz)
         self.synth.frequency = freq.clamp(20.0, 20000.0);
     }
+
+    /// トラックの種類を設定します。
+    pub fn set_track_type(&mut self, track_type: TrackType) {
+        self.track_type = track_type;
+    }
 }
 
 #[cfg(test)]
@@ -221,6 +253,8 @@ mod tests {
         assert!(track.effects.is_empty());
         assert!(!track.synth.is_enabled);
         assert_eq!(track.synth.frequency, 440.0);
+        assert_eq!(track.track_type, TrackType::Normal);
+        assert!(!track.vocal_synth.is_enabled);
         assert!(track.clips.is_empty());
     }
 

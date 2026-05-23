@@ -1,15 +1,17 @@
 use egui::{Color32, Pos2, Rect, Sense, Stroke, Vec2, PointerButton};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Note {
     pub id: usize,
     pub pitch: u8,
     pub start_tick: u32,
     pub duration: u32,
+    pub lyric: Option<String>,
 }
 
 pub struct PianoRoll {
     pub notes: Vec<Note>,
+    pub pitch_bend_curve: Vec<(u32, f32)>, // (tick, bend_value -1.0 to 1.0)
     next_id: usize,
     pan: Vec2,
     pixels_per_tick: f32,
@@ -22,9 +24,18 @@ impl Default for PianoRoll {
     fn default() -> Self {
         Self {
             notes: vec![
-                Note { id: 0, pitch: 60, start_tick: 0, duration: 480 },
-                Note { id: 1, pitch: 64, start_tick: 480, duration: 480 },
-                Note { id: 2, pitch: 67, start_tick: 960, duration: 480 },
+                Note { id: 0, pitch: 60, start_tick: 0, duration: 480, lyric: Some("O".to_string()) },
+                Note { id: 1, pitch: 64, start_tick: 480, duration: 480, lyric: Some("pen".to_string()) },
+                Note { id: 2, pitch: 67, start_tick: 960, duration: 480, lyric: Some("DAW".to_string()) },
+            ],
+            pitch_bend_curve: vec![
+                (0, 0.0),
+                (240, 0.5),
+                (480, 0.0),
+                (720, -0.5),
+                (960, 0.0),
+                (1200, 0.8),
+                (1440, 0.0),
             ],
             next_id: 3,
             pan: Vec2::new(0.0, 60.0 * 20.0), // Center around C4 (pitch 60)
@@ -34,6 +45,13 @@ impl Default for PianoRoll {
             ticks_per_beat: 480,
         }
     }
+}
+
+pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
+    ui.group(|ui| {
+        ui.heading("Piano Roll & ARA2 / SV2 Editor");
+        app.piano_roll.show(ui);
+    });
 }
 
 impl PianoRoll {
@@ -108,12 +126,13 @@ impl PianoRoll {
                             pitch: hover_pitch,
                             start_tick: snap_tick,
                             duration: self.ticks_per_beat / 4, // 16th note default duration
+                            lyric: None,
                         };
                         self.next_id += 1;
                         self.notes.push(new_note);
                         
-                        let note_rect = self.note_rect(&new_note, grid_rect.min);
-                        self.dragging_note = Some((new_note.id, pos - note_rect.min));
+                        let note_rect = self.note_rect(self.notes.last().unwrap(), grid_rect.min);
+                        self.dragging_note = Some((self.notes.last().unwrap().id, pos - note_rect.min));
                     }
                 } else if response.clicked_by(PointerButton::Secondary) {
                     // Delete note on right click
@@ -230,7 +249,7 @@ impl PianoRoll {
             t += snap_step;
         }
 
-        // 3. Draw Notes
+        // 3. Draw Notes and Lyrics
         for note in &self.notes {
             let note_rect = self.note_rect(note, grid_rect.min);
             if note_rect.max.x < grid_rect.min.x || note_rect.min.x > grid_rect.max.x ||
@@ -248,8 +267,48 @@ impl PianoRoll {
             let display_rect = note_rect.shrink(1.0);
             grid_painter.rect_filled(display_rect, 2.0, fill_color);
             grid_painter.rect_stroke(display_rect, 2.0, Stroke::new(1.0, Color32::from_rgb(30, 100, 180)), egui::StrokeKind::Inside);
+            
+            // Draw Lyrics (ARA2 / SV2 feature)
+            if let Some(lyric) = &note.lyric {
+                let text_pos = note_rect.left_top() + Vec2::new(4.0, 2.0);
+                grid_painter.text(
+                    text_pos,
+                    egui::Align2::LEFT_TOP,
+                    lyric,
+                    egui::FontId::proportional(12.0),
+                    Color32::WHITE,
+                );
+            }
         }
         
+        // 4. Draw Pitch Bend Curve (ARA2 / SV2 feature)
+        if !self.pitch_bend_curve.is_empty() {
+            let mut points = Vec::new();
+            for &(tick, value) in &self.pitch_bend_curve {
+                let x = grid_rect.min.x + tick as f32 * self.pixels_per_tick - self.pan.x;
+                // Draw curve at the bottom of the grid
+                let base_y = grid_rect.max.y - 40.0;
+                let amplitude = 30.0;
+                let y = base_y - (value * amplitude);
+                points.push(Pos2::new(x, y));
+            }
+            
+            if points.len() > 1 {
+                // Draw a line for the pitch bend curve
+                grid_painter.add(egui::Shape::line(
+                    points.clone(),
+                    Stroke::new(2.0, Color32::from_rgba_premultiplied(255, 100, 100, 200)),
+                ));
+                
+                // Draw points on the curve
+                for &p in &points {
+                    if grid_rect.contains(p) {
+                        grid_painter.circle_filled(p, 3.0, Color32::from_rgb(255, 50, 50));
+                    }
+                }
+            }
+        }
+
         response
     }
     
@@ -262,3 +321,4 @@ impl PianoRoll {
         Rect::from_min_size(Pos2::new(x, y), Vec2::new(w, h))
     }
 }
+

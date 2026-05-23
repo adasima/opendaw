@@ -28,6 +28,7 @@ pub struct OpenDawApp {
     pub is_plugin_browser_open: bool,
     pub recorder: Option<crate::engine::recording::Recorder>,
     pub was_recording: bool,
+    pub piano_roll: crate::ui::piano_roll::PianoRoll,
 }
 
 impl Default for OpenDawApp {
@@ -45,6 +46,7 @@ impl Default for OpenDawApp {
             is_plugin_browser_open: false,
             recorder: Some(crate::engine::recording::Recorder::new()),
             was_recording: false,
+            piano_roll: crate::ui::piano_roll::PianoRoll::default(),
         }
     }
 }
@@ -284,36 +286,16 @@ impl eframe::App for OpenDawApp {
             });
         }
 
-        // 新しいカスタムタイトルバーとメインレイアウトの統合
-        crate::ui::title_bar::TitleBar::new("OpenDAW Genesis").show(ctx);
-
         #[allow(deprecated)]
-        egui::TopBottomPanel::bottom("piano_roll_panel")
-            .resizable(true)
-            .default_height(300.0)
+        egui::CentralPanel::default()
+            .frame(egui::Frame::none().fill(egui::Color32::TRANSPARENT))
             .show(ctx, |ui| {
-                // ピアノロールの描画（今回はスタブ、必要に応じてselfを渡すようpiano_rollを変更）
-                ui.heading("Mixer & Piano Roll");
-                ui.label("Piano roll component is active.");
-            });
-
-        #[allow(deprecated)]
-        egui::SidePanel::left("track_panel")
-            .resizable(true)
-            .default_width(200.0)
-            .show(ctx, |ui| {
-                ui.heading("Tracks");
-                ui.separator();
-                crate::ui::project::draw_project_ui(ui, self);
-            });
-
-        #[allow(deprecated)]
-        egui::CentralPanel::default().show(ctx, |ui| {
             if self.is_session_view {
                 crate::ui::session_view::draw_session_view(ui, self);
             } else {
                 crate::ui::draw_main_ui(self, ui);
             }
+            crate::ui::piano_roll::draw_piano_roll(ui, self);
         });
     }
 
@@ -323,6 +305,7 @@ impl eframe::App for OpenDawApp {
         } else {
             crate::ui::draw_main_ui(self, ui);
         }
+        crate::ui::piano_roll::draw_piano_roll(ui, self);
     }
 }
 
@@ -335,7 +318,7 @@ mod tests {
         // App構造体の初期化が正常にできるか確認
         // eframe::CreationContextをモックするのは難しいため、
         // Default::default() で状態が初期化されることのみを確認します。
-        let app = AuraDawApp::default();
+        let app = OpenDawApp::default();
         assert!(!app.state.is_playing);
         assert_eq!(app.state.playhead_pos, 0.0);
         // チャンネルが初期化されていることを確認
