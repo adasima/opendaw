@@ -56,7 +56,7 @@ impl AuraDawApp {
                         None => true,
                     };
                     if changed {
-                        let current_params = (track.synth.waveform.clone(), track.synth.adsr.clone());
+                        let current_params = (track.synth.waveform, track.synth.adsr);
                         let waveform = match track.synth.waveform {
                             crate::state::track::Waveform::Sine => crate::engine::synth::Waveform::Sine,
                             crate::state::track::Waveform::Square => crate::engine::synth::Waveform::Square,
