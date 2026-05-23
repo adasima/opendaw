@@ -22,3 +22,4 @@ pub trait AudioEffect: Send + Sync {
     /// エフェクトの有効/無効を切り替えます。
     fn set_enabled(&mut self, enabled: bool);
 }
+pub mod delay;
