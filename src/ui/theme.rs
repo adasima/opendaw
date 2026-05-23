@@ -1,4 +1,4 @@
-use egui::{Color32, FontId, FontFamily, Margin, CornerRadius, Stroke, Style, Vec2, Visuals};
+use egui::{Color32, FontId, FontFamily, Margin, CornerRadius, Stroke, Vec2, Visuals};
 
 pub struct Theme;
 
