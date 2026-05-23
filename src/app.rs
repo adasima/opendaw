@@ -332,7 +332,7 @@ mod tests {
         // App構造体の初期化が正常にできるか確認
         // eframe::CreationContextをモックするのは難しいため、
         // Default::default() で状態が初期化されることのみを確認します。
-        let app = AuraDawApp::default();
+        let app = OpenDawApp::default();
         assert!(!app.state.is_playing);
         assert_eq!(app.state.playhead_pos, 0.0);
         // チャンネルが初期化されていることを確認
