@@ -120,7 +120,7 @@ impl AuraDawApp {
         let current_pos = self.state.playhead_pos as f64;
 
         if let Some(ui_channels) = &mut self.ui_channels {
-            for (track_idx, track) in self.state.tracks.iter_mut().enumerate() {
+            for (track_idx, track) in self.state.tracks.iter().enumerate() {
                 if track.synth.is_enabled {
                     let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
                     let mut active_count = 0;

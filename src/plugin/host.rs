@@ -19,13 +19,13 @@ pub trait PluginInstance: Send + Sync {
 }
 
 pub struct Host {
-    plugins: Vec<Box<dyn PluginInstance>>,
+    _plugins: Vec<Box<dyn PluginInstance>>,
 }
 
 impl Host {
     pub fn new() -> Self {
         Self {
-            plugins: Vec::new(),
+            _plugins: Vec::new(),
         }
     }
 
