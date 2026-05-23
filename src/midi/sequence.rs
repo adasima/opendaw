@@ -36,7 +36,7 @@ impl NoteEvent {
 ///
 /// 複数のMIDIノートを管理するデータ構造。
 /// IDの衝突を防ぐため、追加時に自動でインクリメントされるIDを付与する。
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct Sequence {
     /// ノートのリスト
     pub notes: Vec<NoteEvent>,
@@ -79,6 +79,15 @@ impl Sequence {
     /// すべてのノートを削除する
     pub fn clear(&mut self) {
         self.notes.clear();
+    }
+
+    /// ノートを追加する (ID付き)
+    /// 既存のテスト等を壊さないためのエイリアス
+    pub fn add_note_event(&mut self, note: NoteEvent) {
+        if note.id >= self.next_note_id {
+            self.next_note_id = note.id + 1;
+        }
+        self.notes.push(note);
     }
 
     /// 指定されたIDのノートへのミュータブル参照を取得する
