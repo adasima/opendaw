@@ -26,6 +26,8 @@ pub struct AuraDawApp {
     pub is_session_view: bool,
     /// プラグインブラウザを開いているかどうか
     pub is_plugin_browser_open: bool,
+    pub recorder: Option<crate::engine::recording::Recorder>,
+    pub was_recording: bool,
 }
 
 impl Default for AuraDawApp {
@@ -41,6 +43,8 @@ impl Default for AuraDawApp {
             mcp_receiver: None,
             is_session_view: false,
             is_plugin_browser_open: false,
+            recorder: Some(crate::engine::recording::Recorder::new()),
+            was_recording: false,
         }
     }
 }
@@ -181,6 +185,38 @@ impl eframe::App for AuraDawApp {
             if let Some(pos) = pos_opt {
                 self.state.playhead_pos = pos;
             }
+        }
+
+        if self.state.is_recording && !self.was_recording {
+            if let Some(recorder) = &mut self.recorder {
+                let _ = recorder.start_recording(None);
+            }
+            self.was_recording = true;
+        } else if !self.state.is_recording && self.was_recording {
+            if let Some(recorder) = &mut self.recorder {
+                recorder.stop_recording();
+                let data = recorder.collect_recorded_data();
+                if !data.is_empty() {
+                    let arc_data = std::sync::Arc::new(data.clone());
+                    let clip_length = arc_data.len() as f32 / 44100.0;
+                    if self.state.tracks.is_empty() {
+                        self.state.add_track("Recorded Track");
+                    }
+                    let track_idx = 0;
+                    let clip_id = self.state.tracks[track_idx].clips.len() + 1;
+                    let start_pos = self.state.playhead_pos;
+                    let mut new_clip = crate::state::clip::AudioClip::new(clip_id, "Recorded Clip", start_pos, clip_length);
+                    let summary: Vec<f32> = data.iter().step_by(100).copied().collect();
+                    new_clip.set_waveform_summary(summary);
+                    self.state.tracks[track_idx].clips.push(new_clip);
+                    if let Some(ui_channels) = &mut self.ui_channels {
+                        let track_id = self.state.tracks[track_idx].id;
+                        let start_sample = (start_pos * 44100.0 / 120.0) as usize; // 仮の変換（秒への変換が必要だが今回はBPM120基準で処理）
+                        let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::AddRecordedClip(track_id, start_sample, arc_data));
+                    }
+                }
+            }
+            self.was_recording = false;
         }
 
         // キーボードショートカット: スペースキーで再生/停止

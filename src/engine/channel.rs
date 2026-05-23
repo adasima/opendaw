@@ -25,8 +25,8 @@ pub enum UiToAudioMsg {
     ActiveNotes(usize, [f32; MAX_ACTIVE_NOTES], usize),
     /// シンセサイザーパラメータの更新
     UpdateSynthParams(usize, Waveform, AdsrParams),
-    /// 録音されたオーディオデータの追加 (トラックID, オーディオデータ)
-    AddRecordedClip(usize, std::sync::Arc<Vec<f32>>),
+    /// 録音されたオーディオデータの追加 (トラックID, 開始位置(サンプル数), オーディオデータ)
+    AddRecordedClip(usize, usize, std::sync::Arc<Vec<f32>>),
 }
 
 /// オーディオスレッドからUIへのメッセージ
@@ -100,9 +100,10 @@ mod tests {
 
         // AddRecordedClip
         let data = std::sync::Arc::new(vec![0.5, -0.5]);
-        assert!(ui_prod.try_push(UiToAudioMsg::AddRecordedClip(1, data.clone())).is_ok());
-        if let Some(UiToAudioMsg::AddRecordedClip(id, recv_data)) = audio_cons.try_pop() {
+        assert!(ui_prod.try_push(UiToAudioMsg::AddRecordedClip(1, 0, data.clone())).is_ok());
+        if let Some(UiToAudioMsg::AddRecordedClip(id, start_pos, recv_data)) = audio_cons.try_pop() {
             assert_eq!(id, 1);
+            assert_eq!(start_pos, 0);
             assert_eq!(recv_data.len(), 2);
             assert_eq!(recv_data[0], 0.5);
         } else {
