@@ -99,6 +99,43 @@ impl Sequence {
     pub fn get_note(&self, id: usize) -> Option<&NoteEvent> {
         self.notes.iter().find(|n| n.id == id)
     }
+
+    /// 指定されたIDのノートの位置（ピッチと開始位置）を変更する
+    ///
+    /// 変更に成功した場合は `true` を返す。
+    pub fn move_note(&mut self, id: usize, pitch: u8, start_beat: f64) -> bool {
+        if let Some(note) = self.get_note_mut(id) {
+            note.pitch = pitch;
+            note.start_beat = start_beat;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// 指定されたIDのノートの長さ（duration_beats）を変更する
+    ///
+    /// 変更に成功した場合は `true` を返す。
+    pub fn resize_note(&mut self, id: usize, duration_beats: f64) -> bool {
+        if let Some(note) = self.get_note_mut(id) {
+            note.duration_beats = duration_beats;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// 指定されたIDのノートのベロシティを変更する
+    ///
+    /// 変更に成功した場合は `true` を返す。
+    pub fn update_velocity(&mut self, id: usize, velocity: u8) -> bool {
+        if let Some(note) = self.get_note_mut(id) {
+            note.velocity = velocity;
+            true
+        } else {
+            false
+        }
+    }
 }
 
 #[cfg(test)]
@@ -172,5 +209,42 @@ mod tests {
 
         assert!(seq.get_note(999).is_none());
         Ok(())
+    }
+
+    #[test]
+    fn test_sequence_move_note() {
+        let mut seq = Sequence::new();
+        let id = seq.add_note(60, 100, 0.0, 1.0);
+
+        assert!(seq.move_note(id, 62, 2.0));
+        let note = seq.get_note(id).unwrap();
+        assert_eq!(note.pitch, 62);
+        assert_eq!(note.start_beat, 2.0);
+
+        assert!(!seq.move_note(999, 62, 2.0));
+    }
+
+    #[test]
+    fn test_sequence_resize_note() {
+        let mut seq = Sequence::new();
+        let id = seq.add_note(60, 100, 0.0, 1.0);
+
+        assert!(seq.resize_note(id, 2.5));
+        let note = seq.get_note(id).unwrap();
+        assert_eq!(note.duration_beats, 2.5);
+
+        assert!(!seq.resize_note(999, 2.5));
+    }
+
+    #[test]
+    fn test_sequence_update_velocity() {
+        let mut seq = Sequence::new();
+        let id = seq.add_note(60, 100, 0.0, 1.0);
+
+        assert!(seq.update_velocity(id, 127));
+        let note = seq.get_note(id).unwrap();
+        assert_eq!(note.velocity, 127);
+
+        assert!(!seq.update_velocity(999, 127));
     }
 }
