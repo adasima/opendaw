@@ -103,7 +103,11 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
         }
     }
 
-    // 既存ノートの描画
+    // 既存ノートの描画とインタラクション
+    let mut note_moved = None;
+    let mut note_resized = None;
+    let mut note_deleted = None;
+
     for note in &app.state.active_sequence.notes {
         if (MIN_PITCH..=MAX_PITCH).contains(&note.pitch) {
             let pitch_index = MAX_PITCH.saturating_sub(note.pitch) as f32;
@@ -114,12 +118,85 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
             let note_rect =
                 egui::Rect::from_min_size(egui::pos2(x, y), egui::vec2(w, PITCH_HEIGHT));
 
-            // ノートを描画（少し縮小して見やすくする）
             let display_rect = note_rect.shrink(NOTE_SHRINK);
+
+            // ノートごとのインタラクション
+            let note_id = ui.id().with("note").with(note.id);
+            let note_response = ui.interact(display_rect, note_id, egui::Sense::click_and_drag());
+
+            // 右端のドラッグ判定
+            let resize_margin = 6.0;
+            let is_edge_hovered = note_response.hover_pos()
+                .map(|p| p.x > display_rect.right() - resize_margin)
+                .unwrap_or(false);
+
+            if is_edge_hovered {
+                ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+            }
+
+            // ドラッグ中のリサイズ状態を保持
+            let resize_state_id = note_id.with("is_resizing");
+            let mut is_resizing = ui.data_mut(|d| d.get_temp::<bool>(resize_state_id).unwrap_or(false));
+
+            if note_response.drag_started()
+                && note_response
+                    .interact_pointer_pos()
+                    .map(|pos| pos.x > display_rect.right() - resize_margin)
+                    .unwrap_or(false)
+            {
+                is_resizing = true;
+                ui.data_mut(|d| d.insert_temp(resize_state_id, true));
+            }
+
+            if note_response.drag_stopped() {
+                is_resizing = false;
+                ui.data_mut(|d| d.insert_temp(resize_state_id, false));
+            }
+
+            if note_response.dragged() {
+                if is_resizing {
+                    // リサイズ処理 (長さ変更)
+                    let delta_x = note_response.drag_delta().x;
+                    let delta_beats = (delta_x / BEAT_WIDTH) as f64;
+                    let new_duration = (note.duration_beats + delta_beats).max(0.25); // 最低0.25拍
+                    note_resized = Some((note.id, new_duration));
+                } else {
+                    // 移動処理 (位置・ピッチ変更)
+                    let delta_x = note_response.drag_delta().x;
+                    let delta_beats = (delta_x / BEAT_WIDTH) as f64;
+                    let new_start = (note.start_beat + delta_beats).max(0.0);
+
+                    // Y方向は絶対座標を使って新しいピッチを計算
+                    let new_pitch = if let Some(pos) = note_response.interact_pointer_pos() {
+                        let rel_y = pos.y - rect.top();
+                        let pitch_index = (rel_y / PITCH_HEIGHT).floor() as u8;
+                        MAX_PITCH.saturating_sub(pitch_index).clamp(MIN_PITCH, MAX_PITCH)
+                    } else {
+                        note.pitch
+                    };
+
+                    note_moved = Some((note.id, new_pitch, new_start));
+                }
+            }
+
+            // ノート上での右クリックで削除
+            if note_response.secondary_clicked() {
+                note_deleted = Some(note.id);
+            }
+
+            // 描画状態の決定
+            let fill_color = if note_response.dragged() {
+                egui::Color32::from_rgb(150, 200, 255)
+            } else if note_response.hovered() {
+                egui::Color32::from_rgb(120, 180, 255)
+            } else {
+                egui::Color32::from_rgb(100, 150, 250)
+            };
+
             painter.rect_filled(
                 display_rect,
                 NOTE_CORNER_RADIUS,
-                egui::Color32::from_rgb(100, 150, 250), // 青系の色
+                fill_color,
             );
             painter.rect_stroke(
                 display_rect,
@@ -128,6 +205,17 @@ pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut AuraDawApp) {
                 egui::StrokeKind::Middle,
             );
         }
+    }
+
+    // 状態の更新
+    if let Some((id, pitch, start_beat)) = note_moved {
+        app.state.active_sequence.move_note(id, pitch, start_beat);
+    }
+    if let Some((id, dur)) = note_resized {
+        app.state.active_sequence.resize_note(id, dur);
+    }
+    if let Some(id) = note_deleted {
+        app.state.active_sequence.remove_note(id);
     }
 }
 
