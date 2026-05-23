@@ -234,3 +234,6 @@ mod tests {
 pub mod metronome;
 pub mod recording;
 pub mod synth;
+
+pub mod pdc;
+pub mod warp;

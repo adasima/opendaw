@@ -10,3 +10,6 @@ pub mod sequence;
 
 /// MIDI処理の将来のエントリポイント（Phase 4 で実装予定）
 pub struct MidiManager;
+
+pub mod mapping;
+pub mod mpe;
