@@ -25,7 +25,7 @@ pub fn setup_custom_style(ctx: &egui::Context) {
 }
 
 /// メイン画面のUIを描画します。
-pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
+pub fn draw_main_ui(app: &mut crate::app::OpenDawApp, ui: &mut egui::Ui) {
     crate::ui::mixer::draw_mixer_panel(ui, app);
 
     crate::ui::tracks::draw_tracks_panel(ui, app);
@@ -42,8 +42,12 @@ pub fn draw_main_ui(app: &mut crate::app::AuraDawApp, ui: &mut egui::Ui) {
         crate::ui::timeline::draw_timeline(ui, app);
         ui.separator();
 
-        crate::ui::piano_roll::draw_piano_roll(ui, app);
+        // crate::ui::piano_roll::draw_piano_roll(ui, app); // Replaced by PianoRoll UI Component
     });
 }
 
 pub mod theme;
+
+
+pub mod title_bar;
+pub mod main_layout;

@@ -1,10 +1,10 @@
-use crate::app::AuraDawApp;
+use crate::app::OpenDawApp;
 use crate::state::ProjectState;
 use eframe::egui;
 use rfd::FileDialog;
 
 /// プロジェクトの保存および読み込み用のUIを描画します。
-pub fn draw_project_ui(ui: &mut egui::Ui, app: &mut AuraDawApp) {
+pub fn draw_project_ui(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     ui.horizontal(|ui| {
         if ui
             .button("💾 Save Project")

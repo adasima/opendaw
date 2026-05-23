@@ -1,9 +1,9 @@
-use crate::app::AuraDawApp;
+use crate::app::OpenDawApp;
 use crate::state::track::{EffectSetting, EffectType};
 use eframe::egui;
 
 /// エフェクトチェーンの編集ウィンドウを描画します。
-pub fn draw_effects_window(ctx: &egui::Context, app: &mut AuraDawApp) {
+pub fn draw_effects_window(ctx: &egui::Context, app: &mut OpenDawApp) {
     let track_id = match app.opened_effect_track_id {
         Some(id) => id,
         None => return,

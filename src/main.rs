@@ -10,7 +10,7 @@ pub mod state;
 pub mod ui;
 pub mod util;
 pub mod plugin;
-use app::AuraDawApp;
+use app::OpenDawApp;
 
 const MCP_CHANNEL_CAPACITY: usize = 100;
 
@@ -47,14 +47,15 @@ fn main() -> eframe::Result<()> {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1280.0, 720.0])
             .with_min_inner_size([800.0, 600.0])
-            .with_title("Next-Gen AI DAW - AuraDAW")
+            .with_title("OpenDAW Genesis")
+            .with_decorations(false) // カスタムタイトルバーのためネイティブ枠を非表示
             .with_transparent(true), // 可能なら透過を有効化（グラスモーフィズム用）
         ..Default::default()
     };
 
     eframe::run_native(
-        "AuraDAW",
+        "OpenDAW",
         native_options,
-        Box::new(move |cc| Ok(Box::new(AuraDawApp::new(cc, Some(mcp_rx))))),
+        Box::new(move |cc| Ok(Box::new(OpenDawApp::new(cc, Some(mcp_rx))))),
     )
 }

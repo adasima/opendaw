@@ -1,4 +1,4 @@
-use crate::app::AuraDawApp;
+use crate::app::OpenDawApp;
 use eframe::egui;
 
 /// トラックパネルのID
@@ -8,7 +8,7 @@ const TRACKS_PANEL_ID: &str = "tracks_panel";
 ///
 /// 左側に配置されるリサイズ可能なパネルで、現在のプロジェクトに
 /// 存在する各トラック（ボーカル、シンセなど）のリストを表示します。
-pub fn draw_tracks_panel(ui: &mut egui::Ui, app: &mut AuraDawApp) {
+pub fn draw_tracks_panel(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     #[allow(deprecated)]
     egui::SidePanel::left(TRACKS_PANEL_ID)
         .resizable(true)
@@ -49,13 +49,13 @@ pub fn draw_tracks_panel(ui: &mut egui::Ui, app: &mut AuraDawApp) {
 #[cfg(test)]
 mod tests {
     // use super::*;
-    use crate::app::AuraDawApp;
+    use crate::app::OpenDawApp;
 
 
     #[test]
     fn test_add_synth_track_logic() {
         // UIスレッドを模倣して、トラック追加ロジックの動作を確認する
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
 
         let initial_count = app.state.tracks.len();
 

@@ -6,7 +6,7 @@ const DUMMY_SCENE_COUNT: usize = 5;
 
 /// セッションビューのUIを描画します。
 /// 現在はダミーデータを使用してクリップグリッドのスケルトンを表示します。
-pub fn draw_session_view(ui: &mut egui::Ui, _app: &mut crate::app::AuraDawApp) {
+pub fn draw_session_view(ui: &mut egui::Ui, _app: &mut crate::app::OpenDawApp) {
     ui.heading("Session View (Skeleton)");
     ui.separator();
 
@@ -66,7 +66,7 @@ mod tests {
     fn test_draw_session_view_dummy() {
         // UI描画のロジックテストはヘッドレスでは困難なため、
         // 少なくともコンパイルが通るか、基本状態が影響を受けないかを検証します。
-        let app = crate::app::AuraDawApp::default();
+        let app = crate::app::OpenDawApp::default();
         let initial_is_playing = app.state.is_playing;
 
         // アプリケーションの状態がセッションビューによって予期せず変更されないことを確認

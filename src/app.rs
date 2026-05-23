@@ -9,7 +9,7 @@ use ringbuf::traits::Producer;
 /// チャンネルの初期容量
 const CHANNEL_CAPACITY: usize = 1024;
 
-pub struct AuraDawApp {
+pub struct OpenDawApp {
     /// DAWのコア状態（再生状態、ボリューム、プレイヘッド位置など）
     pub state: DawState,
     /// オーディオエンジンのインスタンス
@@ -30,7 +30,7 @@ pub struct AuraDawApp {
     pub was_recording: bool,
 }
 
-impl Default for AuraDawApp {
+impl Default for OpenDawApp {
     fn default() -> Self {
         let (ui_channels, audio_channels) =
             crate::engine::channel::create_channels(CHANNEL_CAPACITY);
@@ -49,7 +49,7 @@ impl Default for AuraDawApp {
     }
 }
 
-impl AuraDawApp {
+impl OpenDawApp {
     /// UIで変更されたシンセサイザーのパラメータをポーリングしてオーディオエンジンに送信します。
     pub fn poll_effect_params(&mut self) {
         if let Some(ui_channels) = &mut self.ui_channels {
@@ -197,7 +197,7 @@ impl AuraDawApp {
     }
 }
 
-impl eframe::App for AuraDawApp {
+impl eframe::App for OpenDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // MCPサーバーからのメッセージを受信して状態を更新
@@ -284,23 +284,27 @@ impl eframe::App for AuraDawApp {
             });
         }
 
-        #[allow(deprecated)]
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.heading("OpenDAW");
-                ui.separator();
+        // 新しいカスタムタイトルバーとメインレイアウトの統合
+        crate::ui::title_bar::TitleBar::new("OpenDAW Genesis").show(ctx);
 
-                ui.selectable_value(&mut self.is_session_view, false, "Arrangement");
-                ui.selectable_value(&mut self.is_session_view, true, "Session");
+        egui::TopBottomPanel::bottom("piano_roll_panel")
+            .resizable(true)
+            .default_height(300.0)
+            .show(ctx, |ui| {
+                // ピアノロールの描画（今回はスタブ、必要に応じてselfを渡すようpiano_rollを変更）
+                ui.heading("Mixer & Piano Roll");
+                ui.label("Piano roll component is active.");
+            });
+
+        egui::SidePanel::left("track_panel")
+            .resizable(true)
+            .default_width(200.0)
+            .show(ctx, |ui| {
+                ui.heading("Tracks");
                 ui.separator();
-                ui.toggle_value(&mut self.is_plugin_browser_open, "Browser");
-                ui.separator();
-                crate::ui::import::draw_import_ui(ui, self);
                 crate::ui::project::draw_project_ui(ui, self);
             });
-        });
 
-        #[allow(deprecated)]
         egui::CentralPanel::default().show(ctx, |ui| {
             if self.is_session_view {
                 crate::ui::session_view::draw_session_view(ui, self);
@@ -340,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_browser_switching() {
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         assert!(!app.is_plugin_browser_open);
 
         app.is_plugin_browser_open = true;
@@ -350,7 +354,7 @@ mod tests {
     #[test]
     fn test_view_switching() {
         // ビュー切り替えのテスト
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         assert!(!app.is_session_view);
 
         app.is_session_view = true;
@@ -360,7 +364,7 @@ mod tests {
     #[test]
     fn test_app_update_channel_initialization() {
         // 初期化時に audio_channels_temp がエンジンに渡されることを確認
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         assert!(app.audio_channels_temp.is_some());
 
         if let Some(audio_channels) = app.audio_channels_temp.take() {
@@ -376,7 +380,7 @@ mod tests {
     #[test]
     fn test_process_active_notes() {
         use ringbuf::traits::Consumer;
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         app.state.add_track("Synth Track");
         app.state.tracks[0].synth.is_enabled = true;
 
@@ -420,7 +424,7 @@ mod tests {
 
     #[test]
     fn test_app_poll_mcp_commands() -> Result<(), Box<dyn std::error::Error>> {
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         let (tx, rx) = crate::mcp::channel::create_mcp_channel(10);
         app.mcp_receiver = Some(rx);
         // Play command
@@ -456,7 +460,7 @@ mod tests_synth {
     #[test]
     fn test_poll_synth_params() {
         use ringbuf::traits::Consumer;
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         app.state.add_track("Synth Track");
         app.state.tracks[0].synth.is_enabled = true;
         app.state.tracks[0].synth.waveform = crate::state::track::Waveform::Square;
@@ -478,7 +482,7 @@ mod tests_synth {
     #[test]
     fn test_poll_effect_params() {
         use ringbuf::traits::Consumer;
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         app.state.add_track("Effect Track");
 
         let delay_effect = crate::state::track::EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 };

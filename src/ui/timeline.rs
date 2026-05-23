@@ -1,4 +1,4 @@
-use crate::app::AuraDawApp;
+use crate::app::OpenDawApp;
 use eframe::egui;
 
 const BG_ROUNDING: f32 = 4.0;
@@ -13,7 +13,7 @@ const PLAYHEAD_STROKE_WIDTH: f32 = 2.0;
 
 
 /// メインタイムライン領域（波形描画、プレイヘッドなど）を描画します。
-pub fn draw_timeline(ui: &mut egui::Ui, app: &mut AuraDawApp) {
+pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     // 波形のプレースホルダー領域
     let (rect, response) =
         ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
@@ -76,7 +76,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut AuraDawApp) {
                 let step = clip_rect.width() / clip.waveform_summary.len() as f32;
                 for (j, &val) in clip.waveform_summary.iter().enumerate() {
                     let wx = clip_rect.left() + j as f32 * step;
-                    let h = val.clamp(0.0, 1.0) * max_h;
+                    let val_f32: f32 = val; let h = val_f32.clamp(0.0, 1.0) * max_h;
                     painter.line_segment(
                         [egui::pos2(wx, center_y - h), egui::pos2(wx, center_y + h)],
                         egui::Stroke::new(WAVEFORM_STROKE_WIDTH, egui::Color32::from_rgb(114, 137, 218)),

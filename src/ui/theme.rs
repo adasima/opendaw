@@ -1,95 +1,122 @@
-use egui::{Color32, FontId, FontFamily, Margin, CornerRadius, Stroke, Style, Vec2, Visuals};
+use egui::{
+    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Rounding, Stroke, Style, Vec2, Visuals,
+};
 
-pub struct Theme;
+pub fn apply_theme(ctx: &egui::Context) {
+    let mut style = (*ctx.global_style()).clone();
 
-impl Theme {
-    // Ableton Live Dark-like Colors
-    pub const BG_APP: Color32 = Color32::from_rgb(34, 34, 34);
-    pub const BG_PANEL: Color32 = Color32::from_rgb(51, 51, 51);
-    pub const BG_HEADER: Color32 = Color32::from_rgb(68, 68, 68);
-    pub const BORDER: Color32 = Color32::from_rgb(24, 24, 24);
+    // ==========================================
+    // 1. Spacing & Padding (洗練されたパディング)
+    // ==========================================
+    style.spacing.item_spacing = Vec2::new(10.0, 10.0);
+    style.spacing.window_margin = Margin { left: 16, right: 16, top: 16, bottom: 16 };
+    style.spacing.button_padding = Vec2::new(14.0, 8.0);
+    style.spacing.menu_margin = Margin { left: 8, right: 8, top: 8, bottom: 8 };
 
-    pub const TEXT_MUTED: Color32 = Color32::from_rgb(153, 153, 153);
-    pub const TEXT_MAIN: Color32 = Color32::from_rgb(204, 204, 204);
-    pub const TEXT_ACTIVE: Color32 = Color32::from_rgb(238, 238, 238);
+    // ==========================================
+    // 2. Visuals (Ableton-like Dark & Glassmorphism)
+    // ==========================================
+    let mut visuals = Visuals::dark();
 
-    pub const ACCENT: Color32 = Color32::from_rgb(255, 153, 0); // Live-like orange
-    pub const SELECTION_BG: Color32 = Color32::from_rgb(85, 85, 85);
+    // カラーパレット設定
+    let bg_base = Color32::from_rgb(30, 32, 36);
+    let bg_glass = Color32::from_rgba_premultiplied(40, 42, 48, 230); // 半透明（グラスモーフィズム）
+    let window_glass = Color32::from_rgba_premultiplied(26, 28, 32, 245);
+    
+    let primary_accent = Color32::from_rgb(255, 115, 0); // Ableton的な鮮やかなオレンジ
+    let text_main = Color32::from_rgb(220, 220, 220);
+    let border_color = Color32::from_rgb(20, 21, 24);
 
-    // Font Sizes
-    pub const FONT_SIZE_SMALL: f32 = 10.0;
-    pub const FONT_SIZE_BODY: f32 = 12.0;
-    pub const FONT_SIZE_HEADING: f32 = 16.0;
+    let widget_bg = Color32::from_rgb(50, 52, 58);
+    let widget_hover = Color32::from_rgb(65, 68, 76);
+    let widget_active = primary_accent;
 
-    pub fn apply(ctx: &egui::Context) {
-        let mut style = (*ctx.global_style()).clone();
+    // パネル＆ウィンドウ背景色
+    visuals.window_fill = window_glass;
+    visuals.panel_fill = bg_glass;
+    visuals.faint_bg_color = widget_bg;
+    visuals.extreme_bg_color = Color32::from_rgb(18, 19, 21);
 
-        // Define fonts
-        for (text_style, font_id) in style.text_styles.iter_mut() {
-            match *text_style {
-                egui::TextStyle::Small => {
-                    *font_id = FontId::new(Self::FONT_SIZE_SMALL, FontFamily::Proportional)
-                }
-                egui::TextStyle::Body => {
-                    *font_id = FontId::new(Self::FONT_SIZE_BODY, FontFamily::Proportional)
-                }
-                egui::TextStyle::Button => {
-                    *font_id = FontId::new(Self::FONT_SIZE_BODY, FontFamily::Proportional)
-                }
-                egui::TextStyle::Heading => {
-                    *font_id = FontId::new(Self::FONT_SIZE_HEADING, FontFamily::Proportional)
-                }
-                egui::TextStyle::Monospace => {
-                    *font_id = FontId::new(Self::FONT_SIZE_BODY, FontFamily::Monospace)
-                }
-                _ => *font_id = FontId::new(Self::FONT_SIZE_BODY, FontFamily::Proportional),
-            }
-        }
+    // 選択状態
+    visuals.selection.bg_fill = primary_accent;
+    visuals.selection.stroke = Stroke::new(1.0, Color32::WHITE);
 
-        // Define visuals
-        let mut visuals = Visuals::dark();
+    // テキストカラーのオーバーライド
+    visuals.override_text_color = Some(text_main);
 
-        // Backgrounds
-        visuals.window_fill = Self::BG_PANEL;
-        visuals.window_stroke = Stroke::new(1.0, Self::BORDER);
-        visuals.panel_fill = Self::BG_APP;
+    // ==========================================
+    // 3. Shadows (美しいシャドウ)
+    // ==========================================
+    visuals.window_shadow = Shadow {
+        color: Color32::from_black_alpha(140),
+        offset: [0, 4].into(),
+        blur: 16,
+        spread: 0,
+    };
+    visuals.popup_shadow = Shadow {
+        color: Color32::from_black_alpha(120),
+        offset: [0, 8].into(),
+        blur: 24,
+        spread: 0,
+    };
 
-        // Widget states
-        visuals.widgets.noninteractive.bg_fill = Self::BG_APP;
-        visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, Self::BORDER);
-        visuals.widgets.noninteractive.fg_stroke = Stroke::new(1.0, Self::TEXT_MAIN);
+    // ==========================================
+    // 4. Rounding (洗練された角丸)
+    // ==========================================
+    let common_rounding = 6;
+    visuals.window_corner_radius = 12.into();
+    visuals.menu_corner_radius = 8.into();
 
-        visuals.widgets.inactive.bg_fill = Self::BG_HEADER;
-        visuals.widgets.inactive.bg_stroke = Stroke::new(1.0, Self::BORDER);
-        visuals.widgets.inactive.fg_stroke = Stroke::new(1.0, Self::TEXT_MAIN);
+    // ==========================================
+    // 5. Widget States (リッチなインタラクション)
+    // ==========================================
+    visuals.widgets.noninteractive = WidgetVisuals {
+        bg_fill: bg_base,
+        weak_bg_fill: bg_base,
+        bg_stroke: Stroke::new(1.0, border_color),
+        corner_radius: common_rounding.into(),
+        fg_stroke: Stroke::new(1.0, text_main),
+        expansion: 0.0,
+    };
 
-        visuals.widgets.hovered.bg_fill = Self::SELECTION_BG;
-        visuals.widgets.hovered.bg_stroke = Stroke::new(1.0, Self::ACCENT);
-        visuals.widgets.hovered.fg_stroke = Stroke::new(1.0, Self::TEXT_ACTIVE);
+    visuals.widgets.inactive = WidgetVisuals {
+        bg_fill: widget_bg,
+        weak_bg_fill: widget_bg,
+        bg_stroke: Stroke::new(1.0, border_color),
+        corner_radius: common_rounding.into(),
+        fg_stroke: Stroke::new(1.0, text_main),
+        expansion: 0.0,
+    };
 
-        visuals.widgets.active.bg_fill = Self::ACCENT;
-        visuals.widgets.active.bg_stroke = Stroke::new(1.0, Self::ACCENT);
-        visuals.widgets.active.fg_stroke = Stroke::new(1.0, Self::TEXT_ACTIVE);
+    visuals.widgets.hovered = WidgetVisuals {
+        bg_fill: widget_hover,
+        weak_bg_fill: widget_hover,
+        bg_stroke: Stroke::new(1.0, primary_accent),
+        corner_radius: common_rounding.into(),
+        fg_stroke: Stroke::new(1.0, Color32::WHITE),
+        expansion: 1.0,
+    };
 
-        visuals.selection.bg_fill = Self::SELECTION_BG;
-        visuals.selection.stroke = Stroke::new(1.0, Self::ACCENT);
+    visuals.widgets.active = WidgetVisuals {
+        bg_fill: widget_active,
+        weak_bg_fill: widget_active,
+        bg_stroke: Stroke::new(1.0, Color32::WHITE),
+        corner_radius: common_rounding.into(),
+        fg_stroke: Stroke::new(1.0, Color32::WHITE),
+        expansion: 2.0,
+    };
 
-        // Rounding (Live usually has sharp or very slightly rounded corners)
-        let rounding = CornerRadius::same(2);
-        visuals.widgets.noninteractive.corner_radius = rounding;
-        visuals.widgets.inactive.corner_radius = rounding;
-        visuals.widgets.hovered.corner_radius = rounding;
-        visuals.widgets.active.corner_radius = rounding;
-        visuals.window_corner_radius = rounding;
-        visuals.menu_corner_radius = rounding;
+    visuals.widgets.open = WidgetVisuals {
+        bg_fill: widget_bg,
+        weak_bg_fill: widget_bg,
+        bg_stroke: Stroke::new(1.0, border_color),
+        corner_radius: common_rounding.into(),
+        fg_stroke: Stroke::new(1.0, text_main),
+        expansion: 0.0,
+    };
 
-        style.visuals = visuals;
+    style.visuals = visuals;
 
-        // Spacing (Compact for DAW)
-        style.spacing.item_spacing = Vec2::new(6.0, 6.0);
-        style.spacing.window_margin = Margin::same(6);
-        style.spacing.button_padding = Vec2::new(4.0, 2.0);
-
-        ctx.set_global_style(style);
-    }
+    // スタイルを適用
+    ctx.set_global_style(style);
 }

@@ -13,3 +13,5 @@ pub struct MidiManager;
 
 pub mod mapping;
 pub mod mpe;
+
+pub mod import;

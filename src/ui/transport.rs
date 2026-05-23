@@ -1,4 +1,4 @@
-use crate::app::AuraDawApp;
+use crate::app::OpenDawApp;
 use eframe::egui;
 use ringbuf::traits::Producer;
 
@@ -7,7 +7,7 @@ const BPM_MAX: f64 = 300.0;
 const TIME_SCALER: f32 = 0.1;
 
 /// トランスポートコントロール（再生、停止、ループ、BPMなど）を描画します。
-pub fn draw_transport(ui: &mut egui::Ui, app: &mut AuraDawApp) {
+pub fn draw_transport(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     ui.horizontal(|ui| {
         let play_icon = if app.state.is_playing { "⏸" } else { "▶" };
 

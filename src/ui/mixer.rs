@@ -1,7 +1,7 @@
 use eframe::egui;
 
 /// Mixer & Effects パネルを描画します。
-pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
+pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
     #[allow(deprecated)]
     egui::TopBottomPanel::bottom("mixer_panel")
         .resizable(true)
@@ -110,11 +110,11 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::AuraDawApp) {
 
 #[cfg(test)]
 mod tests {
-    use crate::app::AuraDawApp;
+    use crate::app::OpenDawApp;
 
     #[test]
     fn test_mixer_synth_toggle() -> Result<(), Box<dyn std::error::Error>> {
-        let mut app = AuraDawApp::default();
+        let mut app = OpenDawApp::default();
         app.state.add_track("Test Track");
 
         let track = app.state.tracks.last_mut().ok_or("Track not found")?;
