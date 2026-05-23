@@ -53,6 +53,6 @@
 
 
 ## Phase 18: 録音済みオーディオクリップの再生 (進行中)
-- [ ] [1] @A src/engine/channel.rs を更新し、録音したデータをエンジンのバッファに送信するメッセージを追加する (対象: src/engine/channel.rs)
+- [x] [1] @A src/engine/channel.rs を更新し、録音したデータをエンジンのバッファに送信するメッセージを追加する (対象: src/engine/channel.rs)
 - [ ] [2] @A src/engine/stream.rs を更新し、録音したオーディオデータの再生処理を実装する (対象: src/engine/stream.rs)
 - [ ] [3] @B src/app.rs を更新し、録音停止時にキャプチャしたオーディオデータを新しいクリップとしてトラックに追加する処理を実装する (対象: src/app.rs)
