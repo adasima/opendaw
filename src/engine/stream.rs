@@ -85,6 +85,9 @@ pub fn build_output_stream(
                                             track_oscillator.waveform = waveform;
                                             track_oscillator.envelope.params = params;
                                         }
+                                        UiToAudioMsg::AddRecordedClip(_id, _data) => {
+                                            // TODO: Phase 18 [2] 実装箇所
+                                        }
                                     }
                                 }
                             }
@@ -161,6 +164,9 @@ pub fn build_output_stream(
                                         UiToAudioMsg::UpdateSynthParams(_id, waveform, params) => {
                                             track_oscillator.waveform = waveform;
                                             track_oscillator.envelope.params = params;
+                                        }
+                                        UiToAudioMsg::AddRecordedClip(_id, _data) => {
+                                            // TODO: Phase 18 [2] 実装箇所
                                         }
                                     }
                                 }
