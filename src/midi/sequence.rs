@@ -212,39 +212,42 @@ mod tests {
     }
 
     #[test]
-    fn test_sequence_move_note() {
+    fn test_sequence_move_note() -> Result<(), Box<dyn std::error::Error>> {
         let mut seq = Sequence::new();
         let id = seq.add_note(60, 100, 0.0, 1.0);
 
         assert!(seq.move_note(id, 62, 2.0));
-        let note = seq.get_note(id).unwrap();
+        let note = seq.get_note(id).ok_or("Note not found")?;
         assert_eq!(note.pitch, 62);
         assert_eq!(note.start_beat, 2.0);
 
         assert!(!seq.move_note(999, 62, 2.0));
+        Ok(())
     }
 
     #[test]
-    fn test_sequence_resize_note() {
+    fn test_sequence_resize_note() -> Result<(), Box<dyn std::error::Error>> {
         let mut seq = Sequence::new();
         let id = seq.add_note(60, 100, 0.0, 1.0);
 
         assert!(seq.resize_note(id, 2.5));
-        let note = seq.get_note(id).unwrap();
+        let note = seq.get_note(id).ok_or("Note not found")?;
         assert_eq!(note.duration_beats, 2.5);
 
         assert!(!seq.resize_note(999, 2.5));
+        Ok(())
     }
 
     #[test]
-    fn test_sequence_update_velocity() {
+    fn test_sequence_update_velocity() -> Result<(), Box<dyn std::error::Error>> {
         let mut seq = Sequence::new();
         let id = seq.add_note(60, 100, 0.0, 1.0);
 
         assert!(seq.update_velocity(id, 127));
-        let note = seq.get_note(id).unwrap();
+        let note = seq.get_note(id).ok_or("Note not found")?;
         assert_eq!(note.velocity, 127);
 
         assert!(!seq.update_velocity(999, 127));
+        Ok(())
     }
 }
