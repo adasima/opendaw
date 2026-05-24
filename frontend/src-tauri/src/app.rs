@@ -52,8 +52,7 @@ pub fn get_midi_devices() -> Vec<String> {
 
 /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
 #[tauri::command]
-pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, _state: State<'_, AppState>) {
+pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, state: State<'_, AppState>) {
     info!("MIDI Route: Set track {} to device '{}' channel {}", track_id, device, channel);
-    // 将来的にはここでエンジン等に設定を反映する
-    // state.engine.set_track_midi_route(track_id, device, channel);
+    state.engine.set_track_midi_route(track_id, device, channel);
 }

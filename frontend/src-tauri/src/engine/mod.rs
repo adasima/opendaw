@@ -1,3 +1,5 @@
+pub mod midi_route;
+
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use crossbeam_channel::{bounded, Sender, Receiver};
@@ -18,6 +20,7 @@ pub struct EngineHandle {
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
     event_tx: Sender<EngineEvent>,
+    midi_router: Arc<std::sync::RwLock<crate::engine::midi_route::MidiRouter>>,
 }
 
 impl Default for EngineHandle {
@@ -35,6 +38,7 @@ impl EngineHandle {
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
             event_tx: tx,
+            midi_router: Arc::new(std::sync::RwLock::new(crate::engine::midi_route::MidiRouter::new())),
         };
         (handle, rx)
     }
@@ -89,6 +93,13 @@ impl EngineHandle {
     /// 現在のマスターボリュームを取得する
     pub fn get_master_volume(&self) -> f64 {
         self.master_volume.load(Ordering::Acquire) as f64 / 1000.0
+    }
+
+    /// トラックのMIDIルーティングを設定する
+    pub fn set_track_midi_route(&self, track_id: u32, device: String, channel: u8) {
+        if let Ok(mut router) = self.midi_router.write() {
+            router.set_route(track_id, device, channel);
+        }
     }
 }
 
