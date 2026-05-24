@@ -24,6 +24,7 @@
   let wasmError = $state(null);
   let playheadPos = $state(0.0);
   let timeString = $state("00:00:00.000");
+  let bpm = $state(120.0);
   let activeTrackId = $state(null);
   let tracks = $state([
     { id: 1, name: "Audio 1 (Select to Open PR)", color: "var(--primary)" },
@@ -133,6 +134,7 @@
     <div class="bottom-panel glass-panel">
       <Transport
         {timeString}
+        bind:bpm={bpm}
         onPlay={handlePlay}
         onStop={handleStop}
         onToggleLoop={handleToggleLoop}

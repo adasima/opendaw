@@ -1,5 +1,5 @@
 <script>
-  let { timeString, onPlay, onStop, onToggleLoop } = $props();
+  let { timeString, onPlay, onStop, onToggleLoop, bpm = $bindable(120.0) } = $props();
 </script>
 
 <div class="transport-container">
@@ -13,6 +13,11 @@
   </div>
   <div class="time-display">
     <span>{timeString}</span>
+  </div>
+  <div class="bpm-control">
+    <span class="bpm-label">BPM:</span>
+    <input type="number" class="bpm-number" bind:value={bpm} min="20" max="300" step="1" />
+    <input type="range" class="bpm-slider" bind:value={bpm} min="20" max="300" step="1" />
   </div>
 </div>
 
@@ -76,5 +81,35 @@
     background: rgba(0, 0, 0, 0.3);
     border-radius: 6px;
     border: 1px inset rgba(255, 255, 255, 0.1);
+  }
+
+  .bpm-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px inset rgba(255, 255, 255, 0.1);
+  }
+
+  .bpm-label {
+    font-size: 14px;
+    color: var(--on-surface);
+    font-weight: bold;
+  }
+
+  .bpm-number {
+    width: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--outline);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 4px;
+    text-align: right;
+  }
+
+  .bpm-slider {
+    width: 100px;
   }
 </style>
