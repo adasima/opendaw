@@ -56,11 +56,10 @@ pub fn parse_midi_data(data: &[u8]) -> Result<Vec<ImportedMidiData>, Box<dyn std
 
             match &event.kind {
                 TrackEventKind::Meta(meta) => {
-                    if let MetaMessage::TrackName(name_bytes) = meta {
-                        if let Ok(name) = String::from_utf8(name_bytes.to_vec()) {
+                    if let MetaMessage::TrackName(name_bytes) = meta
+                        && let Ok(name) = String::from_utf8(name_bytes.to_vec()) {
                             track_name = name;
                         }
-                    }
                 }
                 TrackEventKind::Midi { channel, message } => {
                     match message {

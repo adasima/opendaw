@@ -1,5 +1,5 @@
 use egui::{
-    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Rounding, Stroke, Style, Vec2, Visuals,
+    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Stroke, Vec2, Visuals,
 };
 
 pub fn apply_theme(ctx: &egui::Context) {
@@ -49,13 +49,13 @@ pub fn apply_theme(ctx: &egui::Context) {
     // ==========================================
     visuals.window_shadow = Shadow {
         color: Color32::from_black_alpha(140),
-        offset: [0, 4].into(),
+        offset: [0, 4],
         blur: 16,
         spread: 0,
     };
     visuals.popup_shadow = Shadow {
         color: Color32::from_black_alpha(120),
-        offset: [0, 8].into(),
+        offset: [0, 8],
         blur: 24,
         spread: 0,
     };

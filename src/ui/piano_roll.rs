@@ -81,8 +81,8 @@ impl PianoRoll {
         ui.input(|i| pointer_pos = i.pointer.hover_pos());
         
         // Interaction Logic
-        if let Some(pos) = pointer_pos {
-            if grid_rect.contains(pos) {
+        if let Some(pos) = pointer_pos
+            && grid_rect.contains(pos) {
                 let grid_pos = pos - grid_rect.min + self.pan;
                 let hover_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
                 let hover_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
@@ -128,12 +128,11 @@ impl PianoRoll {
 
                 }
             }
-        }
         
         // Dragging processing
-        if response.dragged_by(PointerButton::Primary) {
-            if let Some((id, offset)) = self.dragging_note {
-                if let Some(pos) = pointer_pos {
+        if response.dragged_by(PointerButton::Primary)
+            && let Some((id, offset)) = self.dragging_note
+                && let Some(pos) = pointer_pos {
                     let new_pos = pos - offset;
                     let grid_pos = new_pos - grid_rect.min + self.pan;
                     
@@ -147,13 +146,11 @@ impl PianoRoll {
                         note.pitch = new_pitch;
                     }
                 }
-            }
-        }
 
         // ================= Drawing Phase =================
 
         // 1. Draw Keyboard Background & Keys
-        let mut kb_painter = ui.painter().with_clip_rect(keyboard_rect);
+        let kb_painter = ui.painter().with_clip_rect(keyboard_rect);
         kb_painter.rect_filled(keyboard_rect, 0.0, Color32::from_gray(30));
         
         for p in 0..=127 {
@@ -173,7 +170,7 @@ impl PianoRoll {
                 kb_painter.text(
                     key_rect.min + Vec2::new(5.0, 2.0),
                     egui::Align2::LEFT_TOP,
-                    format!("C{}", (p as i32 / 12) - 1),
+                    format!("C{}", (p / 12) - 1),
                     egui::FontId::proportional(12.0),
                     if is_black { Color32::WHITE } else { Color32::BLACK }
                 );
@@ -181,7 +178,7 @@ impl PianoRoll {
         }
 
         // 2. Draw Grid Background & Lines
-        let mut grid_painter = ui.painter().with_clip_rect(grid_rect);
+        let grid_painter = ui.painter().with_clip_rect(grid_rect);
         grid_painter.rect_filled(grid_rect, 0.0, Color32::from_gray(40));
         
         // Horizontal key lanes
@@ -212,8 +209,8 @@ impl PianoRoll {
         let mut t = (min_tick / snap_step) * snap_step;
         while t <= max_tick {
             let x = grid_rect.min.x + t as f32 * self.pixels_per_tick - self.pan.x;
-            let is_beat = t % self.ticks_per_beat == 0;
-            let is_bar = t % (self.ticks_per_beat * 4) == 0;
+            let is_beat = t.is_multiple_of(self.ticks_per_beat);
+            let is_bar = t.is_multiple_of(self.ticks_per_beat * 4);
             
             let stroke = if is_bar {
                 Stroke::new(2.0, Color32::from_gray(100))

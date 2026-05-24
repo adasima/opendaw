@@ -84,29 +84,26 @@ impl MpeZone {
     pub fn handle_pitch_bend(&mut self, channel: u8, value: i16) {
         if channel == self.master_channel {
             self.master_pitch_bend = value;
-        } else if channel < 16 {
-            if let Some(note) = &mut self.member_notes[channel as usize] {
+        } else if channel < 16
+            && let Some(note) = &mut self.member_notes[channel as usize] {
                 note.pitch_bend = value;
             }
-        }
     }
 
     /// プレッシャー（チャンネルアフタータッチ）メッセージの処理
     pub fn handle_pressure(&mut self, channel: u8, value: u8) {
-        if channel != self.master_channel && channel < 16 {
-            if let Some(note) = &mut self.member_notes[channel as usize] {
+        if channel != self.master_channel && channel < 16
+            && let Some(note) = &mut self.member_notes[channel as usize] {
                 note.pressure = value;
             }
-        }
     }
 
     /// コントロールチェンジメッセージの処理（CC74等ティンバー）
     pub fn handle_control_change(&mut self, channel: u8, controller: u8, value: u8) {
         // MPEにおけるティンバーは主にCC74を使用
-        if controller == 74 && channel != self.master_channel && channel < 16 {
-            if let Some(note) = &mut self.member_notes[channel as usize] {
+        if controller == 74 && channel != self.master_channel && channel < 16
+            && let Some(note) = &mut self.member_notes[channel as usize] {
                 note.timbre = value;
             }
-        }
     }
 }

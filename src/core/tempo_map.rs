@@ -2,7 +2,7 @@
 /// 
 /// タイムライン上の特定の時間（Tick）におけるBPMや拍子のイベントリストを保持し、
 /// 指定した時間におけるテンポ情報を取得する機能を提供します。
-
+///
 /// 特定のTickにおけるBPMの変更を表すイベント
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TempoEvent {
