@@ -1,16 +1,24 @@
 <script>
-  import { Window } from '@tauri-apps/api/window';
-  import { locale, _ } from 'svelte-i18n';
+  import { Window } from "@tauri-apps/api/window";
+  import { locale, _ } from "svelte-i18n";
 
-  const appWindow = new Window('main');
+  const appWindow = new Window("main");
 
   let settingsOpen = $state(false);
 
-  function minimize() { appWindow.minimize(); }
-  function toggleMaximize() { appWindow.toggleMaximize(); }
-  function close() { appWindow.close(); }
+  function minimize() {
+    appWindow.minimize();
+  }
+  function toggleMaximize() {
+    appWindow.toggleMaximize();
+  }
+  function close() {
+    appWindow.close();
+  }
 
-  function toggleSettings() { settingsOpen = !settingsOpen; }
+  function toggleSettings() {
+    settingsOpen = !settingsOpen;
+  }
 
   function setLocale(lang) {
     $locale = lang;
@@ -19,7 +27,11 @@
 
   // Close dropdown on outside click
   function handleWindowClick(e) {
-    if (settingsOpen && !e.target.closest('.settings-dropdown') && !e.target.closest('.settings-btn')) {
+    if (
+      settingsOpen &&
+      !e.target.closest(".settings-dropdown") &&
+      !e.target.closest(".settings-btn")
+    ) {
       settingsOpen = false;
     }
   }
@@ -35,8 +47,22 @@
 
   <div class="titlebar-actions">
     <!-- AI Panel Toggle -->
-    <button class="titlebar-action-btn" onclick={() => window.toggleAiPanel()} aria-label="AI Agent" title="Toggle AI Agent Panel">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button
+      class="titlebar-action-btn"
+      onclick={() => window.toggleAiPanel()}
+      aria-label="AI Agent"
+      title="Toggle AI Agent Panel"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <rect x="3" y="11" width="18" height="10" rx="2"></rect>
         <circle cx="12" cy="5" r="2"></circle>
         <path d="M12 7v4"></path>
@@ -46,26 +72,48 @@
     </button>
     <!-- Settings Gear -->
     <div class="settings-wrapper">
-      <button class="titlebar-action-btn settings-btn" onclick={toggleSettings} aria-label="Settings"
-        class:active={settingsOpen}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
+      <button
+        class="titlebar-action-btn settings-btn"
+        onclick={toggleSettings}
+        aria-label="Settings"
+        class:active={settingsOpen}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+          ></path>
         </svg>
       </button>
 
       {#if settingsOpen}
         <div class="settings-dropdown glass-panel">
           <div class="dropdown-section">
-            <span class="dropdown-label">{$_('ui.switch_lang')}</span>
+            <span class="dropdown-label">{$_("ui.switch_lang")}</span>
             <div class="locale-buttons">
-              <button class="locale-btn" class:selected={$locale === 'en'} onclick={() => setLocale('en')}>EN</button>
-              <button class="locale-btn" class:selected={$locale === 'ja'} onclick={() => setLocale('ja')}>JA</button>
+              <button
+                class="locale-btn"
+                class:selected={$locale === "en"}
+                onclick={() => setLocale("en")}>EN</button
+              >
+              <button
+                class="locale-btn"
+                class:selected={$locale === "ja"}
+                onclick={() => setLocale("ja")}>JA</button
+              >
             </div>
           </div>
           <div class="dropdown-section">
-            <span class="dropdown-label">{$_('ui.theme')}</span>
+            <span class="dropdown-label">{$_("ui.theme")}</span>
             <div class="locale-buttons">
               <button class="locale-btn selected">Dark</button>
               <button class="locale-btn" disabled>Light</button>
@@ -79,17 +127,44 @@
   <!-- Windows Native-style Buttons -->
   <div class="titlebar-buttons">
     <button class="titlebar-button" onclick={minimize} aria-label="Minimize">
-      <svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.2">
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        stroke="currentColor"
+        stroke-width="1.2"
+      >
         <line x1="0" y1="5" x2="10" y2="5"></line>
       </svg>
     </button>
-    <button class="titlebar-button" onclick={toggleMaximize} aria-label="Maximize">
-      <svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.2" fill="none">
+    <button
+      class="titlebar-button"
+      onclick={toggleMaximize}
+      aria-label="Maximize"
+    >
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        stroke="currentColor"
+        stroke-width="1.2"
+        fill="none"
+      >
         <rect x="0.5" y="0.5" width="9" height="9"></rect>
       </svg>
     </button>
-    <button class="titlebar-button close-btn" onclick={close} aria-label="Close">
-      <svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.2">
+    <button
+      class="titlebar-button close-btn"
+      onclick={close}
+      aria-label="Close"
+    >
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        stroke="currentColor"
+        stroke-width="1.2"
+      >
         <line x1="1" y1="1" x2="9" y2="9"></line>
         <line x1="9" y1="1" x2="1" y2="9"></line>
       </svg>
@@ -160,7 +235,8 @@
     transition: all 0.15s;
   }
 
-  .titlebar-action-btn:hover, .titlebar-action-btn.active {
+  .titlebar-action-btn:hover,
+  .titlebar-action-btn.active {
     background: rgba(255, 255, 255, 0.08);
     color: var(--on-surface);
   }
@@ -179,8 +255,14 @@
   }
 
   @keyframes dropdown-in {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .dropdown-section {

@@ -1,18 +1,19 @@
 <script>
-  import './app.css';
-  import './theme.css';
-  import { onMount } from 'svelte';
-  import { init as i18nInit, addMessages, _ } from 'svelte-i18n';
-  import TitleBar from './lib/TitleBar.svelte';
-  import en from './locales/en.json';
-  import ja from './locales/ja.json';
+  import "./app.css";
+  import "./theme.css";
+  import { onMount } from "svelte";
+  import { init as i18nInit, addMessages, _ } from "svelte-i18n";
+  import TitleBar from "./lib/TitleBar.svelte";
+  import Transport from "./components/Transport.svelte";
+  import en from "./locales/en.json";
+  import ja from "./locales/ja.json";
 
-  addMessages('en', en);
-  addMessages('ja', ja);
+  addMessages("en", en);
+  addMessages("ja", ja);
 
   i18nInit({
-    fallbackLocale: 'en',
-    initialLocale: 'ja',
+    fallbackLocale: "en",
+    initialLocale: "ja",
   });
 
   let wasmModule;
@@ -26,9 +27,9 @@
       playheadPos = wasmModule.get_playhead_pos();
       // 時間文字列のフォーマット (例: playheadPos が秒の場合)
       const date = new Date(playheadPos * 1000);
-      const m = String(date.getUTCMinutes()).padStart(2, '0');
-      const s = String(date.getUTCSeconds()).padStart(2, '0');
-      const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+      const m = String(date.getUTCMinutes()).padStart(2, "0");
+      const s = String(date.getUTCSeconds()).padStart(2, "0");
+      const ms = String(date.getUTCMilliseconds()).padStart(3, "0");
       timeString = `00:${m}:${s}.${ms}`;
     }
     animationFrameId = requestAnimationFrame(updateTime);
@@ -36,7 +37,7 @@
 
   onMount(async () => {
     try {
-      wasmModule = await import('../../opendaw-wasm/pkg/opendaw_wasm.js');
+      wasmModule = await import("../../opendaw-wasm/pkg/opendaw_wasm.js");
       await wasmModule.default();
       console.log("Wasm module initialized.");
       wasmModule.start("egui_canvas");
@@ -52,7 +53,9 @@
   // タイトルバーからAIパネルトグルを受け取るためのイベントリッスン
   // windowにカスタムイベントを生やしてTitleBarから叩かせる等でもよいが
   // 今回は単純にTitleBarにbindさせるか、windowに露出させておく
-  window.toggleAiPanel = () => { aiPanelOpen = !aiPanelOpen; };
+  window.toggleAiPanel = () => {
+    aiPanelOpen = !aiPanelOpen;
+  };
 
   function handleTrackSelect(id) {
     if (wasmModule && wasmModule.select_track) {
@@ -85,13 +88,19 @@
   <!-- グラスモーフィズムのサイドバー (Svelte側で実装) -->
   <aside class="sidebar glass-panel">
     <div class="sidebar-header">
-      <h2>{$_('tracks.title')}</h2>
+      <h2>{$_("tracks.title")}</h2>
       <button class="icon-btn" aria-label="Add Track">+</button>
     </div>
-    
+
     <div class="track-list">
       <!-- トラックのモックアップ -->
-      <div class="track-item" role="button" tabindex="0" onclick={() => handleTrackSelect(1)} onkeydown={(e) => e.key === 'Enter' && handleTrackSelect(1)}>
+      <div
+        class="track-item"
+        role="button"
+        tabindex="0"
+        onclick={() => handleTrackSelect(1)}
+        onkeydown={(e) => e.key === "Enter" && handleTrackSelect(1)}
+      >
         <div class="track-color" style="background: var(--primary);"></div>
         <div class="track-info">
           <span class="track-name">Audio 1 (Select to Open PR)</span>
@@ -102,7 +111,13 @@
           </div>
         </div>
       </div>
-      <div class="track-item" role="button" tabindex="0" onclick={() => handleTrackSelect(2)} onkeydown={(e) => e.key === 'Enter' && handleTrackSelect(2)}>
+      <div
+        class="track-item"
+        role="button"
+        tabindex="0"
+        onclick={() => handleTrackSelect(2)}
+        onkeydown={(e) => e.key === "Enter" && handleTrackSelect(2)}
+      >
         <div class="track-color" style="background: #4ade80;"></div>
         <div class="track-info">
           <span class="track-name">VocalSynth 1 (ARA)</span>
@@ -134,34 +149,27 @@
     </div>
 
     <!-- 下部ミキサー・トランスポートパネルのモック -->
-    <footer class="bottom-panel glass-panel">
-      <div class="transport-controls">
-        <button class="transport-btn" onclick={handleToggleLoop} title="Toggle Loop">🔁</button>
-        <button class="transport-btn play" onclick={handlePlay} title="Play">▶</button>
-        <button class="transport-btn" onclick={handleStop} title="Stop">⏹</button>
-        <button class="transport-btn record" title="Record">⏺</button>
-      </div>
-      <div class="time-display">
-        <span>{timeString}</span>
-      </div>
-      <div class="master-fader">
-        <span>Master</span>
-        <input type="range" min="0" max="100" value="80" class="fader" oninput={handleMasterVolume}>
-      </div>
-    </footer>
+    <Transport
+      {timeString}
+      onPlay={handlePlay}
+      onStop={handleStop}
+      onToggleLoop={handleToggleLoop}
+      onMasterVolume={handleMasterVolume}
+    />
   </div>
 
   {#if aiPanelOpen}
     <aside class="ai-panel glass-panel">
       <div class="sidebar-header">
         <h2>AI Agent & CLI</h2>
-        <button class="icon-btn" onclick={() => aiPanelOpen = false}>✕</button>
+        <button class="icon-btn" onclick={() => (aiPanelOpen = false)}>✕</button
+        >
       </div>
       <div class="ai-content">
         <div class="chat-message system">Agent is ready.</div>
       </div>
       <div class="ai-input">
-        <input type="text" placeholder="Ask AI to automate...">
+        <input type="text" placeholder="Ask AI to automate..." />
       </div>
     </aside>
   {/if}
@@ -305,10 +313,19 @@
   .ctrl-btn:hover {
     background: rgba(255, 255, 255, 0.1);
   }
-  
-  .ctrl-btn.mute:hover { color: #f87171; border-color: #f87171; }
-  .ctrl-btn.solo:hover { color: #fbbf24; border-color: #fbbf24; }
-  .ctrl-btn.record:hover { color: #ef4444; border-color: #ef4444; }
+
+  .ctrl-btn.mute:hover {
+    color: #f87171;
+    border-color: #f87171;
+  }
+  .ctrl-btn.solo:hover {
+    color: #fbbf24;
+    border-color: #fbbf24;
+  }
+  .ctrl-btn.record:hover {
+    color: #ef4444;
+    border-color: #ef4444;
+  }
 
   /* メインコンテンツエリア */
   .main-content {
@@ -388,7 +405,7 @@
   }
 
   .time-display {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Courier New", Courier, monospace;
     font-size: 24px;
     color: var(--primary);
     font-weight: bold;
@@ -414,7 +431,8 @@
   }
 
   /* ユーティリティ */
-  .loading-overlay, .error-overlay {
+  .loading-overlay,
+  .error-overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -438,7 +456,9 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .error-msg {
@@ -460,8 +480,14 @@
   }
 
   @keyframes slide-in {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 
   .ai-content {
@@ -474,7 +500,7 @@
     font-size: 13px;
     color: var(--on-surface-variant);
     padding: 8px 12px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
   }
 
@@ -482,11 +508,11 @@
     padding: 12px;
     border-top: 1px solid var(--outline-variant);
   }
-  
+
   .ai-input input {
     width: 100%;
     padding: 8px 12px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--outline);
     border-radius: 6px;
     color: white;
@@ -511,15 +537,51 @@
     animation: float 20s infinite ease-in-out alternate;
   }
 
-  .orb-1 { width: 50vw; height: 50vw; background: #6b21a8; top: -10%; left: -10%; animation-delay: 0s; }
-  .orb-2 { width: 60vw; height: 60vw; background: #1e3a8a; bottom: -20%; right: -10%; animation-delay: -5s; }
-  .orb-3 { width: 40vw; height: 40vw; background: #9d174d; top: 40%; left: 30%; animation-delay: -10s; }
-  .orb-4 { width: 45vw; height: 45vw; background: #047857; top: 10%; right: 20%; animation-delay: -15s; }
+  .orb-1 {
+    width: 50vw;
+    height: 50vw;
+    background: #6b21a8;
+    top: -10%;
+    left: -10%;
+    animation-delay: 0s;
+  }
+  .orb-2 {
+    width: 60vw;
+    height: 60vw;
+    background: #1e3a8a;
+    bottom: -20%;
+    right: -10%;
+    animation-delay: -5s;
+  }
+  .orb-3 {
+    width: 40vw;
+    height: 40vw;
+    background: #9d174d;
+    top: 40%;
+    left: 30%;
+    animation-delay: -10s;
+  }
+  .orb-4 {
+    width: 45vw;
+    height: 45vw;
+    background: #047857;
+    top: 10%;
+    right: 20%;
+    animation-delay: -15s;
+  }
 
   @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(5%, 10%) scale(1.1); }
-    66% { transform: translate(-10%, 5%) scale(0.9); }
-    100% { transform: translate(0, -5%) scale(1.05); }
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(5%, 10%) scale(1.1);
+    }
+    66% {
+      transform: translate(-10%, 5%) scale(0.9);
+    }
+    100% {
+      transform: translate(0, -5%) scale(1.05);
+    }
   }
 </style>
