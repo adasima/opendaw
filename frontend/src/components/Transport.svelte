@@ -1,5 +1,10 @@
 <script>
+  import { invoke } from "@tauri-apps/api/core";
   let { timeString, onPlay, onStop, onToggleLoop, bpm = $bindable(120.0) } = $props();
+
+  function handlePause() {
+    invoke("pause").catch(console.error);
+  }
 </script>
 
 <div class="transport-container">
@@ -8,6 +13,7 @@
       >🔁</button
     >
     <button class="transport-btn play" onclick={onPlay} title="Play">▶</button>
+    <button class="transport-btn pause" onclick={handlePause} title="Pause">⏸</button>
     <button class="transport-btn" onclick={onStop} title="Stop">⏹</button>
     <button class="transport-btn record" title="Record">⏺</button>
   </div>
