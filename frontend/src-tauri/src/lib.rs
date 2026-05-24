@@ -1,7 +1,17 @@
 pub mod app;
+pub mod engine;
+
+use std::sync::Arc;
+use engine::EngineHandle;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let engine = Arc::new(EngineHandle::new());
+
     tauri::Builder::default()
+        .manage(app::AppState {
+            engine: Arc::clone(&engine),
+        })
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
