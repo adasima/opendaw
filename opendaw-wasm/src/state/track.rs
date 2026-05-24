@@ -141,6 +141,8 @@ pub struct Track {
     pub is_muted: bool,
     /// ソロ状態（trueなら他のソロでないトラックはミュートされる）
     pub is_solo: bool,
+    /// 録音待機状態
+    pub is_record_armed: bool,
     /// トラックに適用されるエフェクトチェーン
     pub effects: Vec<EffectSetting>,
     /// シンセサイザーの設定
@@ -170,6 +172,7 @@ impl Track {
             pan: 0.0,
             is_muted: false,
             is_solo: false,
+            is_record_armed: false,
             effects: Vec::new(),
             synth: SynthSetting::default(),
             track_type: TrackType::default(),
@@ -204,6 +207,11 @@ impl Track {
     /// ソロ状態を切り替えます。
     pub fn toggle_solo(&mut self) {
         self.is_solo = !self.is_solo;
+    }
+
+    /// 録音待機状態を切り替えます。
+    pub fn toggle_record_arm(&mut self) {
+        self.is_record_armed = !self.is_record_armed;
     }
 
     /// エフェクトを追加します。

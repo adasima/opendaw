@@ -47,6 +47,25 @@
       const s = String(date.getUTCSeconds()).padStart(2, "0");
       const ms = String(date.getUTCMilliseconds()).padStart(3, "0");
       timeString = `00:${m}:${s}.${ms}`;
+      
+      if (wasmModule.get_tracks_json) {
+        try {
+          const jsonStr = wasmModule.get_tracks_json();
+          if (jsonStr && jsonStr !== "[]") {
+            const parsed = JSON.parse(jsonStr);
+            tracks = parsed.map(t => ({
+              id: t.id,
+              name: t.name,
+              color: t.id === 1 ? "var(--primary)" : "#4ade80",
+              isMuted: t.is_muted,
+              isSolo: t.is_solo,
+              isRecordArmed: t.is_record_armed
+            }));
+          }
+        } catch (e) {
+          console.error("Failed to parse tracks JSON:", e);
+        }
+      }
     }
     animationFrameId = requestAnimationFrame(updateTime);
   }

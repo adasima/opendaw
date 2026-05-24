@@ -10,6 +10,11 @@ pub enum McpCommand {
     AddTrack,
     RemoveTrack(usize),
     SelectTrack(Option<usize>),
+    ToggleMute(usize),
+    ToggleSolo(usize),
+    ToggleRecordArm(usize),
+    ToggleGlobalRecord,
+    RequestTrackJson,
 }
 
 /// MCPコマンドの送信側

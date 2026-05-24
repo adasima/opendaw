@@ -9,6 +9,7 @@ pub mod project;
 pub mod timeline;
 pub mod tracks;
 pub mod transport;
+pub mod arranger;
 
 use eframe::egui;
 

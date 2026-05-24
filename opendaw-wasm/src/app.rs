@@ -178,6 +178,12 @@ impl OpenDawApp {
     ) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         crate::ui::setup_custom_style(&cc.egui_ctx);
+        
+        #[cfg(target_arch = "wasm32")]
+        crate::EGUI_CTX.with(|ctx| {
+            *ctx.borrow_mut() = Some(cc.egui_ctx.clone());
+        });
+
         Self {
             mcp_receiver,
             ..Default::default()
@@ -217,8 +223,27 @@ impl OpenDawApp {
                     crate::mcp::channel::McpCommand::SelectTrack(id_opt) => {
                         self.selected_track_id = id_opt;
                     }
+                    crate::mcp::channel::McpCommand::ToggleMute(id) => {
+                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
+                            track.toggle_mute();
+                        }
+                    }
+                    crate::mcp::channel::McpCommand::ToggleSolo(id) => {
+                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
+                            track.toggle_solo();
+                        }
+                    }
+                    crate::mcp::channel::McpCommand::ToggleRecordArm(id) => {
+                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
+                            track.toggle_record_arm();
+                        }
+                    }
+                    crate::mcp::channel::McpCommand::ToggleGlobalRecord => {}
+                    crate::mcp::channel::McpCommand::RequestTrackJson => {}
                 }
             }
+            #[cfg(target_arch = "wasm32")]
+            crate::request_repaint();
         }
     }
 }
@@ -244,6 +269,29 @@ impl eframe::App for OpenDawApp {
 
         // プレイヘッド位置をJS側に渡すためにグローバルに保存
         crate::set_playhead_pos(self.state.playhead_pos as f64);
+
+        // トラック状態をJSON化してSvelteに渡す
+        #[cfg(target_arch = "wasm32")]
+        {
+            #[derive(serde::Serialize)]
+            struct TrackJson {
+                id: usize,
+                name: String,
+                is_muted: bool,
+                is_solo: bool,
+                is_record_armed: bool,
+            }
+            let tracks_data: Vec<TrackJson> = self.state.tracks.iter().map(|t| TrackJson {
+                id: t.id,
+                name: t.name.clone(),
+                is_muted: t.is_muted,
+                is_solo: t.is_solo,
+                is_record_armed: t.is_record_armed,
+            }).collect();
+            if let Ok(json_str) = serde_json::to_string(&tracks_data) {
+                crate::set_tracks_json(json_str);
+            }
+        }
 
         if self.state.is_recording && !self.was_recording {
             if let Some(recorder) = &mut self.recorder {
@@ -324,6 +372,8 @@ impl eframe::App for OpenDawApp {
                     }
                     ui.separator();
                     crate::ui::piano_roll::draw_piano_roll(ui, self);
+                } else {
+                    crate::ui::arranger::draw_arranger(ui, self);
                 }
             });
     }
@@ -335,6 +385,8 @@ impl eframe::App for OpenDawApp {
             }
             ui.separator();
             crate::ui::piano_roll::draw_piano_roll(ui, self);
+        } else {
+            crate::ui::arranger::draw_arranger(ui, self);
         }
     }
 

@@ -32,6 +32,35 @@ pub fn set_playhead_pos(pos: f64) {
 }
 
 #[cfg(target_arch = "wasm32")]
+use std::sync::Mutex;
+
+#[cfg(target_arch = "wasm32")]
+thread_local! {
+    pub static EGUI_CTX: RefCell<Option<egui::Context>> = RefCell::new(None);
+}
+
+#[cfg(target_arch = "wasm32")]
+lazy_static::lazy_static! {
+    static ref TRACKS_JSON: Mutex<String> = Mutex::new("[]".to_string());
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn set_tracks_json(json: String) {
+    if let Ok(mut lock) = TRACKS_JSON.lock() {
+        *lock = json;
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn request_repaint() {
+    EGUI_CTX.with(|ctx| {
+        if let Some(c) = &*ctx.borrow() {
+            c.request_repaint();
+        }
+    });
+}
+
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn start(canvas_id: &str) {
     // ログパニックフックの初期化
@@ -120,4 +149,59 @@ pub fn select_track(id: i32) {
             let _ = sender.send(crate::mcp::channel::McpCommand::SelectTrack(track_id));
         }
     });
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn toggle_mute(id: usize) {
+    MCP_TX.with(|tx| {
+        if let Some(sender) = tx.borrow().as_ref() {
+            let _ = sender.send(crate::mcp::channel::McpCommand::ToggleMute(id));
+        }
+    });
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn toggle_solo(id: usize) {
+    MCP_TX.with(|tx| {
+        if let Some(sender) = tx.borrow().as_ref() {
+            let _ = sender.send(crate::mcp::channel::McpCommand::ToggleSolo(id));
+        }
+    });
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn toggle_record_arm(id: usize) {
+    MCP_TX.with(|tx| {
+        if let Some(sender) = tx.borrow().as_ref() {
+            let _ = sender.send(crate::mcp::channel::McpCommand::ToggleRecordArm(id));
+        }
+    });
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn add_track() {
+    MCP_TX.with(|tx| {
+        if let Some(sender) = tx.borrow().as_ref() {
+            let _ = sender.send(crate::mcp::channel::McpCommand::AddTrack);
+        }
+    });
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn get_tracks_json() -> String {
+    if let Ok(lock) = TRACKS_JSON.lock() {
+        lock.clone()
+    } else {
+        "[]".to_string()
+    }
 }
