@@ -1,6 +1,12 @@
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use crossbeam_channel::{bounded, Sender, Receiver};
+use ringbuf::{HeapRb, SharedRb, traits::{Split, Consumer}};
+use std::sync::Mutex;
+use ringbuf::storage::Heap;
+
+pub type StateProd = ringbuf::wrap::caching::Caching<Arc<SharedRb<Heap<EngineStateUpdate>>>, true, false>;
+pub type StateCons = ringbuf::wrap::caching::Caching<Arc<SharedRb<Heap<EngineStateUpdate>>>, false, true>;
 
 /// イベントの種類 (メインスレッド -> オーディオスレッド)
 pub enum EngineEvent {
@@ -11,6 +17,12 @@ pub enum EngineEvent {
     SetMasterVolume(f64),
 }
 
+/// オーディオスレッドからメインスレッドへの状態同期メッセージ
+pub enum EngineStateUpdate {
+    PlaybackPos(f64),
+    CpuLoad(f32),
+}
+
 /// エンジンの状態を管理・制御するためのハンドル
 #[derive(Clone)]
 pub struct EngineHandle {
@@ -18,6 +30,7 @@ pub struct EngineHandle {
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
     event_tx: Sender<EngineEvent>,
+    state_rx: Arc<Mutex<StateCons>>,
 }
 
 impl Default for EngineHandle {
@@ -27,16 +40,19 @@ impl Default for EngineHandle {
 }
 
 impl EngineHandle {
-    /// 新しいEngineHandleとイベントレシーバーを作成する
-    pub fn create_channel() -> (Self, Receiver<EngineEvent>) {
+    /// 新しいEngineHandleとイベントレシーバー、状態プロデューサーを作成する
+    pub fn create_channel() -> (Self, Receiver<EngineEvent>, StateProd) {
         let (tx, rx) = bounded(1024);
+        let rb = HeapRb::<EngineStateUpdate>::new(1024);
+        let (prod, cons) = rb.split();
         let handle = Self {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
             event_tx: tx,
+            state_rx: Arc::new(Mutex::new(cons)),
         };
-        (handle, rx)
+        (handle, rx, prod)
     }
 
     /// 新しいEngineHandleを作成する (テスト用)
@@ -90,11 +106,23 @@ impl EngineHandle {
     pub fn get_master_volume(&self) -> f64 {
         self.master_volume.load(Ordering::Acquire) as f64 / 1000.0
     }
+
+    /// オーディオスレッドからの状態更新を取得する (ノンブロッキング)
+    pub fn poll_state_updates(&self) -> Vec<EngineStateUpdate> {
+        let mut updates = Vec::new();
+        if let Ok(mut cons) = self.state_rx.try_lock() {
+            while let Some(update) = cons.try_pop() {
+                updates.push(update);
+            }
+        }
+        updates
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ringbuf::traits::Producer;
 
     #[test]
     fn test_engine_handle() {
@@ -110,5 +138,18 @@ mod tests {
 
         handle.set_bpm(140.5);
         assert_eq!(handle.get_bpm(), 140.5);
+    }
+
+    #[test]
+    fn test_state_updates() {
+        let (handle, _rx, mut prod) = EngineHandle::create_channel();
+        let _ = prod.try_push(EngineStateUpdate::PlaybackPos(1.5));
+        let updates = handle.poll_state_updates();
+        assert_eq!(updates.len(), 1);
+        if let EngineStateUpdate::PlaybackPos(pos) = updates[0] {
+            assert_eq!(pos, 1.5);
+        } else {
+            panic!("Unexpected update type");
+        }
     }
 }

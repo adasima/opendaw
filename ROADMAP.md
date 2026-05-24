@@ -22,7 +22,7 @@
 - [x] [6] @B frontend/src/components/Mixer.svelte を作成し、ボリュームとマスターフェーダーのUIを実装する (対象: frontend/src/components/Mixer.svelte)
 - [ ] [7] @B Svelteから `@tauri-apps/api/core` の `invoke` を用いてTauri Commandを呼び出す処理を実装する (対象: frontend/src/components/Transport.svelte, frontend/src/components/Mixer.svelte, frontend/src/App.svelte)
 - [ ] [8] @A frontend/src-tauri/src/engine/mod.rs 等を整備し、Tauriから叩けるエンジン制御APIを構築する (対象: frontend/src-tauri/src/engine/mod.rs)
-- [ ] [9] @A オーディオスレッドとメインスレッド間でlock-freeな状態同期（RingBuffer等）を確立する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [x] [9] @A オーディオスレッドとメインスレッド間でlock-freeな状態同期（RingBuffer等）を確立する (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 22: セッションビュー (Ableton Liveライク) の導入 (ハイブリッド版)
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はSvelte UIの繋ぎ込みを担当してください。
