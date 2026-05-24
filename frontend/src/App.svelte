@@ -12,6 +12,7 @@
   import TimelineCanvas from "./components/TimelineCanvas.svelte";
   import Tracks from "./components/Tracks.svelte";
   import Mixer from "./components/Mixer.svelte";
+  import ClipLauncher from "./components/ClipLauncher.svelte";
   import Transport from "./components/Transport.svelte";
   import en from "./locales/en.json";
   import ja from "./locales/ja.json";
@@ -34,6 +35,7 @@
     { id: 2, name: "VocalSynth 1 (ARA)", color: "#4ade80" }
   ]);
   let aiPanelOpen = $state(false);
+  let showSessionView = $state(false);
   let animationFrameId;
 
   $effect(() => {
@@ -129,9 +131,15 @@
 <main class="daw-container">
   <!-- グラスモーフィズムのサイドバー (Svelte側で実装) -->
   <aside class="sidebar glass-panel">
+
     <div class="sidebar-header">
       <h2>{$_("tracks.title")}</h2>
-      <button class="icon-btn" aria-label="Add Track">+</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="icon-btn" onclick={() => showSessionView = !showSessionView} title="Toggle Session View" style="width: auto; padding: 0 8px; font-size: 11px;">
+          {showSessionView ? 'Timeline' : 'Session'}
+        </button>
+        <button class="icon-btn" aria-label="Add Track">+</button>
+      </div>
     </div>
 
     <div class="track-list">
@@ -146,8 +154,12 @@
   <div class="main-content">
     <!-- 中央のメインキャンバス (ここにegui Wasmがはまる) -->
     <div class="canvas-wrapper">
-      <TimelineCanvas id="egui_canvas" />
-      {#if !wasmReady && !wasmError}
+      {#if showSessionView}
+        <ClipLauncher />
+      {:else}
+        <TimelineCanvas id="egui_canvas" />
+      {/if}
+      {#if !wasmReady && !wasmError && !showSessionView}
         <div class="loading-overlay">
           <div class="spinner"></div>
           <span>Loading Engine...</span>
