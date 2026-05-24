@@ -150,8 +150,10 @@ impl PianoRoll {
                         self.next_id += 1;
                         self.notes.push(new_note);
 
-                        let note_rect = self.note_rect(self.notes.last().unwrap(), grid_rect.min);
-                        self.dragging_note = Some((self.notes.last().unwrap().id, pos - note_rect.min));
+                        if let Some(last_note) = self.notes.last() {
+                            let note_rect = self.note_rect(last_note, grid_rect.min);
+                            self.dragging_note = Some((last_note.id, pos - note_rect.min));
+                        }
                     }
                 } else if response.clicked_by(PointerButton::Secondary) {
                     // Delete note on right click
@@ -297,7 +299,7 @@ impl PianoRoll {
                 continue; // Skip off-screen
             }
 
-            let is_dragged = self.dragging_note.map(|(id, _)| id == note.id).unwrap_or(false) || self.resizing_note == Some(note.id);
+            let is_dragged = self.dragging_note.map(|(id, _)| id == note.id).unwrap_or_default() || self.resizing_note == Some(note.id);
             let fill_color = if is_dragged {
                 Color32::from_rgb(150, 220, 255) // Brighter when dragged
             } else {
