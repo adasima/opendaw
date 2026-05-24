@@ -27,7 +27,9 @@ pub fn run() {
             app::pause,
             app::stop,
             app::set_bpm,
-            app::set_master_volume
+            app::set_master_volume,
+            app::get_midi_devices,
+            app::set_track_midi_routing
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
