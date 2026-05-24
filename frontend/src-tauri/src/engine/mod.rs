@@ -1,5 +1,15 @@
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
+use crossbeam_channel::{bounded, Sender, Receiver};
+
+/// イベントの種類 (メインスレッド -> オーディオスレッド)
+pub enum EngineEvent {
+    Play,
+    Pause,
+    Stop,
+    SetBpm(f64),
+    SetMasterVolume(f64),
+}
 
 /// エンジンの状態を管理・制御するためのハンドル
 #[derive(Clone)]
@@ -7,6 +17,7 @@ pub struct EngineHandle {
     is_playing: Arc<AtomicBool>,
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
+    event_tx: Sender<EngineEvent>,
 }
 
 impl Default for EngineHandle {
@@ -16,34 +27,46 @@ impl Default for EngineHandle {
 }
 
 impl EngineHandle {
-    /// 新しいEngineHandleを作成する
-    pub fn new() -> Self {
-        Self {
+    /// 新しいEngineHandleとイベントレシーバーを作成する
+    pub fn create_channel() -> (Self, Receiver<EngineEvent>) {
+        let (tx, rx) = bounded(1024);
+        let handle = Self {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
-        }
+            event_tx: tx,
+        };
+        (handle, rx)
+    }
+
+    /// 新しいEngineHandleを作成する (テスト用)
+    pub fn new() -> Self {
+        Self::create_channel().0
     }
 
     /// 再生を開始する
     pub fn play(&self) {
         self.is_playing.store(true, Ordering::Release);
+        let _ = self.event_tx.try_send(EngineEvent::Play);
     }
 
     /// 再生を一時停止する
     pub fn pause(&self) {
         self.is_playing.store(false, Ordering::Release);
+        let _ = self.event_tx.try_send(EngineEvent::Pause);
     }
 
     /// 再生を停止する
     pub fn stop(&self) {
         self.is_playing.store(false, Ordering::Release);
+        let _ = self.event_tx.try_send(EngineEvent::Stop);
     }
 
     /// BPMを設定する
     pub fn set_bpm(&self, bpm: f64) {
         let bpm_fixed = (bpm * 100.0) as u32;
         self.bpm.store(bpm_fixed, Ordering::Release);
+        let _ = self.event_tx.try_send(EngineEvent::SetBpm(bpm));
     }
 
     /// 現在再生中かどうかを取得する
@@ -60,6 +83,7 @@ impl EngineHandle {
     pub fn set_master_volume(&self, volume: f64) {
         let vol_fixed = (volume * 1000.0) as u32;
         self.master_volume.store(vol_fixed, Ordering::Release);
+        let _ = self.event_tx.try_send(EngineEvent::SetMasterVolume(volume));
     }
 
     /// 現在のマスターボリュームを取得する
