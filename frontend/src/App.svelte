@@ -150,6 +150,20 @@
       </div>
     </footer>
   </div>
+
+  {#if aiPanelOpen}
+    <aside class="ai-panel glass-panel">
+      <div class="sidebar-header">
+        <h2>AI Agent & CLI</h2>
+        <button class="icon-btn" onclick={() => aiPanelOpen = false}>✕</button>
+      </div>
+      <div class="ai-content">
+        <div class="chat-message system">Agent is ready.</div>
+      </div>
+      <div class="ai-input">
+        <input type="text" placeholder="Ask AI to automate...">
+      </div>
+    </aside>
   {/if}
 </main>
 
