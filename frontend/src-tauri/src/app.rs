@@ -52,8 +52,22 @@ pub fn get_midi_devices() -> Vec<String> {
 
 /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
 #[tauri::command]
-pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, _state: State<'_, AppState>) {
+pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, state: State<'_, AppState>) {
     info!("MIDI Route: Set track {} to device '{}' channel {}", track_id, device, channel);
     // 将来的にはここでエンジン等に設定を反映する
-    // state.engine.set_track_midi_route(track_id, device, channel);
+    state.engine.set_track_midi_route(track_id, device, channel);
+}
+
+/// トラックのボリュームを設定する
+#[tauri::command]
+pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>) {
+    info!("Mixer: Set track {} volume to {}", track_id, volume);
+    // state.engine.set_track_volume(track_id, volume);
+}
+
+/// トラックのパンを設定する
+#[tauri::command]
+pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
+    info!("Mixer: Set track {} pan to {}", track_id, pan);
+    // state.engine.set_track_pan(track_id, pan);
 }

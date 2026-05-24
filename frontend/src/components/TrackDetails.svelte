@@ -9,6 +9,9 @@
   let selectedChannel = $state("1");
   let channels = Array.from({length: 16}, (_, i) => (i + 1).toString());
 
+  let volume = $state(0.8);
+  let pan = $state(0.0);
+
   onMount(async () => {
     try {
       devices = await invoke("get_midi_devices");
@@ -29,9 +32,39 @@
       }).catch(console.error);
     }
   }
+
+  function applyVolume() {
+    if (trackId !== null) {
+      invoke("set_track_volume", {
+        trackId: parseInt(trackId),
+        volume: parseFloat(volume)
+      }).catch(console.error);
+    }
+  }
+
+  function applyPan() {
+    if (trackId !== null) {
+      invoke("set_track_pan", {
+        trackId: parseInt(trackId),
+        pan: parseFloat(pan)
+      }).catch(console.error);
+    }
+  }
 </script>
 
 <div class="track-details">
+  <div class="routing-section">
+    <h3>Mixer</h3>
+    <div class="control-group">
+      <label for="track-volume">Volume ({Math.round(volume * 100)}%)</label>
+      <input type="range" id="track-volume" min="0" max="1" step="0.01" bind:value={volume} onchange={applyVolume} />
+    </div>
+    <div class="control-group">
+      <label for="track-pan">Pan ({Math.round(pan * 100)}%)</label>
+      <input type="range" id="track-pan" min="-1" max="1" step="0.01" bind:value={pan} onchange={applyPan} />
+    </div>
+  </div>
+
   <div class="routing-section">
     <h3>MIDI Routing</h3>
 
@@ -91,12 +124,14 @@
     color: var(--on-surface-variant);
   }
 
-  select {
+  select, input[type="range"] {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--outline-variant);
     border-radius: 4px;
     color: white;
     padding: 4px 8px;
     font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
   }
 </style>

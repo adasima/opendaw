@@ -17,6 +17,7 @@ pub struct EngineHandle {
     is_playing: Arc<AtomicBool>,
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
+    midi_router: Arc<std::sync::Mutex<midi_route::MidiRouter>>,
     event_tx: Sender<EngineEvent>,
 }
 
@@ -34,6 +35,7 @@ impl EngineHandle {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
+            midi_router: Arc::new(std::sync::Mutex::new(midi_route::MidiRouter::new())),
             event_tx: tx,
         };
         (handle, rx)
@@ -90,6 +92,13 @@ impl EngineHandle {
     pub fn get_master_volume(&self) -> f64 {
         self.master_volume.load(Ordering::Acquire) as f64 / 1000.0
     }
+
+    /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
+    pub fn set_track_midi_route(&self, track_id: u32, device: String, channel: u8) {
+        if let Ok(mut router) = self.midi_router.lock() {
+            router.set_route(track_id, device, channel);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -112,3 +121,4 @@ mod tests {
         assert_eq!(handle.get_bpm(), 140.5);
     }
 }
+pub mod midi_route;
