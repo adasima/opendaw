@@ -24,15 +24,22 @@
 - [x] [8] @A frontend/src-tauri/src/engine/mod.rs 等を整備し、Tauriから叩けるエンジン制御APIを構築する (対象: frontend/src-tauri/src/engine/mod.rs)
 - [x] [9] @A オーディオスレッドとメインスレッド間でlock-freeな状態同期（RingBuffer等）を確立する (対象: frontend/src-tauri/src/engine/mod.rs)
 
-## Phase 22: セッションビュー (Ableton Liveライク) の導入 (ハイブリッド版) (進行中)
+## Phase 22: セッションビュー (Ableton Liveライク) の導入 (ハイブリッド版) (完了)
 > ⚠️ **ハイブリッド開発**: データ構造と同期ロジック基盤は人間が直接コミットします。AI(Jules)はSvelte UIの繋ぎ込みを担当してください。
 - [ ] 人間: `Clip`, `Scene` データ構造の設計とコア基盤の実装 (対象: src-tauri/src/core/session.rs など)
-- [ ] [1] @A frontend/src/components/SessionView.svelte を作成し、ダミーデータを用いてセッションビューのUIを実装する
-- [ ] [2] @A frontend/src/App.svelte を更新し、メイン画面にセッションビューを統合する
-- [ ] [3] @B frontend/src/components/ClipLauncher.svelte を作成し、セッションビュー内のクリップランチャーUIを実装する
+- [x] [1] @A frontend/src/components/SessionView.svelte を作成し、ダミーデータを用いてセッションビューのUIを実装する
+- [x] [2] @A frontend/src/App.svelte を更新し、メイン画面にセッションビューを統合する
+- [x] [3] @B frontend/src/components/ClipLauncher.svelte を作成し、セッションビュー内のクリップランチャーUIを実装する
 
-## Phase 23: モダン・プラグインホスト (VST3 / CLAP) の導入 (ハイブリッド版)
+## Phase 23: モダン・プラグインホスト (VST3 / CLAP) の導入 (ハイブリッド版) (完了)
 > ⚠️ **ハイブリッド開発**: VST3/CLAPのFFIなど複雑な実装は人間が直接コミットします。AIはブラウザやUIを担当してください。
 - [ ] 人間: `vst3-sys` 等を用いたプラグインロードの安全なラッパー層の実装 (対象: src-tauri/src/plugin/host.rs)
-- [ ] [1] @A frontend/src/components/PluginBrowser.svelte を作成し、ダミーデータを用いてプラグイン一覧を表示するSvelteUIを実装する
-- [ ] [2] @B frontend/src/App.svelte を更新し、メイン画面にプラグインブラウザパネルを統合する
+- [x] [1] @A frontend/src/components/PluginBrowser.svelte を作成し、ダミーデータを用いてプラグイン一覧を表示するSvelteUIを実装する
+- [x] [2] @B frontend/src/App.svelte を更新し、メイン画面にプラグインブラウザパネルを統合する
+
+## Phase 24: Svelte UIの改善とMIDI機能の統合
+> SvelteUIの改善と、TauriバックエンドへのMIDI信号のルーティング。
+- [ ] [1] @A frontend/src/components/TrackDetails.svelte を作成し、選択中のトラックの詳細設定UI(ボリューム、パン、MIDIルーティング)を実装する
+- [ ] [2] @B frontend/src/App.svelte を更新し、TrackDetailsパネルをメイン画面の右側または下部に統合する
+- [ ] [3] @A frontend/src-tauri/src/engine/midi_route.rs を作成し、MIDI入力信号を各トラックにルーティングするロジックを実装する
+- [ ] [4] @B frontend/src-tauri/src/app.rs を更新し、MIDIデバイス選択とルーティング設定のためのTauri Commandを追加する
