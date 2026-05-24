@@ -1,7 +1,7 @@
 /// タイムストレッチエンジンのインターフェース骨格
 /// オーディオクリップがBPMの変更に追従するための基盤として機能します。
 /// 将来的にはRubberbandなどのタイムストレッチライブラリのラッパーとして実装される想定です。
-
+///
 pub struct TimeStretcher {
     sample_rate: u32,
     channels: usize,

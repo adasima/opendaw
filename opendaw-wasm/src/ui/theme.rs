@@ -22,7 +22,7 @@ pub fn apply_theme(ctx: &egui::Context) {
     let bg_base = Color32::from_rgb(30, 32, 36);
     let bg_glass = Color32::from_rgba_premultiplied(40, 42, 48, 230); // 半透明（グラスモーフィズム）
     let window_glass = Color32::from_rgba_premultiplied(26, 28, 32, 245);
-    
+
     let primary_accent = Color32::from_rgb(255, 115, 0); // Ableton的な鮮やかなオレンジ
     let text_main = Color32::from_rgb(220, 220, 220);
     let border_color = Color32::from_rgb(20, 21, 24);
@@ -49,13 +49,13 @@ pub fn apply_theme(ctx: &egui::Context) {
     // ==========================================
     visuals.window_shadow = Shadow {
         color: Color32::from_black_alpha(140),
-        offset: [0, 4].into(),
+        #[allow(clippy::useless_conversion)] offset: [0, 4].into(),
         blur: 16,
         spread: 0,
     };
     visuals.popup_shadow = Shadow {
         color: Color32::from_black_alpha(120),
-        offset: [0, 8].into(),
+        #[allow(clippy::useless_conversion)] offset: [0, 8].into(),
         blur: 24,
         spread: 0,
     };
