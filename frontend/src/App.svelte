@@ -12,7 +12,7 @@
   import TimelineCanvas from "./components/TimelineCanvas.svelte";
   import Tracks from "./components/Tracks.svelte";
   import Mixer from "./components/Mixer.svelte";
-  import ClipLauncher from "./components/ClipLauncher.svelte";
+  import SessionView from "./components/SessionView.svelte";
   import Transport from "./components/Transport.svelte";
   import en from "./locales/en.json";
   import ja from "./locales/ja.json";
@@ -154,11 +154,12 @@
   <div class="main-content">
     <!-- 中央のメインキャンバス (ここにegui Wasmがはまる) -->
     <div class="canvas-wrapper">
-      {#if showSessionView}
-        <ClipLauncher />
-      {:else}
+      <div style="display: {showSessionView ? 'block' : 'none'}; height: 100%;">
+        <SessionView />
+      </div>
+      <div style="display: {!showSessionView ? 'block' : 'none'}; height: 100%;">
         <TimelineCanvas id="egui_canvas" />
-      {/if}
+      </div>
       {#if !wasmReady && !wasmError && !showSessionView}
         <div class="loading-overlay">
           <div class="spinner"></div>
