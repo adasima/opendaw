@@ -1,35 +1,44 @@
 # Track Management
 
-> This feature manages the addition, removal, and states of tracks (audio, MIDI, synthesizer, etc.) in your project.
+> This feature manages the addition, selection, and detailed settings of tracks (audio, MIDI, synthesizer, etc.) in your project.
 
 ## Overview
-The Tracks panel is located on the left side of the screen and displays a list of tracks currently in the project. A track is the fundamental unit for assigning independent audio sources or instruments.
+The Tracks panel is located on the left side of the screen and displays a list of tracks currently in the project. A track is the fundamental unit for assigning independent audio sources or instruments. Selecting a track opens the **Track Details** panel on the right side, allowing for more advanced configuration.
 
 ## Basic Usage
-1. Click the **+ Add Track** button at the top of the panel to add a new standard track.
-2. Click the **+ Add Synth Track** button at the top of the panel to add a new track with the synthesizer enabled.
-3. Click the **X** button on each track's row in the list to remove that track.
+### Adding and Selecting Tracks
+1. Click the **+** button at the top of the panel to add a new track. (Track type selection will be added in a future update.)
+2. Click any track in the track list to make it active (selected), which will display the **Track Details** panel on the right side.
 
-## Detailed Settings
-Internally, each track has the following parameters. (*Note: Some of these items are manipulated from the Mixer panel.*)
+### Track Controls
+The following buttons are arranged on the track header, allowing you to quickly toggle states.
 
+- **M** (Mute): Mutes the audio for this track.
+- **S** (Solo): Sets this track to the solo state. Only tracks with Solo enabled will be played.
+- **R** (Record): Toggles the record standby (record arm) state for this track.
+
+## Track Details (Advanced Settings)
+The **Track Details** panel, displayed when a track is selected, allows for the following settings.
+
+### Mixer
 | Parameter | Description | Default Value | Range |
 |:---|:---|:---|:---|
-| ID | A unique identifier for the track (auto-generated) | - | 1 and up |
-| Name | The name of the track | "Track X" / "Synth X" | - |
-| Volume | The individual output volume of the track | 1.0 | 0.0 to unlimited (can be boosted) |
-| Pan | Panning (left-right positioning) | 0.0 | -1.0 (Left) to 1.0 (Right) |
-| Mute | The mute state for the track | Off | On / Off |
-| Solo | The solo state. If On, only tracks with Solo set to On will be played | Off | On / Off |
-| Synth | The enabled/disabled state of the synthesizer | Off (On for Synth tracks) | On / Off |
-| Freq (Hz) | The frequency of the synthesizer (only when Synth is On) | 440.0 | 20.0 to 20000.0 |
+| Volume | The individual output volume of the track | 0.8 (80%) | 0.0 to 1.0 (0% to 100%) |
+| Pan | Panning (left-right positioning) | 0.0 (0%) | -1.0 (Left) to 1.0 (Right) |
+
+### MIDI Routing
+| Parameter | Description |
+|:---|:---|
+| Input Device | Selects the input device to receive MIDI signals from |
+| Channel | Specifies the MIDI channel to receive (0=All, 1 to 16) |
 
 ## Keyboard Shortcuts
-In the current version, there are no keyboard shortcuts dedicated specifically to track operations.
+In the current version, there are no keyboard shortcuts dedicated specifically to track operations, but you can make a track active by pressing the `Enter` key while it is focused.
 
 ## Related Items
 - [Mixer](../user-guide/mixer.md)
 - [Audio Import](../user-guide/audio-import.md)
 
 ## Notes and Limitations
-> In the current version, only adding and removing tracks can be operated from the Tracks panel (on the left side of the screen). Individual settings for volume, pan, mute, solo, and synthesizer can be adjusted from the Mixer panel at the bottom of the screen.
+> - In the current version, deleting tracks via the UI (e.g., an X button) is not supported.
+> - MIDI Routing settings are only functional if a MIDI device is connected.
