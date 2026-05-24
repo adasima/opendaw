@@ -7,13 +7,14 @@ The Session View provides a non-linear approach to music production. You can arr
 
 ## Basic Usage
 ### Switching Views
-1. Click the **Session** button in the top panel at the top of the screen.
-2. The Session View (clip grid) will be displayed. (To return to the original screen, click **Arrangement**).
+1. Click the **Session** button at the top of the Tracks panel (on the left side of the screen).
+2. The Session View (clip grid) will be displayed. (To return to the original screen, click **Timeline**).
 
 ### Clips and Scenes (Skeleton)
-1. In the Session View, a play button is displayed for each row (Scene) (e.g., `▶ Scene 1`).
+1. In the Session View, a play button is displayed for each row (Scene) (e.g., `▶ Scene 1`). Clicking this button will set all clips in that scene to the playing state.
 2. Clip slots are arranged in each track (column).
-3. Clicking a colored **Clip** button or the **+** button in an empty slot will allow you to manipulate clips in the future.
+3. Clicking a colored **Clip** button will change that clip to the playing state (⏹).
+4. Clicking the **+** button in an empty slot will allow you to manipulate clips in the future.
 
 ## Detailed Settings
 Currently, there are no configurable parameters for the Session View.
