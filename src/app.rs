@@ -12,6 +12,8 @@ const CHANNEL_CAPACITY: usize = 1024;
 pub struct OpenDawApp {
     /// DAWのコア状態（再生状態、ボリューム、プレイヘッド位置など）
     pub state: DawState,
+    /// ピアノロールUIの状態
+    pub piano_roll: crate::ui::piano_roll::PianoRoll,
     /// オーディオエンジンのインスタンス
     pub audio_engine: crate::engine::AudioEngine,
     /// UI ↔ オーディオ間の通信チャンネル
@@ -36,6 +38,7 @@ impl Default for OpenDawApp {
             crate::engine::channel::create_channels(CHANNEL_CAPACITY);
         Self {
             state: DawState::default(),
+            piano_roll: crate::ui::piano_roll::PianoRoll::default(),
             audio_engine: crate::engine::AudioEngine::new(),
             ui_channels: Some(ui_channels),
             audio_channels_temp: Some(audio_channels),
@@ -118,24 +121,42 @@ impl OpenDawApp {
     /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
     pub fn process_active_notes(&mut self) {
         let current_pos = self.state.playhead_pos as f64;
-        let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
-        let mut active_count = 0;
-
-        if self.state.is_playing {
-            for note in &self.state.active_sequence.notes {
-                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
-                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-
-                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
-                        active_freqs[active_count] = freq;
-                        active_count += 1;
-                    }
-            }
-        }
 
         if let Some(ui_channels) = &mut self.ui_channels {
             for track in &self.state.tracks {
                 if track.synth.is_enabled {
+                    let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+                    let mut active_count = 0;
+
+                    if self.state.is_playing {
+                        // Global active_sequence (scratchpad)
+                        for note in &self.state.active_sequence.notes {
+                            if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
+                                && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+
+                                    let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                    active_freqs[active_count] = freq;
+                                    active_count += 1;
+                                }
+                        }
+
+                        // Track's midi_clips
+                        for clip in &track.midi_clips {
+                            if current_pos >= clip.start_beat && current_pos < clip.start_beat + clip.length_beats {
+                                let local_pos = current_pos - clip.start_beat;
+                                for note in &clip.sequence.notes {
+                                    if local_pos >= note.start_beat && local_pos < note.start_beat + note.duration_beats
+                                        && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+
+                                            let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                            active_freqs[active_count] = freq;
+                                            active_count += 1;
+                                        }
+                                }
+                            }
+                        }
+                    }
+
                     let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
                         track.id,
                         active_freqs,
@@ -291,9 +312,15 @@ impl eframe::App for OpenDawApp {
             .resizable(true)
             .default_height(300.0)
             .show(ctx, |ui| {
-                // ピアノロールの描画（今回はスタブ、必要に応じてselfを渡すようpiano_rollを変更）
-                ui.heading("Mixer & Piano Roll");
-                ui.label("Piano roll component is active.");
+                ui.heading("Piano Roll (Global Active Sequence)");
+
+                // piano_roll フィールドが DawState にないため、一時的に新しい PianoRoll インスタンスで描画するか
+                // 正式な実装では DawState または App に piano_roll を追加する必要がありますが、
+                // タスク[4]が src/ui/piano_roll.rs 内部の機能拡張であるため、ここでは表示のみを呼び出す形をとるか、
+                // もしくは現状のスタブのままにします。
+                // 実際にはタスク[6]で "app.rs を更新し、ピアノロールUIでの変更をトラック内の MidiClip に反映し、再生エンジンと同期する"
+                // とあるので、まずは App 構造体に piano_roll を追加する必要があります。
+                ui.label("Piano roll integration pending.");
             });
 
         egui::SidePanel::left("track_panel")
@@ -332,7 +359,7 @@ mod tests {
         // App構造体の初期化が正常にできるか確認
         // eframe::CreationContextをモックするのは難しいため、
         // Default::default() で状態が初期化されることのみを確認します。
-        let app = AuraDawApp::default();
+        let app = OpenDawApp::default();
         assert!(!app.state.is_playing);
         assert_eq!(app.state.playhead_pos, 0.0);
         // チャンネルが初期化されていることを確認
