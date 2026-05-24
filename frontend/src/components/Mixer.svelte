@@ -1,4 +1,5 @@
 <script>
+  import { invoke } from "@tauri-apps/api/core";
   let { onMasterVolume = () => {} } = $props();
 </script>
 

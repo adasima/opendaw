@@ -2,6 +2,7 @@
   import "./app.css";
   import "./theme.css";
   import { onMount } from "svelte";
+  import { invoke } from "@tauri-apps/api/core";
   import { init as i18nInit, addMessages, _ } from "svelte-i18n";
   import TitleBar from "./lib/TitleBar.svelte";
   import TimelineCanvas from "./components/TimelineCanvas.svelte";
@@ -32,6 +33,10 @@
   ]);
   let aiPanelOpen = $state(false);
   let animationFrameId;
+
+  $effect(() => {
+    invoke("set_bpm", { bpm }).catch(console.error);
+  });
 
   function updateTime() {
     if (wasmModule && wasmModule.get_playhead_pos) {
@@ -77,10 +82,12 @@
 
   function handlePlay() {
     if (wasmModule && wasmModule.play) wasmModule.play();
+    invoke("play").catch(console.error);
   }
 
   function handleStop() {
     if (wasmModule && wasmModule.stop) wasmModule.stop();
+    invoke("stop").catch(console.error);
   }
 
   function handleToggleLoop() {
@@ -88,9 +95,11 @@
   }
 
   function handleMasterVolume(event) {
+    const vol = parseFloat(event.target.value) / 100.0;
     if (wasmModule && wasmModule.set_master_volume) {
-      wasmModule.set_master_volume(parseFloat(event.target.value) / 100.0);
+      wasmModule.set_master_volume(vol);
     }
+    invoke("set_master_volume", { volume: vol }).catch(console.error);
   }
 </script>
 

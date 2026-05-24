@@ -34,3 +34,10 @@ pub fn set_bpm(bpm: f64, state: State<'_, AppState>) {
     info!("Transport: Set BPM to {}", bpm);
     state.engine.set_bpm(bpm);
 }
+
+/// マスターボリュームを設定する
+#[tauri::command]
+pub fn set_master_volume(volume: f64, state: State<'_, AppState>) {
+    info!("Mixer: Set Master Volume to {}", volume);
+    state.engine.set_master_volume(volume);
+}

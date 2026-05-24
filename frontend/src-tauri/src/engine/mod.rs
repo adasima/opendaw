@@ -6,6 +6,7 @@ use std::sync::Arc;
 pub struct EngineHandle {
     is_playing: Arc<AtomicBool>,
     bpm: Arc<AtomicU32>,
+    master_volume: Arc<AtomicU32>,
 }
 
 impl Default for EngineHandle {
@@ -20,6 +21,7 @@ impl EngineHandle {
         Self {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
+            master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
         }
     }
 
@@ -52,6 +54,17 @@ impl EngineHandle {
     /// 現在のBPMを取得する
     pub fn get_bpm(&self) -> f64 {
         self.bpm.load(Ordering::Acquire) as f64 / 100.0
+    }
+
+    /// マスターボリュームを設定する (0.0 - 1.0)
+    pub fn set_master_volume(&self, volume: f64) {
+        let vol_fixed = (volume * 1000.0) as u32;
+        self.master_volume.store(vol_fixed, Ordering::Release);
+    }
+
+    /// 現在のマスターボリュームを取得する
+    pub fn get_master_volume(&self) -> f64 {
+        self.master_volume.load(Ordering::Acquire) as f64 / 1000.0
     }
 }
 
