@@ -74,7 +74,7 @@
 
   onMount(async () => {
     try {
-      wasmModule = await import("../../opendaw-wasm/pkg/opendaw_wasm.js");
+      wasmModule = await import("../../opendaw-wasm/pkg/opendaw.js");
       await wasmModule.default();
       console.log("Wasm module initialized.");
       wasmModule.start("egui_canvas");

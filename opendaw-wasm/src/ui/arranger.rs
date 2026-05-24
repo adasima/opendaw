@@ -1,5 +1,4 @@
-use egui::{Color32, Pos2, Rect, Sense, Stroke, Vec2, PointerButton};
-use crate::state::DawState;
+use egui::{Color32, Pos2, Rect, Sense, Stroke, Vec2};
 
 pub struct ArrangerState {
     pub pan: Vec2,
@@ -22,7 +21,7 @@ impl Default for ArrangerState {
 pub fn draw_arranger(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
     let state = &mut app.state;
     // (将来的にApp構造体にArrangerStateを持たせますが、今回はモックとして関数内で状態を作ります)
-    let mut arranger = ArrangerState::default();
+    let arranger = ArrangerState::default();
 
     let response = ui.allocate_response(ui.available_size(), Sense::click_and_drag());
     let rect = response.rect;
@@ -52,7 +51,7 @@ pub fn draw_arranger(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
     let mut t = (min_tick / snap_step) * snap_step;
     while t <= max_tick {
         let x = rect.min.x + t as f32 * arranger.pixels_per_tick - arranger.pan.x;
-        let is_bar = t % (arranger.ticks_per_beat * 4) == 0;
+        let is_bar = t.is_multiple_of(arranger.ticks_per_beat * 4);
         
         let stroke = if is_bar {
             Stroke::new(1.5, Color32::from_gray(70))
