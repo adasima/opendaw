@@ -122,30 +122,49 @@ impl OpenDawApp {
     /// プレイヘッド位置から現在アクティブなノートを判定してオーディオエンジンに送信します。
     pub fn process_active_notes(&mut self) {
         let current_pos = self.state.playhead_pos as f64;
-        let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
-        let mut active_count = 0;
-
-        if self.state.is_playing {
-            for note in &self.state.active_sequence.notes {
-                if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
-                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-
-                        let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
-                        active_freqs[active_count] = freq;
-                        active_count += 1;
-                    }
-            }
-        }
 
         if let Some(ui_channels) = &mut self.ui_channels {
             for track in &self.state.tracks {
-                if track.synth.is_enabled {
-                    let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
-                        track.id,
-                        active_freqs,
-                        active_count,
-                    ));
+                if !track.synth.is_enabled {
+                    continue;
                 }
+
+                let mut active_freqs = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
+                let mut active_count = 0;
+
+                if self.state.is_playing {
+                    // 1. グローバルなスクラッチパッド(active_sequence)を再生
+                    for note in &self.state.active_sequence.notes {
+                        if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
+                            && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                            let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                            active_freqs[active_count] = freq;
+                            active_count += 1;
+                        }
+                    }
+
+                    // 2. トラック内のMidiClipを再生
+                    for clip in &track.midi_clips {
+                        let clip_end_beat = clip.start_beat + clip.length_beats;
+                        if current_pos >= clip.start_beat && current_pos < clip_end_beat {
+                            let local_pos = current_pos - clip.start_beat;
+                            for note in &clip.sequence.notes {
+                                if local_pos >= note.start_beat && local_pos < note.start_beat + note.duration_beats
+                                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                                    let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                    active_freqs[active_count] = freq;
+                                    active_count += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
+                    track.id,
+                    active_freqs,
+                    active_count,
+                ));
             }
         }
     }
@@ -222,7 +241,7 @@ impl eframe::App for OpenDawApp {
                 self.state.playhead_pos = pos;
             }
         }
-        
+
         // プレイヘッド位置をJS側に渡すためにグローバルに保存
         crate::set_playhead_pos(self.state.playhead_pos as f64);
 
@@ -318,7 +337,7 @@ impl eframe::App for OpenDawApp {
             crate::ui::piano_roll::draw_piano_roll(ui, self);
         }
     }
-    
+
     // 背景を透明にする設定（eframe 0.34用）
     fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
         [0.0, 0.0, 0.0, 0.0]
