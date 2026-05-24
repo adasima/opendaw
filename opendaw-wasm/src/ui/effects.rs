@@ -57,13 +57,16 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut OpenDawApp) {
                         };
                         ui.label(effect_name);
 
-                        match &mut track.effects[i].effect_type {
+                        let effect = &mut track.effects[i];
+                        match &mut effect.effect_type {
                             EffectType::Gain => {}
                             EffectType::Filter => {}
-                            EffectType::Delay { time_ms, feedback, mix } => {
-                                ui.add(egui::Slider::new(time_ms, 1.0..=2000.0).text("Time (ms)"));
-                                ui.add(egui::Slider::new(feedback, 0.0..=0.99).text("Feedback"));
-                                ui.add(egui::Slider::new(mix, 0.0..=1.0).text("Mix"));
+                            _ => {
+                                if let crate::state::track::EffectType::Delay { time_ms, feedback, mix } = &mut effect.effect_type {
+                                    ui.add(egui::Slider::new(time_ms, 1.0..=2000.0).text("Time (ms)"));
+                                    ui.add(egui::Slider::new(feedback, 0.0..=0.99).text("Feedback"));
+                                    ui.add(egui::Slider::new(mix, 0.0..=1.0).text("Mix"));
+                                }
                             }
                         }
 

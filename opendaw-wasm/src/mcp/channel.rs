@@ -9,6 +9,7 @@ pub enum McpCommand {
     ToggleLoop,
     AddTrack,
     RemoveTrack(usize),
+    SelectTrack(Option<usize>),
 }
 
 /// MCPコマンドの送信側

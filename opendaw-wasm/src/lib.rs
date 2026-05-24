@@ -23,6 +23,14 @@ thread_local! {
     static MCP_TX: RefCell<Option<crate::mcp::channel::McpCommandSender>> = RefCell::new(None);
 }
 
+// プレイヘッド位置のグローバル保存用
+use std::sync::atomic::{AtomicU64, Ordering};
+static PLAYHEAD_POS: AtomicU64 = AtomicU64::new(0);
+
+pub fn set_playhead_pos(pos: f64) {
+    PLAYHEAD_POS.store(pos.to_bits(), Ordering::Relaxed);
+}
+
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn start(canvas_id: &str) {
@@ -95,4 +103,21 @@ pub fn set_master_volume(volume: f32) {
     // 現在のMcpCommandはマスターボリュームの直接変更をサポートしていないため、
     // 将来の拡張用としてプレースホルダー実装にしておきます。
     log::info!("set_master_volume called from Svelte: {}", volume);
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn get_playhead_pos() -> f64 {
+    f64::from_bits(PLAYHEAD_POS.load(Ordering::Relaxed))
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn select_track(id: i32) {
+    MCP_TX.with(|tx| {
+        if let Some(sender) = tx.borrow().as_ref() {
+            let track_id = if id < 0 { None } else { Some(id as usize) };
+            let _ = sender.send(crate::mcp::channel::McpCommand::SelectTrack(track_id));
+        }
+    });
 }

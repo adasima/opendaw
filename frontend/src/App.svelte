@@ -15,9 +15,24 @@
     initialLocale: 'ja',
   });
 
-  let wasmReady = $state(false);
-  let wasmError = $state('');
   let wasmModule;
+  let playheadPos = $state(0.0);
+  let timeString = $state("00:00:00.000");
+  let aiPanelOpen = $state(false);
+  let animationFrameId;
+
+  function updateTime() {
+    if (wasmModule && wasmModule.get_playhead_pos) {
+      playheadPos = wasmModule.get_playhead_pos();
+      // 時間文字列のフォーマット (例: playheadPos が秒の場合)
+      const date = new Date(playheadPos * 1000);
+      const m = String(date.getUTCMinutes()).padStart(2, '0');
+      const s = String(date.getUTCSeconds()).padStart(2, '0');
+      const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+      timeString = `00:${m}:${s}.${ms}`;
+    }
+    animationFrameId = requestAnimationFrame(updateTime);
+  }
 
   onMount(async () => {
     try {
@@ -27,11 +42,23 @@
       wasmModule.start("egui_canvas");
       wasmReady = true;
       console.log("egui canvas started.");
+      updateTime();
     } catch (e) {
       console.error("Failed to load Wasm:", e);
       wasmError = String(e);
     }
   });
+
+  // タイトルバーからAIパネルトグルを受け取るためのイベントリッスン
+  // windowにカスタムイベントを生やしてTitleBarから叩かせる等でもよいが
+  // 今回は単純にTitleBarにbindさせるか、windowに露出させておく
+  window.toggleAiPanel = () => { aiPanelOpen = !aiPanelOpen; };
+
+  function handleTrackSelect(id) {
+    if (wasmModule && wasmModule.select_track) {
+      wasmModule.select_track(id);
+    }
+  }
 
   function handlePlay() {
     if (wasmModule && wasmModule.play) wasmModule.play();
@@ -64,10 +91,10 @@
     
     <div class="track-list">
       <!-- トラックのモックアップ -->
-      <div class="track-item active">
+      <div class="track-item" role="button" tabindex="0" onclick={() => handleTrackSelect(1)} onkeydown={(e) => e.key === 'Enter' && handleTrackSelect(1)}>
         <div class="track-color" style="background: var(--primary);"></div>
         <div class="track-info">
-          <span class="track-name">Audio 1</span>
+          <span class="track-name">Audio 1 (Select to Open PR)</span>
           <div class="track-controls">
             <button class="ctrl-btn mute">M</button>
             <button class="ctrl-btn solo">S</button>
@@ -75,10 +102,10 @@
           </div>
         </div>
       </div>
-      <div class="track-item">
+      <div class="track-item" role="button" tabindex="0" onclick={() => handleTrackSelect(2)} onkeydown={(e) => e.key === 'Enter' && handleTrackSelect(2)}>
         <div class="track-color" style="background: #4ade80;"></div>
         <div class="track-info">
-          <span class="track-name">MIDI 1</span>
+          <span class="track-name">VocalSynth 1 (ARA)</span>
           <div class="track-controls">
             <button class="ctrl-btn mute">M</button>
             <button class="ctrl-btn solo">S</button>
@@ -115,7 +142,7 @@
         <button class="transport-btn record" title="Record">⏺</button>
       </div>
       <div class="time-display">
-        <span>00:01:23.456</span>
+        <span>{timeString}</span>
       </div>
       <div class="master-fader">
         <span>Master</span>
@@ -123,17 +150,35 @@
       </div>
     </footer>
   </div>
+  {/if}
 </main>
 
+<div class="orb-container">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
 <style>
+  /* 透過背景用に全体レイアウト設定 */
   .daw-container {
     display: flex;
     height: 100vh;
     padding-top: var(--titlebar-height, 32px);
     box-sizing: border-box;
-    background: var(--background);
+    background: transparent;
+    position: relative;
+    z-index: 10;
     gap: 12px;
     padding: calc(var(--titlebar-height, 32px) + 12px) 12px 12px 12px;
+  }
+
+  .glass-panel {
+    background: rgba(20, 20, 25, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 
   /* サイドバー */
@@ -264,6 +309,7 @@
     border-radius: 12px;
     position: relative;
     overflow: hidden;
+    background: transparent;
   }
 
   #egui_canvas {
@@ -271,6 +317,7 @@
     height: 100%;
     display: block;
     outline: none;
+    background: transparent;
   }
 
   /* 下部パネル */
@@ -386,5 +433,79 @@
     padding: 12px 24px;
     border-radius: 8px;
     border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* AI Panel */
+  .ai-panel {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: slide-in 0.2s ease-out;
+  }
+
+  @keyframes slide-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .ai-content {
+    flex-grow: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .chat-message {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+  }
+
+  .ai-input {
+    padding: 12px;
+    border-top: 1px solid var(--outline-variant);
+  }
+  
+  .ai-input input {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    color: white;
+    font-family: var(--font-label);
+  }
+
+  /* Orbs Background */
+  .orb-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: #0d0b14;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.6;
+    animation: float 20s infinite ease-in-out alternate;
+  }
+
+  .orb-1 { width: 50vw; height: 50vw; background: #6b21a8; top: -10%; left: -10%; animation-delay: 0s; }
+  .orb-2 { width: 60vw; height: 60vw; background: #1e3a8a; bottom: -20%; right: -10%; animation-delay: -5s; }
+  .orb-3 { width: 40vw; height: 40vw; background: #9d174d; top: 40%; left: 30%; animation-delay: -10s; }
+  .orb-4 { width: 45vw; height: 45vw; background: #047857; top: 10%; right: 20%; animation-delay: -15s; }
+
+  @keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(5%, 10%) scale(1.1); }
+    66% { transform: translate(-10%, 5%) scale(0.9); }
+    100% { transform: translate(0, -5%) scale(1.05); }
   }
 </style>

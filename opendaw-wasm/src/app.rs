@@ -29,6 +29,7 @@ pub struct OpenDawApp {
     pub recorder: Option<crate::engine::recording::Recorder>,
     pub was_recording: bool,
     pub piano_roll: crate::ui::piano_roll::PianoRoll,
+    pub selected_track_id: Option<usize>,
 }
 
 impl Default for OpenDawApp {
@@ -47,6 +48,7 @@ impl Default for OpenDawApp {
             recorder: Some(crate::engine::recording::Recorder::new()),
             was_recording: false,
             piano_roll: crate::ui::piano_roll::PianoRoll::default(),
+            selected_track_id: None,
         }
     }
 }
@@ -193,6 +195,9 @@ impl OpenDawApp {
                     crate::mcp::channel::McpCommand::RemoveTrack(id) => {
                         self.state.remove_track(id);
                     }
+                    crate::mcp::channel::McpCommand::SelectTrack(id_opt) => {
+                        self.selected_track_id = id_opt;
+                    }
                 }
             }
         }
@@ -217,6 +222,9 @@ impl eframe::App for OpenDawApp {
                 self.state.playhead_pos = pos;
             }
         }
+        
+        // プレイヘッド位置をJS側に渡すためにグローバルに保存
+        crate::set_playhead_pos(self.state.playhead_pos as f64);
 
         if self.state.is_recording && !self.was_recording {
             if let Some(recorder) = &mut self.recorder {
@@ -290,22 +298,30 @@ impl eframe::App for OpenDawApp {
         egui::CentralPanel::default()
             .frame(egui::Frame::none().fill(egui::Color32::TRANSPARENT))
             .show(ctx, |ui| {
-            if self.is_session_view {
-                crate::ui::session_view::draw_session_view(ui, self);
-            } else {
-                crate::ui::draw_main_ui(self, ui);
-            }
-            crate::ui::piano_roll::draw_piano_roll(ui, self);
-        });
+                if let Some(_track_id) = self.selected_track_id {
+                    // 脱出ボタン
+                    if ui.button("⬅ 戻る (閉じる)").clicked() {
+                        self.selected_track_id = None;
+                    }
+                    ui.separator();
+                    crate::ui::piano_roll::draw_piano_roll(ui, self);
+                }
+            });
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        if self.is_session_view {
-            crate::ui::session_view::draw_session_view(ui, self);
-        } else {
-            crate::ui::draw_main_ui(self, ui);
+        if let Some(_track_id) = self.selected_track_id {
+            if ui.button("⬅ 戻る (閉じる)").clicked() {
+                self.selected_track_id = None;
+            }
+            ui.separator();
+            crate::ui::piano_roll::draw_piano_roll(ui, self);
         }
-        crate::ui::piano_roll::draw_piano_roll(ui, self);
+    }
+    
+    // 背景を透明にする設定（eframe 0.34用）
+    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
+        [0.0, 0.0, 0.0, 0.0]
     }
 }
 
