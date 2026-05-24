@@ -15,12 +15,12 @@
 ## Phase 21: Tauri + Svelte + egui(WASM) ハイブリッドアーキテクチャ移行 (移行中)
 > UIをSvelteに、高負荷描画をWASM(egui)に、コアロジックをTauri(Rust)に分離する移行作業。
 - [x] [1] @A TauriプロジェクトのセットアップとSvelte連携基盤の構築 (対象: frontend/src-tauri/Cargo.toml, frontend/src/App.svelte)
-- [ ] [2] @B WASMパッケージ(opendaw-wasm)のセットアップとSvelteからのマウント処理の実装 (対象: opendaw-wasm/Cargo.toml, frontend/src/components/TimelineCanvas.svelte)
-- [ ] [3] @A frontend/src/components/Transport.svelte を作成し、再生・停止・ループ・BPM設定のUIを実装する (対象: frontend/src/components/Transport.svelte)
-- [ ] [4] @A frontend/src-tauri/src/app.rs にトランスポート制御用のTauri Command (play, pause, stop, set_bpm 等) を実装する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [5] @B frontend/src/components/Tracks.svelte を作成し、トラックヘッダーのUIを実装する (対象: frontend/src/components/Tracks.svelte)
-- [ ] [6] @B frontend/src/components/Mixer.svelte を作成し、ボリュームとマスターフェーダーのUIを実装する (対象: frontend/src/components/Mixer.svelte)
-- [ ] [7] @B フロントエンドからTauri Commandを呼び出し、状態変更をバックエンドに同期する処理を追加する (対象: frontend/src/components/Mixer.svelte, frontend/src/components/Tracks.svelte)
+- [x] [2] @B WASMパッケージ(opendaw-wasm)のセットアップとSvelteからのマウント処理の実装 (対象: opendaw-wasm/Cargo.toml, frontend/src/components/TimelineCanvas.svelte)
+- [x] [3] @A frontend/src/components/Transport.svelte を作成し、再生・停止・ループ・BPM設定のUIを実装する (対象: frontend/src/components/Transport.svelte)
+- [x] [4] @A frontend/src-tauri/src/app.rs にトランスポート制御用のTauri Command (play, pause, stop, set_bpm 等) を実装する (対象: frontend/src-tauri/src/app.rs)
+- [x] [5] @B frontend/src/components/Tracks.svelte を作成し、トラックヘッダーのUIを実装する (対象: frontend/src/components/Tracks.svelte)
+- [x] [6] @B frontend/src/components/Mixer.svelte を作成し、ボリュームとマスターフェーダーのUIを実装する (対象: frontend/src/components/Mixer.svelte)
+- [ ] [7] @B Svelteから `@tauri-apps/api/core` の `invoke` を用いてTauri Commandを呼び出す処理を実装する (対象: frontend/src/components/Transport.svelte, frontend/src/components/Mixer.svelte, frontend/src/App.svelte)
 - [ ] [8] @A frontend/src-tauri/src/engine/mod.rs 等を整備し、Tauriから叩けるエンジン制御APIを構築する (対象: frontend/src-tauri/src/engine/mod.rs)
 - [ ] [9] @A オーディオスレッドとメインスレッド間でlock-freeな状態同期（RingBuffer等）を確立する (対象: frontend/src-tauri/src/engine/mod.rs)
 
