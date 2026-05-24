@@ -1,3 +1,7 @@
+<script module>
+  let wasmModule;
+</script>
+
 <script>
   import "./app.css";
   import "./theme.css";
@@ -19,8 +23,6 @@
     fallbackLocale: "en",
     initialLocale: "ja",
   });
-
-  let wasmModule;
   let wasmReady = $state(false);
   let wasmError = $state(null);
   let playheadPos = $state(0.0);
@@ -72,7 +74,7 @@
 
   onMount(async () => {
     try {
-      wasmModule = await import("../../opendaw-wasm/pkg/opendaw.js");
+      wasmModule = await import("../../opendaw-wasm/pkg/opendaw_wasm.js");
       await wasmModule.default();
       console.log("Wasm module initialized.");
       wasmModule.start("egui_canvas");
