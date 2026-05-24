@@ -81,12 +81,12 @@ impl VocalSynthAraExtension {
     pub fn sync_with_host(&mut self) {
         let new_tempo = self.host.get_tempo_info();
         if self.current_tempo != new_tempo {
-            self.on_tempo_changed(&new_tempo.clone());
+            self.on_tempo_changed(&new_tempo);
         }
         
         let new_transport = self.host.get_transport_info();
         if self.current_transport != new_transport {
-            self.on_transport_changed(&new_transport.clone());
+            self.on_transport_changed(&new_transport);
         }
         
         // キャッシュ更新例: 現在位置周辺のノートを取得
