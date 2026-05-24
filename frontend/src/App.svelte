@@ -16,6 +16,7 @@
   import Mixer from "./components/Mixer.svelte";
   import SessionView from "./components/SessionView.svelte";
   import Transport from "./components/Transport.svelte";
+  import TrackDetails from "./components/TrackDetails.svelte";
   import en from "./locales/en.json";
   import ja from "./locales/ja.json";
 
@@ -37,6 +38,7 @@
     { id: 2, name: "VocalSynth 1 (ARA)", color: "#4ade80" }
   ]);
   let aiPanelOpen = $state(false);
+  let showTrackDetails = $state(false);
   let showSessionView = $state(false);
   let showPluginBrowser = $state(false);
   let animationFrameId;
@@ -101,6 +103,7 @@
 
   function handleTrackSelect(id) {
     activeTrackId = id;
+    showTrackDetails = true;
     if (wasmModule && wasmModule.select_track) {
       wasmModule.select_track(id);
     }
@@ -195,7 +198,23 @@
     </div>
   </div>
 
+
+  {#if showTrackDetails && activeTrackId !== null}
+    <aside class="ai-panel glass-panel" style="width: 300px;">
+      <div class="sidebar-header">
+        <h2>Track Details</h2>
+        <button class="icon-btn" onclick={() => (showTrackDetails = false)}>✕</button>
+      </div>
+      <div class="ai-content">
+        <div style="padding: 12px;">
+          <TrackDetails trackId={activeTrackId} />
+        </div>
+      </div>
+    </aside>
+  {/if}
+
   {#if aiPanelOpen}
+
     <aside class="ai-panel glass-panel">
       <div class="sidebar-header">
         <h2>AI Agent & CLI</h2>
