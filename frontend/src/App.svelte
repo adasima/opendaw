@@ -3,6 +3,8 @@
 </script>
 
 <script>
+  import PluginBrowser from "./components/PluginBrowser.svelte";
+
   import "./app.css";
   import "./theme.css";
   import { onMount } from "svelte";
@@ -36,6 +38,7 @@
   ]);
   let aiPanelOpen = $state(false);
   let showSessionView = $state(false);
+  let showPluginBrowser = $state(false);
   let animationFrameId;
 
   $effect(() => {
@@ -135,8 +138,11 @@
     <div class="sidebar-header">
       <h2>{$_("tracks.title")}</h2>
       <div style="display: flex; gap: 8px;">
-        <button class="icon-btn" onclick={() => showSessionView = !showSessionView} title="Toggle Session View" style="width: auto; padding: 0 8px; font-size: 11px;">
+        <button class="icon-btn" onclick={() => { showSessionView = !showSessionView; showPluginBrowser = false; }} title="Toggle Session View" style="width: auto; padding: 0 8px; font-size: 11px;">
           {showSessionView ? 'Timeline' : 'Session'}
+        </button>
+        <button class="icon-btn" onclick={() => { showPluginBrowser = !showPluginBrowser; showSessionView = false; }} title="Toggle Plugin Browser" style="width: auto; padding: 0 8px; font-size: 11px;">
+          {showPluginBrowser ? 'Hide Plugins' : 'Plugins'}
         </button>
         <button class="icon-btn" aria-label="Add Track">+</button>
       </div>
@@ -157,10 +163,13 @@
       <div style="display: {showSessionView ? 'block' : 'none'}; height: 100%;">
         <SessionView />
       </div>
-      <div style="display: {!showSessionView ? 'block' : 'none'}; height: 100%;">
+      <div style="display: {showPluginBrowser ? 'block' : 'none'}; height: 100%;">
+        <PluginBrowser />
+      </div>
+      <div style="display: {(!showSessionView && !showPluginBrowser) ? 'block' : 'none'}; height: 100%;">
         <TimelineCanvas id="egui_canvas" />
       </div>
-      {#if !wasmReady && !wasmError && !showSessionView}
+      {#if !wasmReady && !wasmError && !showSessionView && !showPluginBrowser}
         <div class="loading-overlay">
           <div class="spinner"></div>
           <span>Loading Engine...</span>
