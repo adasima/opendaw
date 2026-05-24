@@ -4,6 +4,9 @@
   import { onMount } from "svelte";
   import { init as i18nInit, addMessages, _ } from "svelte-i18n";
   import TitleBar from "./lib/TitleBar.svelte";
+  import TimelineCanvas from "./components/TimelineCanvas.svelte";
+  import Tracks from "./components/Tracks.svelte";
+  import Mixer from "./components/Mixer.svelte";
   import Transport from "./components/Transport.svelte";
   import en from "./locales/en.json";
   import ja from "./locales/ja.json";
@@ -17,8 +20,15 @@
   });
 
   let wasmModule;
+  let wasmReady = $state(false);
+  let wasmError = $state(null);
   let playheadPos = $state(0.0);
   let timeString = $state("00:00:00.000");
+  let activeTrackId = $state(null);
+  let tracks = $state([
+    { id: 1, name: "Audio 1 (Select to Open PR)", color: "var(--primary)" },
+    { id: 2, name: "VocalSynth 1 (ARA)", color: "#4ade80" }
+  ]);
   let aiPanelOpen = $state(false);
   let animationFrameId;
 
@@ -37,7 +47,7 @@
 
   onMount(async () => {
     try {
-      wasmModule = await import("../../opendaw-wasm/pkg/opendaw_wasm.js");
+      wasmModule = await import("../../opendaw-wasm/pkg/opendaw.js");
       await wasmModule.default();
       console.log("Wasm module initialized.");
       wasmModule.start("egui_canvas");
@@ -58,6 +68,7 @@
   };
 
   function handleTrackSelect(id) {
+    activeTrackId = id;
     if (wasmModule && wasmModule.select_track) {
       wasmModule.select_track(id);
     }
@@ -93,48 +104,18 @@
     </div>
 
     <div class="track-list">
-      <!-- トラックのモックアップ -->
-      <div
-        class="track-item"
-        role="button"
-        tabindex="0"
-        onclick={() => handleTrackSelect(1)}
-        onkeydown={(e) => e.key === "Enter" && handleTrackSelect(1)}
-      >
-        <div class="track-color" style="background: var(--primary);"></div>
-        <div class="track-info">
-          <span class="track-name">Audio 1 (Select to Open PR)</span>
-          <div class="track-controls">
-            <button class="ctrl-btn mute">M</button>
-            <button class="ctrl-btn solo">S</button>
-            <button class="ctrl-btn record">R</button>
-          </div>
-        </div>
-      </div>
-      <div
-        class="track-item"
-        role="button"
-        tabindex="0"
-        onclick={() => handleTrackSelect(2)}
-        onkeydown={(e) => e.key === "Enter" && handleTrackSelect(2)}
-      >
-        <div class="track-color" style="background: #4ade80;"></div>
-        <div class="track-info">
-          <span class="track-name">VocalSynth 1 (ARA)</span>
-          <div class="track-controls">
-            <button class="ctrl-btn mute">M</button>
-            <button class="ctrl-btn solo">S</button>
-            <button class="ctrl-btn record">R</button>
-          </div>
-        </div>
-      </div>
+      <Tracks
+        tracks={tracks}
+        activeTrackId={activeTrackId}
+        onSelectTrack={handleTrackSelect}
+      />
     </div>
   </aside>
 
   <div class="main-content">
     <!-- 中央のメインキャンバス (ここにegui Wasmがはまる) -->
-    <div class="canvas-container glass-panel">
-      <canvas id="egui_canvas"></canvas>
+    <div class="canvas-wrapper">
+      <TimelineCanvas id="egui_canvas" />
       {#if !wasmReady && !wasmError}
         <div class="loading-overlay">
           <div class="spinner"></div>
@@ -149,13 +130,15 @@
     </div>
 
     <!-- 下部ミキサー・トランスポートパネルのモック -->
-    <Transport
-      {timeString}
-      onPlay={handlePlay}
-      onStop={handleStop}
-      onToggleLoop={handleToggleLoop}
-      onMasterVolume={handleMasterVolume}
-    />
+    <div class="bottom-panel glass-panel">
+      <Transport
+        {timeString}
+        onPlay={handlePlay}
+        onStop={handleStop}
+        onToggleLoop={handleToggleLoop}
+      />
+      <Mixer onMasterVolume={handleMasterVolume} />
+    </div>
   </div>
 
   {#if aiPanelOpen}
@@ -256,76 +239,7 @@
     gap: 4px;
   }
 
-  .track-item {
-    display: flex;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid transparent;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
 
-  .track-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  .track-item.active {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--outline-variant);
-  }
-
-  .track-color {
-    width: 6px;
-  }
-
-  .track-info {
-    padding: 8px 12px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .track-name {
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .track-controls {
-    display: flex;
-    gap: 4px;
-  }
-
-  .ctrl-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    border: 1px solid var(--outline-variant);
-    background: transparent;
-    color: var(--on-surface-variant);
-    font-size: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .ctrl-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .ctrl-btn.mute:hover {
-    color: #f87171;
-    border-color: #f87171;
-  }
-  .ctrl-btn.solo:hover {
-    color: #fbbf24;
-    border-color: #fbbf24;
-  }
-  .ctrl-btn.record:hover {
-    color: #ef4444;
-    border-color: #ef4444;
-  }
 
   /* メインコンテンツエリア */
   .main-content {
@@ -335,20 +249,11 @@
     gap: 12px;
   }
 
-  .canvas-container {
+  .canvas-wrapper {
     flex-grow: 1;
-    border-radius: 12px;
     position: relative;
+    border-radius: 12px;
     overflow: hidden;
-    background: transparent;
-  }
-
-  #egui_canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    outline: none;
-    background: transparent;
   }
 
   /* 下部パネル */
@@ -359,75 +264,6 @@
     align-items: center;
     padding: 0 24px;
     gap: 32px;
-  }
-
-  .transport-controls {
-    display: flex;
-    gap: 8px;
-  }
-
-  .transport-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 18px;
-    border: 1px solid var(--outline-variant);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--on-surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .transport-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  .transport-btn.play {
-    width: 48px;
-    height: 48px;
-    border-radius: 24px;
-    font-size: 20px;
-    background: var(--primary);
-    color: var(--on-primary);
-    border: none;
-    box-shadow: 0 0 15px rgba(255, 115, 0, 0.4);
-  }
-
-  .transport-btn.play:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255, 115, 0, 0.6);
-  }
-
-  .transport-btn.record {
-    color: #ef4444;
-  }
-
-  .time-display {
-    font-family: "Courier New", Courier, monospace;
-    font-size: 24px;
-    color: var(--primary);
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 115, 0, 0.3);
-    padding: 4px 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-    border: 1px inset rgba(255, 255, 255, 0.1);
-  }
-
-  .master-fader {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-    color: var(--on-surface-variant);
-  }
-
-  .fader {
-    width: 120px;
-    accent-color: var(--primary);
   }
 
   /* ユーティリティ */
