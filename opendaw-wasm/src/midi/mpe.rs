@@ -81,6 +81,7 @@ impl MpeZone {
     }
 
     /// ピッチベンドメッセージの処理
+    #[allow(clippy::collapsible_if)]
     pub fn handle_pitch_bend(&mut self, channel: u8, value: i16) {
         if channel == self.master_channel {
             self.master_pitch_bend = value;
@@ -92,6 +93,7 @@ impl MpeZone {
     }
 
     /// プレッシャー（チャンネルアフタータッチ）メッセージの処理
+    #[allow(clippy::collapsible_if)]
     pub fn handle_pressure(&mut self, channel: u8, value: u8) {
         if channel != self.master_channel && channel < 16 {
             if let Some(note) = &mut self.member_notes[channel as usize] {
@@ -101,6 +103,7 @@ impl MpeZone {
     }
 
     /// コントロールチェンジメッセージの処理（CC74等ティンバー）
+    #[allow(clippy::collapsible_if)]
     pub fn handle_control_change(&mut self, channel: u8, controller: u8, value: u8) {
         // MPEにおけるティンバーは主にCC74を使用
         if controller == 74 && channel != self.master_channel && channel < 16 {

@@ -16,6 +16,12 @@ pub struct RoutingGraph {
     pub connections: Vec<(NodeId, NodeId)>,
 }
 
+impl Default for RoutingGraph {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RoutingGraph {
     pub fn new() -> Self {
         Self {
@@ -50,6 +56,12 @@ pub struct PdcEngine {
     pub compensation_delays: HashMap<NodeId, usize>,
 }
 
+impl Default for PdcEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PdcEngine {
     pub fn new() -> Self {
         Self {
@@ -75,6 +87,7 @@ impl PdcEngine {
 
     /// Applies the calculated delay compensation to a given audio buffer for a specific node.
     /// This adds a silence buffer (delay) to the beginning if compensation is required.
+    #[allow(clippy::collapsible_if)]
     pub fn apply_compensation(&self, node_id: NodeId, buffer: &mut AudioBuffer) {
         if let Some(&delay_samples) = self.compensation_delays.get(&node_id) {
             if delay_samples > 0 {

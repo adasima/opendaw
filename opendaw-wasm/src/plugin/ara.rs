@@ -134,6 +134,12 @@ pub struct MockDawHost {
     notes: RwLock<Vec<AraNote>>,
 }
 
+impl Default for MockDawHost {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MockDawHost {
     pub fn new() -> Self {
         Self {

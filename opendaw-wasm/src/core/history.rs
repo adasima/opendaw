@@ -20,6 +20,12 @@ pub struct HistoryManager {
     max_history: Option<usize>,
 }
 
+impl Default for HistoryManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HistoryManager {
     /// Creates a new, empty HistoryManager.
     pub fn new() -> Self {

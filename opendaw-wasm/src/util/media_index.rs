@@ -110,6 +110,7 @@ impl MediaIndex {
 
     /// 指定したIDのエントリにタグを追加
     pub fn add_tag_to_entry(&mut self, entry_id: usize, tag: String) {
+        #[allow(clippy::collapsible_if)]
         if let Some(entry) = self.entries.get_mut(entry_id) {
             if entry.tags.insert(tag.clone()) {
                 self.tag_index.entry(tag).or_default().insert(entry_id);

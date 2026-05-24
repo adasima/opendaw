@@ -102,6 +102,7 @@ impl PianoRoll {
         ui.input(|i| pointer_pos = i.pointer.hover_pos());
 
         // Interaction Logic
+        #[allow(clippy::collapsible_if)]
         if let Some(pos) = pointer_pos {
             if grid_rect.contains(pos) {
                 let grid_pos = pos - grid_rect.min + self.pan;
@@ -185,6 +186,7 @@ impl PianoRoll {
                     }
                 }
             } else if let Some(id) = self.resizing_note {
+                #[allow(clippy::collapsible_if)]
                 if let Some(pos) = pointer_pos {
                     let grid_pos = pos - grid_rect.min + self.pan;
                     let mut new_end_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
@@ -224,7 +226,11 @@ impl PianoRoll {
                 kb_painter.text(
                     key_rect.min + Vec2::new(5.0, 2.0),
                     egui::Align2::LEFT_TOP,
-                    format!("C{}", (p as i32 / 12) - 1),
+                    {
+                        #[allow(clippy::unnecessary_cast)]
+                        let octave = (p as i32 / 12) - 1;
+                        format!("C{}", octave)
+                    },
                     egui::FontId::proportional(12.0),
                     if is_black { Color32::WHITE } else { Color32::BLACK }
                 );
@@ -263,7 +269,9 @@ impl PianoRoll {
         let mut t = (min_tick / snap_step) * snap_step;
         while t <= max_tick {
             let x = grid_rect.min.x + t as f32 * self.pixels_per_tick - self.pan.x;
+            #[allow(clippy::manual_is_multiple_of)]
             let is_beat = t % self.ticks_per_beat == 0;
+            #[allow(clippy::manual_is_multiple_of)]
             let is_bar = t % (self.ticks_per_beat * 4) == 0;
 
             let stroke = if is_bar {

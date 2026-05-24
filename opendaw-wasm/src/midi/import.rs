@@ -55,6 +55,8 @@ pub fn parse_midi_data(data: &[u8]) -> Result<Vec<ImportedMidiData>, Box<dyn std
             let current_beat = current_ticks as f64 / ticks_per_beat;
 
             match &event.kind {
+                #[allow(clippy::collapsible_match)]
+                #[allow(clippy::collapsible_if)]
                 TrackEventKind::Meta(meta) => {
                     if let MetaMessage::TrackName(name_bytes) = meta {
                         if let Ok(name) = String::from_utf8(name_bytes.to_vec()) {
