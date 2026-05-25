@@ -30,6 +30,7 @@ pub struct OpenDawApp {
     pub was_recording: bool,
     pub piano_roll: crate::ui::piano_roll::PianoRoll,
     pub selected_track_id: Option<usize>,
+    pub is_dragging_clip: bool,
 }
 
 impl Default for OpenDawApp {
@@ -49,6 +50,7 @@ impl Default for OpenDawApp {
             was_recording: false,
             piano_roll: crate::ui::piano_roll::PianoRoll::default(),
             selected_track_id: None,
+            is_dragging_clip: false,
         }
     }
 }
@@ -240,7 +242,9 @@ impl OpenDawApp {
                                         if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::AudioClip>(clip_val.clone()) {
                                             if let Some(existing_clip) = track.clips.iter_mut().find(|c| c.id == parsed_clip.id) {
                                                 existing_clip.name = parsed_clip.name;
-                                                existing_clip.start_pos = parsed_clip.start_pos;
+                                                if !self.is_dragging_clip {
+                                                    existing_clip.start_pos = parsed_clip.start_pos;
+                                                }
                                                 existing_clip.length = parsed_clip.length;
                                             } else {
                                                 track.clips.push(parsed_clip);
@@ -258,7 +262,9 @@ impl OpenDawApp {
                                         if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::MidiClip>(clip_val.clone()) {
                                             if let Some(existing_clip) = track.midi_clips.iter_mut().find(|c| c.id == parsed_clip.id) {
                                                 existing_clip.name = parsed_clip.name;
-                                                existing_clip.start_beat = parsed_clip.start_beat;
+                                                if !self.is_dragging_clip {
+                                                    existing_clip.start_beat = parsed_clip.start_beat;
+                                                }
                                                 existing_clip.length_beats = parsed_clip.length_beats;
                                             } else {
                                                 track.midi_clips.push(parsed_clip);
