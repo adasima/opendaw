@@ -1,18 +1,9 @@
 use egui::{Color32, Pos2, Rect, Sense, Stroke, Vec2, PointerButton};
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Note {
-    pub id: usize,
-    pub pitch: u8,
-    pub start_tick: u32,
-    pub duration: u32,
-    pub lyric: Option<String>,
-}
-
 pub struct PianoRoll {
-    pub notes: Vec<Note>,
+    // notes are now in state.active_sequence
     pub pitch_bend_curve: Vec<(u32, f32)>, // (tick, bend_value -1.0 to 1.0)
-    next_id: usize,
+
     pan: Vec2,
     pixels_per_tick: f32,
     key_height: f32,
@@ -24,21 +15,7 @@ pub struct PianoRoll {
 impl Default for PianoRoll {
     fn default() -> Self {
         Self {
-            notes: vec![
-                Note { id: 0, pitch: 60, start_tick: 0, duration: 480, lyric: Some("O".to_string()) },
-                Note { id: 1, pitch: 64, start_tick: 480, duration: 480, lyric: Some("pen".to_string()) },
-                Note { id: 2, pitch: 67, start_tick: 960, duration: 480, lyric: Some("DAW".to_string()) },
-            ],
-            pitch_bend_curve: vec![
-                (0, 0.0),
-                (240, 0.5),
-                (480, 0.0),
-                (720, -0.5),
-                (960, 0.0),
-                (1200, 0.8),
-                (1440, 0.0),
-            ],
-            next_id: 3,
+            pitch_bend_curve: vec![],
             pan: Vec2::new(0.0, 60.0 * 20.0), // Center around C4 (pitch 60)
             pixels_per_tick: 0.1,
             key_height: 20.0,
@@ -52,12 +29,12 @@ impl Default for PianoRoll {
 pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
     ui.group(|ui| {
         ui.heading("Piano Roll & ARA2 / SV2 Editor");
-        app.piano_roll.show(ui);
+        app.piano_roll.show(ui, &mut app.state);
     });
 }
 
 impl PianoRoll {
-    pub fn show(&mut self, ui: &mut egui::Ui) -> egui::Response {
+    pub fn show(&mut self, ui: &mut egui::Ui, state: &mut crate::state::DawState) -> egui::Response {
         let keys_width = 60.0;
         let response = ui.allocate_response(ui.available_size(), Sense::click_and_drag());
         let rect = response.rect;
@@ -110,7 +87,7 @@ impl PianoRoll {
                 let hover_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
                 // Change cursor on hover
-                for note in self.notes.iter().rev() {
+                for note in state.active_sequence.notes.iter().rev() {
                     let note_rect = self.note_rect(note, grid_rect.min);
                     if note_rect.contains(pos) {
                         if pos.x > note_rect.max.x - 10.0 {
@@ -123,7 +100,7 @@ impl PianoRoll {
                 if response.drag_started_by(PointerButton::Primary) {
                     // Try to pick a note (reverse order so top note is picked)
                     let mut clicked_note = None;
-                    for note in self.notes.iter().rev() {
+                    for note in state.active_sequence.notes.iter().rev() {
                         let note_rect = self.note_rect(note, grid_rect.min);
                         if note_rect.contains(pos) {
                             clicked_note = Some(note.id);
@@ -140,17 +117,9 @@ impl PianoRoll {
                     if clicked_note.is_none() {
                         // Add a new note
                         let snap_tick = (hover_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4);
-                        let new_note = Note {
-                            id: self.next_id,
-                            pitch: hover_pitch,
-                            start_tick: snap_tick,
-                            duration: self.ticks_per_beat / 4, // 16th note default duration
-                            lyric: None,
-                        };
-                        self.next_id += 1;
-                        self.notes.push(new_note);
 
-                        if let Some(last_note) = self.notes.last() {
+                        let id = state.active_sequence.add_note(hover_pitch, 100, snap_tick as f64 / self.ticks_per_beat as f64, 0.25);
+                        if let Some(last_note) = state.active_sequence.get_note(id) {
                             let note_rect = self.note_rect(last_note, grid_rect.min);
                             self.dragging_note = Some((last_note.id, pos - note_rect.min));
                         }
@@ -159,12 +128,14 @@ impl PianoRoll {
                     // Delete note on right click
 
                     let mut to_remove = Vec::new();
-                    for n in &self.notes {
+                    for n in &state.active_sequence.notes {
                         if self.note_rect(n, grid_rect.min).contains(pos) {
                             to_remove.push(n.id);
                         }
                     }
-                    self.notes.retain(|n| !to_remove.contains(&n.id));
+                    for id in to_remove {
+                        state.active_sequence.remove_note(id);
+                    }
 
                 }
             }
@@ -182,8 +153,8 @@ impl PianoRoll {
 
                     let new_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
-                    if let Some(note) = self.notes.iter_mut().find(|n| n.id == id) {
-                        note.start_tick = new_tick;
+                    if let Some(note) = state.active_sequence.get_note_mut(id) {
+                        note.start_beat = new_tick as f64 / self.ticks_per_beat as f64;
                         note.pitch = new_pitch;
                     }
                 }
@@ -194,11 +165,11 @@ impl PianoRoll {
                     let mut new_end_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
                     new_end_tick = (new_end_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4); // snap to 16th
 
-                    if let Some(note) = self.notes.iter_mut().find(|n| n.id == id) {
-                        if new_end_tick > note.start_tick {
-                            note.duration = new_end_tick - note.start_tick;
+                    if let Some(note) = state.active_sequence.get_note_mut(id) {
+                        if (new_end_tick as f64 / self.ticks_per_beat as f64) > note.start_beat {
+                            note.duration_beats = (new_end_tick as f64 / self.ticks_per_beat as f64) - note.start_beat;
                         } else {
-                            note.duration = self.ticks_per_beat / 4; // min 16th note
+                            note.duration_beats = 0.25; // min 16th note
                         }
                     }
                 }
@@ -292,7 +263,7 @@ impl PianoRoll {
         }
 
         // 3. Draw Notes and Lyrics
-        for note in &self.notes {
+        for note in &state.active_sequence.notes {
             let note_rect = self.note_rect(note, grid_rect.min);
             if note_rect.max.x < grid_rect.min.x || note_rect.min.x > grid_rect.max.x ||
                note_rect.max.y < grid_rect.min.y || note_rect.min.y > grid_rect.max.y {
@@ -310,17 +281,7 @@ impl PianoRoll {
             grid_painter.rect_filled(display_rect, 2.0, fill_color);
             grid_painter.rect_stroke(display_rect, 2.0, Stroke::new(1.0, Color32::from_rgb(30, 100, 180)), egui::StrokeKind::Inside);
 
-            // Draw Lyrics (ARA2 / SV2 feature)
-            if let Some(lyric) = &note.lyric {
-                let text_pos = note_rect.left_top() + Vec2::new(4.0, 2.0);
-                grid_painter.text(
-                    text_pos,
-                    egui::Align2::LEFT_TOP,
-                    lyric,
-                    egui::FontId::proportional(12.0),
-                    Color32::WHITE,
-                );
-            }
+            // Draw Lyrics (ARA2 / SV2 feature) - Not supported on NoteEvent yet
         }
 
         // 4. Draw Pitch Bend Curve (ARA2 / SV2 feature)
@@ -355,10 +316,10 @@ impl PianoRoll {
     }
 
     // Helper to calculate screen coordinates for a note
-    fn note_rect(&self, note: &Note, grid_min: Pos2) -> Rect {
-        let x = grid_min.x + note.start_tick as f32 * self.pixels_per_tick - self.pan.x;
+    fn note_rect(&self, note: &crate::midi::sequence::NoteEvent, grid_min: Pos2) -> Rect {
+        let x = grid_min.x + (note.start_beat * self.ticks_per_beat as f64) as f32 * self.pixels_per_tick - self.pan.x;
         let y = grid_min.y + (127 - note.pitch) as f32 * self.key_height - self.pan.y;
-        let w = note.duration as f32 * self.pixels_per_tick;
+        let w = (note.duration_beats * self.ticks_per_beat as f64) as f32 * self.pixels_per_tick;
         let h = self.key_height;
         Rect::from_min_size(Pos2::new(x, y), Vec2::new(w, h))
     }
