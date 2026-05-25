@@ -1,8 +1,5 @@
-<script module>
-  let wasmModule;
-</script>
-
 <script>
+  let wasmModule = $state();
   import PluginBrowser from "./components/PluginBrowser.svelte";
 
   import "./app.css";
@@ -170,7 +167,7 @@
         <PluginBrowser />
       </div>
       <div style="display: {(!showSessionView && !showPluginBrowser) ? 'block' : 'none'}; height: 100%;">
-        <TimelineCanvas id="egui_canvas" />
+        <TimelineCanvas id="egui_canvas" {wasmModule} />
       </div>
       {#if !wasmReady && !wasmError && !showSessionView && !showPluginBrowser}
         <div class="loading-overlay">

@@ -45,6 +45,7 @@ lazy_static::lazy_static! {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
 pub fn set_tracks_json(json: String) {
     if let Ok(mut lock) = TRACKS_JSON.lock() {
         *lock = json;
@@ -52,6 +53,7 @@ pub fn set_tracks_json(json: String) {
 }
 
 #[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
 pub fn request_repaint() {
     EGUI_CTX.with(|ctx| {
         if let Some(c) = &*ctx.borrow() {
