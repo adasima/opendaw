@@ -28,6 +28,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     }
 
     let mut all_modified_clips = Vec::new();
+    let mut is_dragging_any = false;
     let painter = ui.painter();
     painter.rect_filled(
         rect,
@@ -61,9 +62,15 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
             let clip_response = ui.interact(clip_rect, clip_id, egui::Sense::drag());
 
             if clip_response.dragged() {
+                is_dragging_any = true;
                 let drag_delta_x = clip_response.drag_delta().x;
                 let delta_percent = (drag_delta_x / rect.width()) * TIMELINE_PERCENT_MAX;
                 all_modified_clips.push((track.id, clip.id, clip.start_pos + delta_percent));
+            }
+
+            if clip_response.drag_stopped() {
+                #[cfg(target_arch = "wasm32")]
+                crate::notify_clip_moved(track.id, clip.id, clip.start_pos);
             }
 
             let bg_color = if clip_response.hovered() || clip_response.dragged() {
@@ -108,11 +115,12 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
             if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
                 clip.start_pos = new_pos.max(0.0);
-                #[cfg(target_arch = "wasm32")]
-                crate::notify_clip_moved(track.id, clip.id, clip.start_pos);
             }
         }
     }
+
+    // プレイヘッド（縦線）の描画
+    app.is_dragging_clip = is_dragging_any;
 
     // プレイヘッド（縦線）の描画
     let playhead_x = rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * app.state.playhead_pos;
