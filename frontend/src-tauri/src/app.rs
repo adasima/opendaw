@@ -71,3 +71,11 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
     info!("Mixer: Set track {} pan to {}", track_id, pan);
     // state.engine.set_track_pan(track_id, pan);
 }
+
+/// プロジェクトの現在の状態をJSONとして取得する
+#[tauri::command]
+pub fn get_project_state(_state: State<'_, AppState>) -> String {
+    // 現在はダミーのJSONを返すが、将来的にはstate.engineから取得する
+    // egui側でJSONをパースして表示する
+    "[]".to_string()
+}
