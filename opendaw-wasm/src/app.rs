@@ -209,9 +209,59 @@ impl OpenDawApp {
             }
             // tracks
             if let Some(tracks_array) = parsed.get("tracks").and_then(|v| v.as_array()) {
-                if let Ok(tracks) = serde_json::from_value::<Vec<crate::state::track::Track>>(serde_json::Value::Array(tracks_array.clone())) {
-                    self.state.tracks = tracks;
+                for track_val in tracks_array {
+                    if let Some(id) = track_val.get("id").and_then(|v| v.as_u64()) {
+                        let id = id as usize;
+                        let mut found = false;
+                        for track in self.state.tracks.iter_mut() {
+                            if track.id == id {
+                                found = true;
+                                if let Some(name) = track_val.get("name").and_then(|v| v.as_str()) {
+                                    track.name = name.to_string();
+                                }
+                                if let Some(vol) = track_val.get("volume").and_then(|v| v.as_f64()) {
+                                    track.volume = vol as f32;
+                                }
+                                if let Some(pan) = track_val.get("pan").and_then(|v| v.as_f64()) {
+                                    track.pan = pan as f32;
+                                }
+                                if let Some(muted) = track_val.get("is_muted").and_then(|v| v.as_bool()) {
+                                    track.is_muted = muted;
+                                }
+                                if let Some(solo) = track_val.get("is_solo").and_then(|v| v.as_bool()) {
+                                    track.is_solo = solo;
+                                }
+                                if let Some(armed) = track_val.get("is_record_armed").and_then(|v| v.as_bool()) {
+                                    track.is_record_armed = armed;
+                                }
+                                // clips
+                                if let Some(clips) = track_val.get("clips") {
+                                    if let Ok(parsed_clips) = serde_json::from_value::<Vec<crate::state::clip::AudioClip>>(clips.clone()) {
+                                        track.clips = parsed_clips;
+                                    }
+                                }
+                                // midi_clips
+                                if let Some(midi_clips) = track_val.get("midi_clips") {
+                                    if let Ok(parsed_clips) = serde_json::from_value::<Vec<crate::state::clip::MidiClip>>(midi_clips.clone()) {
+                                        track.midi_clips = parsed_clips;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        if !found {
+                            if let Ok(new_track) = serde_json::from_value::<crate::state::track::Track>(track_val.clone()) {
+                                self.state.tracks.push(new_track);
+                            }
+                        }
+                    }
                 }
+
+                // Remove tracks that are no longer in the backend
+                let backend_ids: Vec<usize> = tracks_array.iter()
+                    .filter_map(|t| t.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
+                    .collect();
+                self.state.tracks.retain(|t| backend_ids.contains(&t.id));
             }
         }
     }
