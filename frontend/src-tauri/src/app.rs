@@ -236,9 +236,6 @@ pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate:
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
             clip.sequence.notes = notes;
 
-            // next_note_id の更新 (一番大きいID + 1にする)
-            let next_id = clip.sequence.notes.iter().map(|n| n.id).max().unwrap_or(0) + 1;
-
             // Sequence の next_note_id は private フィールドなので直接変更できない。
             // しかし Sequence 構造体に `clear()` して `add_note_event()` で入れ直すか、
             // もしくは `notes` フィールドは pub なので、Sequence自体を新しいものに置き換える。
