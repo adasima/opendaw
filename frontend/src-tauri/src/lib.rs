@@ -1,5 +1,6 @@
 pub mod app;
 pub mod engine;
+pub mod midi;
 pub mod state;
 
 use std::sync::Arc;

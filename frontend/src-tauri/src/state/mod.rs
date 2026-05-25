@@ -1,3 +1,5 @@
+pub mod clip;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,6 +30,8 @@ pub struct Track {
     pub is_muted: bool,
     pub is_solo: bool,
     pub is_record_armed: bool,
+    pub clips: Vec<clip::AudioClip>,
+    pub midi_clips: Vec<clip::MidiClip>,
 }
 
 impl Track {
@@ -40,6 +44,8 @@ impl Track {
             is_muted: false,
             is_solo: false,
             is_record_armed: false,
+            clips: Vec::new(),
+            midi_clips: Vec::new(),
         }
     }
 }
