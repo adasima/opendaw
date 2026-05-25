@@ -4,6 +4,7 @@ use eframe::egui;
 use rfd::FileDialog;
 
 /// オーディオインポート用のUI（ボタン等）を描画します。
+#[allow(unused_variables)]
 pub fn draw_import_ui(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     if ui
         .button("📁 Import Audio")

@@ -8,6 +8,7 @@ use ringbuf::storage::Heap;
 use ringbuf::traits::{Producer, Split};
 
 pub mod midi_route;
+use crate::state::ProjectState;
 
 pub type MidiEventProducer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, true, false>;
 pub type MidiEventConsumer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, false, true>;
@@ -33,6 +34,7 @@ pub struct EngineHandle {
     // The main thread needs to be able to send routing updates to the audio thread
     midi_route_tx: Arc<std::sync::Mutex<MidiRouteProducer>>,
     event_tx: Sender<EngineEvent>,
+    pub project_state: Arc<std::sync::RwLock<ProjectState>>,
 }
 
 impl Default for EngineHandle {
@@ -54,6 +56,7 @@ impl EngineHandle {
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
             midi_route_tx: Arc::new(std::sync::Mutex::new(route_tx)),
             event_tx: tx,
+            project_state: Arc::new(std::sync::RwLock::new(ProjectState::default())),
         };
         (handle, rx, route_rx)
     }
