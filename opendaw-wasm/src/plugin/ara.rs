@@ -192,18 +192,16 @@ impl MockDawHost {
 
 impl AraHostAccess for MockDawHost {
     fn get_tempo_info(&self) -> TempoInfo {
-        self.tempo.read().unwrap().clone()
+        self.tempo.read().map(|g| g.clone()).unwrap_or(TempoInfo { bpm: 120.0, time_signature_numerator: 4, time_signature_denominator: 4 })
     }
 
     fn get_transport_info(&self) -> TransportInfo {
-        self.transport.read().unwrap().clone()
+        self.transport.read().map(|g| g.clone()).unwrap_or(TransportInfo { is_playing: false, position_seconds: 0.0, position_beats: 0.0 })
     }
 
     fn get_notes_in_range(&self, start_sec: f64, end_sec: f64) -> Vec<AraNote> {
-        self.notes.read().unwrap().iter()
-            .filter(|n| n.start_seconds >= start_sec && n.start_seconds < end_sec)
-            .cloned()
-            .collect()
+        self.notes.read().map(|g| g.iter().filter(|n| n.start_seconds >= start_sec && n.start_seconds < end_sec).cloned().collect()).unwrap_or_default()
+
     }
 }
 
@@ -237,6 +235,6 @@ mod tests {
         
         assert_eq!(plugin.current_tempo.bpm, 140.0);
         assert_eq!(plugin.cached_notes.len(), 1);
-        assert_eq!(plugin.cached_notes.get(&0).unwrap().lyric.as_deref(), Some("あ"));
+        assert_eq!(plugin.cached_notes.get(&0).and_then(|n| n.lyric.as_deref()), Some("あ"));
     }
 }
