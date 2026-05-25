@@ -7,15 +7,15 @@ The Plugin Browser provides an interface for loading external plugins (such as V
 Currently, only the UI skeleton is implemented; actual plugin loading functionality will be added in future updates.
 
 ## Basic Usage
-1. Click the **Browser** toggle switch on the main screen.
-2. The **Plugin Browser** window will appear.
+1. Click the **Plugins** button at the top of the track panel (left side of the screen).
+2. The Plugin Browser will appear. (To return to the previous screen, click **Hide Plugins**)
 3. View the list of plugins (currently dummy data).
-4. Click the **Load** button next to each plugin (currently does nothing).
+4. You can filter plugins by entering a keyword in the search box.
 
 ## Related Topics
 - [Effects](../user-guide/effects.md)
 - [Track Management](../user-guide/tracks.md)
 
 ## Notes/Limitations
-> In the current version, the Plugin Browser only implements a UI skeleton.
-> Dummy data (e.g., "Serum (Dummy)") is displayed, but actual plugin loading and audio processing are not functional.
+> - In the current version, the Plugin Browser only implements a UI skeleton.
+> - Dummy data is displayed, but actual plugin loading and audio processing are not functional.
