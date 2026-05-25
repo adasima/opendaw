@@ -110,3 +110,23 @@ pub fn get_project_state(state: State<'_, AppState>) -> String {
 
     serde_json::to_string(&project_state).unwrap_or_else(|_| "{}".to_string())
 }
+
+/// トラックを追加する
+#[tauri::command]
+pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String> {
+    info!("Project: Add track '{}'", name);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let new_id = project_state.tracks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
+    let track = crate::state::Track::new(new_id, name);
+    project_state.tracks.push(track);
+    Ok(new_id as u32)
+}
+
+/// トラックを削除する
+#[tauri::command]
+pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Remove track {}", track_id);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    project_state.tracks.retain(|t| t.id != track_id);
+    Ok(())
+}

@@ -127,6 +127,10 @@
     }
     invoke("set_master_volume", { volume: vol }).catch(console.error);
   }
+
+  function handleAddTrack() {
+    invoke("add_track", { name: "New Track" }).catch(console.error);
+  }
 </script>
 
 <TitleBar />
@@ -144,7 +148,7 @@
         <button class="icon-btn" onclick={() => { showPluginBrowser = !showPluginBrowser; showSessionView = false; }} title="Toggle Plugin Browser" style="width: auto; padding: 0 8px; font-size: 11px;">
           {showPluginBrowser ? 'Hide Plugins' : 'Plugins'}
         </button>
-        <button class="icon-btn" aria-label="Add Track">+</button>
+        <button class="icon-btn" aria-label="Add Track" onclick={handleAddTrack}>+</button>
       </div>
     </div>
 
