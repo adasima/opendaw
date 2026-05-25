@@ -3,6 +3,7 @@ pub mod clip;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+/// プロジェクトの全体状態を保持する構造体
 pub struct ProjectState {
     pub is_playing: bool,
     pub bpm: f64,
@@ -22,6 +23,7 @@ impl Default for ProjectState {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+/// トラックの情報を保持する構造体
 pub struct Track {
     pub id: usize,
     pub name: String,
@@ -35,6 +37,7 @@ pub struct Track {
 }
 
 impl Track {
+    /// 新しいトラックを作成する
     pub fn new(id: usize, name: impl Into<String>) -> Self {
         Self {
             id,
