@@ -37,9 +37,16 @@
 - [x] [1] @A frontend/src/components/PluginBrowser.svelte を作成し、ダミーデータを用いてプラグイン一覧を表示するSvelteUIを実装する
 - [x] [2] @B frontend/src/App.svelte を更新し、メイン画面にプラグインブラウザパネルを統合する
 
-## Phase 24: Svelte UIの改善とMIDI機能の統合
+## Phase 24: Svelte UIの改善とMIDI機能の統合 (完了)
 > SvelteUIの改善と、TauriバックエンドへのMIDI信号のルーティング。
-- [ ] [1] @A frontend/src/components/TrackDetails.svelte を作成し、選択中のトラックの詳細設定UI(ボリューム、パン、MIDIルーティング)を実装する
-- [ ] [2] @B frontend/src/App.svelte を更新し、TrackDetailsパネルをメイン画面の右側または下部に統合する
-- [ ] [3] @A frontend/src-tauri/src/engine/midi_route.rs を作成し、MIDI入力信号を各トラックにルーティングするロジックを実装する
-- [ ] [4] @B frontend/src-tauri/src/app.rs を更新し、MIDIデバイス選択とルーティング設定のためのTauri Commandを追加する
+- [x] [1] @A frontend/src/components/TrackDetails.svelte を作成し、選択中のトラックの詳細設定UI(ボリューム、パン、MIDIルーティング)を実装する
+- [x] [2] @B frontend/src/App.svelte を更新し、TrackDetailsパネルをメイン画面の右側または下部に統合する
+- [x] [3] @A frontend/src-tauri/src/engine/midi_route.rs を作成し、MIDI入力信号を各トラックにルーティングするロジックを実装する
+- [x] [4] @B frontend/src-tauri/src/app.rs を更新し、MIDIデバイス選択とルーティング設定のためのTauri Commandを追加する
+
+## Phase 25: タイムラインキャンバスのオーディオ波形・MIDIノート描画と連携
+> Tauriから送信されたプロジェクト状態 (トラック、オーディオクリップ、MIDIシーケンス等) をもとに、WASM(egui)キャンバス上で波形およびノートの描画を行うための機能統合。
+- [ ] [1] @A opendaw-wasm/src/app.rs を更新し、Tauriから状態 (プロジェクト・トラック構造) を受け取るためのインターフェース(WASM関数のエクスポート)を実装する (対象: opendaw-wasm/src/app.rs)
+- [ ] [2] @A opendaw-wasm/src/ui/timeline.rs を更新し、受け取った状態をもとにオーディオクリップの矩形と簡易波形を描画する処理を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [3] @A opendaw-wasm/src/ui/piano_roll.rs を更新し、受け取った状態をもとにMIDIノートをキャンバス上に描画する処理を実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [ ] [4] @B frontend/src/components/TimelineCanvas.svelte を更新し、Tauriのバックエンドから定期的にプロジェクト状態を取得してWASMモジュールへ渡すポーリングループを実装する (対象: frontend/src/components/TimelineCanvas.svelte)
