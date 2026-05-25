@@ -56,7 +56,12 @@
 - [x] [8] @B frontend/src/components/TimelineCanvas.svelte を更新し、Tauriからプロジェクト状態を取得してWASMへ渡すポーリングループを実装する (対象: frontend/src/components/TimelineCanvas.svelte)
 ## Phase 26: Svelte UIからのバックエンド状態変更の結合
 > 現在 Svelte 側から送られるコマンド (再生、ボリューム変更など) が `EngineHandle` を経由してオーディオスレッドには伝達されているが、JSONとして返される `ProjectState` にはUIからの変更が即座に同期されていない可能性がある。UIからのアクションを `EngineHandle` の `ProjectState` にも反映する仕組みを導入し、WASMの描画などと状態を完全に同期する。
-- [ ] [1] @A frontend/src-tauri/src/app.rs を更新し、`play`, `pause`, `stop`, `set_bpm`, `set_master_volume` コマンドで `state.engine.project_state` の該当フィールドも更新するようにする (対象: frontend/src-tauri/src/app.rs)
-- [ ] [2] @A frontend/src-tauri/src/app.rs を更新し、`set_track_volume`, `set_track_pan` などのトラック更新コマンドで、`state.engine.project_state` 内の `tracks` の該当トラックの状態を更新するよう実装する (対象: frontend/src-tauri/src/app.rs)
+- [x] [1] @A frontend/src-tauri/src/app.rs を更新し、`play`, `pause`, `stop`, `set_bpm`, `set_master_volume` コマンドで `state.engine.project_state` の該当フィールドも更新するようにする (対象: frontend/src-tauri/src/app.rs)
+- [x] [2] @A frontend/src-tauri/src/app.rs を更新し、`set_track_volume`, `set_track_pan` などのトラック更新コマンドで、`state.engine.project_state` 内の `tracks` の該当トラックの状態を更新するよう実装する (対象: frontend/src-tauri/src/app.rs)
 - [x] [3] @B frontend/src-tauri/src/app.rs に `add_track`, `remove_track` 等のトラック管理コマンドを追加し、`ProjectState` のトラック配列を更新できるようにする (対象: frontend/src-tauri/src/app.rs)
 - [x] [4] @B frontend/src/components/Tracks.svelte 等を更新し、トラック追加・削除などのUIアクションで新規コマンドを呼ぶよう連携する (対象: frontend/src/components/Tracks.svelte)
+## Phase 27: オーディオクリップの管理機能 (Tauri & WASM統合)
+> SvelteフロントエンドおよびWASM UIから、オーディオクリップを追加・移動・削除できるよう、TauriバックエンドおよびWASM状態同期ロジックを拡充する。
+- [ ] [1] @A frontend/src-tauri/src/app.rs に `add_audio_clip`, `remove_audio_clip`, `move_audio_clip` のTauri Commandを実装し、`ProjectState` の該当トラック内のクリップ配列を更新するようにする (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] @B opendaw-wasm/src/app.rs を更新し、Tauriからの `sync_project_state_json` でオーディオクリップの同期を確実に行えるようパース処理を改善する (対象: opendaw-wasm/src/app.rs)
+- [ ] [3] @B opendaw-wasm/src/ui/timeline.rs を更新し、オーディオクリップのドラッグによる移動を実装し、状態変更を Tauri へ通知するイベントフローを構築する (対象: opendaw-wasm/src/ui/timeline.rs)
