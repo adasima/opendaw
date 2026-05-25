@@ -8,21 +8,22 @@ OpenDAW's main screen consists of several panels designed to maximize workflow e
 ## Panel Layout and Roles
 The screen is broadly divided into the following panels:
 
-1. **Menu Bar (Top)**
-   - Handles global operations such as saving and loading projects (**Save Project** / **Load Project**).
-   - Audio import (**Import Audio**) is also done from here.
-   - Use the **Arrangement** and **Session** buttons to toggle the main area view.
+1. **Title Bar (Top)**
+   - Located at the top of the application.
+   - Provides functionality to toggle the visibility of the **AI Agent** panel, as well as a **Settings** dropdown for language switching.
 2. **Tracks Panel (Left)**
-   - Located on the left side of the screen, it displays a list of tracks in the current project. You can add or remove tracks here.
-3. **AI Agent Panel (Right)**
-   - Located on the right side of the screen, it provides a chat interface to communicate with the AI assistant.
-4. **Mixer Panel (Bottom)**
-   - Located at the bottom of the screen, it allows you to adjust the master volume, as well as the volume, pan, and effects for individual tracks.
+   - Located on the left side of the screen, it displays a list of tracks in the current project. You can add tracks here, and toggle between **Session** / **Timeline** views, and the **Plugins** browser.
+3. **AI Agent & Track Details Panel (Right)**
+   - Located on the right side of the screen.
+   - **AI Agent**: Provides a chat interface to communicate with the AI assistant.
+   - **Track Details**: Displays when a track is selected in the Tracks panel, allowing you to configure detailed settings such as volume, pan, and MIDI routing.
+4. **Transport & Mixer Panel (Bottom)**
+   - Located at the bottom of the screen, it provides playback, stop, loop, and BPM settings (Transport Controls), as well as mixer controls like the master volume.
 5. **Main Area (Center)**
-   - The central main area contains the following components, arranged from top to bottom:
-     - **Transport Controls**: Handles playback, stopping, looping, and BPM settings.
-     - **Timeline & Waveform Display**: Shows the overall playback position (playhead).
-     - **Piano Roll Editor**: Allows you to input and edit MIDI notes.
+   - The central main area contains the following components depending on the selected mode:
+     - **Timeline**: Displays the main timeline and audio/MIDI regions (Timeline Canvas).
+     - **Session**: The session view containing the clip launcher.
+     - **Plugin Browser**: Interface for loading and browsing external plugins.
 
 ## Related Topics
 - [First Project](first-project.md)
