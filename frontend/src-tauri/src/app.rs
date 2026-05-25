@@ -54,7 +54,6 @@ pub fn get_midi_devices() -> Vec<String> {
 #[tauri::command]
 pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, state: State<'_, AppState>) {
     info!("MIDI Route: Set track {} to device '{}' channel {}", track_id, device, channel);
-    // 将来的にはここでエンジン等に設定を反映する
     state.engine.set_track_midi_route(track_id, device, channel);
 }
 
@@ -74,8 +73,15 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
 
 /// プロジェクトの現在の状態をJSONとして取得する
 #[tauri::command]
-pub fn get_project_state(_state: State<'_, AppState>) -> String {
+pub fn get_project_state(state: State<'_, AppState>) -> String {
     // 現在はダミーのJSONを返すが、将来的にはstate.engineから取得する
     // egui側でJSONをパースして表示する
-    "[]".to_string()
+    // state.engineからトラック、クリップ等のプロジェクト状態を取得してJSONとして返すようにする
+    // 今はとりあえず空配列を返す
+    serde_json::json!({
+        "is_playing": state.engine.is_playing(),
+        "bpm": state.engine.get_bpm(),
+        "master_volume": state.engine.get_master_volume(),
+        "tracks": []
+    }).to_string()
 }

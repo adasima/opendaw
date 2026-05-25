@@ -1,6 +1,19 @@
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use crossbeam_channel::{bounded, Sender, Receiver};
+use ringbuf::HeapRb;
+use ringbuf::wrap::caching::Caching;
+use ringbuf::SharedRb;
+use ringbuf::storage::Heap;
+use ringbuf::traits::{Producer, Split};
+
+pub mod midi_route;
+
+pub type MidiEventProducer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, true, false>;
+pub type MidiEventConsumer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, false, true>;
+
+pub type MidiRouteProducer = Caching<Arc<SharedRb<Heap<midi_route::TrackMidiRoute>>>, true, false>;
+pub type MidiRouteConsumer = Caching<Arc<SharedRb<Heap<midi_route::TrackMidiRoute>>>, false, true>;
 
 /// イベントの種類 (メインスレッド -> オーディオスレッド)
 pub enum EngineEvent {
@@ -17,7 +30,8 @@ pub struct EngineHandle {
     is_playing: Arc<AtomicBool>,
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
-    midi_router: Arc<std::sync::RwLock<midi_route::MidiRouter>>,
+    // The main thread needs to be able to send routing updates to the audio thread
+    midi_route_tx: Arc<std::sync::Mutex<MidiRouteProducer>>,
     event_tx: Sender<EngineEvent>,
 }
 
@@ -29,16 +43,19 @@ impl Default for EngineHandle {
 
 impl EngineHandle {
     /// 新しいEngineHandleとイベントレシーバーを作成する
-    pub fn create_channel() -> (Self, Receiver<EngineEvent>) {
+    pub fn create_channel() -> (Self, Receiver<EngineEvent>, MidiRouteConsumer) {
         let (tx, rx) = bounded(1024);
+        let rb = HeapRb::<midi_route::TrackMidiRoute>::new(1024);
+        let (route_tx, route_rx) = rb.split();
+
         let handle = Self {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
-            midi_router: Arc::new(std::sync::RwLock::new(midi_route::MidiRouter::new())),
+            midi_route_tx: Arc::new(std::sync::Mutex::new(route_tx)),
             event_tx: tx,
         };
-        (handle, rx)
+        (handle, rx, route_rx)
     }
 
     /// 新しいEngineHandleを作成する (テスト用)
@@ -95,8 +112,8 @@ impl EngineHandle {
 
     /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
     pub fn set_track_midi_route(&self, track_id: u32, device: String, channel: u8) {
-        if let Ok(mut router) = self.midi_router.write() {
-            router.set_route(track_id, device, channel);
+        if let Ok(mut tx) = self.midi_route_tx.lock() {
+            let _ = tx.try_push(midi_route::TrackMidiRoute::new(track_id, device, channel));
         }
     }
 }
@@ -121,4 +138,3 @@ mod tests {
         assert_eq!(handle.get_bpm(), 140.5);
     }
 }
-pub mod midi_route;
