@@ -58,5 +58,5 @@
 > 現在 Svelte 側から送られるコマンド (再生、ボリューム変更など) が `EngineHandle` を経由してオーディオスレッドには伝達されているが、JSONとして返される `ProjectState` にはUIからの変更が即座に同期されていない可能性がある。UIからのアクションを `EngineHandle` の `ProjectState` にも反映する仕組みを導入し、WASMの描画などと状態を完全に同期する。
 - [ ] [1] @A frontend/src-tauri/src/app.rs を更新し、`play`, `pause`, `stop`, `set_bpm`, `set_master_volume` コマンドで `state.engine.project_state` の該当フィールドも更新するようにする (対象: frontend/src-tauri/src/app.rs)
 - [ ] [2] @A frontend/src-tauri/src/app.rs を更新し、`set_track_volume`, `set_track_pan` などのトラック更新コマンドで、`state.engine.project_state` 内の `tracks` の該当トラックの状態を更新するよう実装する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [3] @B frontend/src-tauri/src/app.rs に `add_track`, `remove_track` 等のトラック管理コマンドを追加し、`ProjectState` のトラック配列を更新できるようにする (対象: frontend/src-tauri/src/app.rs)
-- [ ] [4] @B frontend/src/components/Tracks.svelte 等を更新し、トラック追加・削除などのUIアクションで新規コマンドを呼ぶよう連携する (対象: frontend/src/components/Tracks.svelte)
+- [x] [3] @B frontend/src-tauri/src/app.rs に `add_track`, `remove_track` 等のトラック管理コマンドを追加し、`ProjectState` のトラック配列を更新できるようにする (対象: frontend/src-tauri/src/app.rs)
+- [x] [4] @B frontend/src/components/Tracks.svelte 等を更新し、トラック追加・削除などのUIアクションで新規コマンドを呼ぶよう連携する (対象: frontend/src/components/Tracks.svelte)

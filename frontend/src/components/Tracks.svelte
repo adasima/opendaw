@@ -1,4 +1,5 @@
 <script>
+  import { invoke } from "@tauri-apps/api/core";
   let { tracks = [], activeTrackId = null, onSelectTrack = () => {} } = $props();
 </script>
 
@@ -14,6 +15,7 @@
     <div class="track-color" style="background: {track.color};"></div>
     <div class="track-info">
       <span class="track-name">{track.name}</span>
+      <button class="delete-btn" onclick={(e) => { e.stopPropagation(); invoke("remove_track", { trackId: track.id }).catch(console.error); }} title="Delete Track">✕</button>
       <div class="track-controls">
         <button class="ctrl-btn mute">M</button>
         <button class="ctrl-btn solo">S</button>
@@ -95,4 +97,32 @@
     color: #ef4444;
     border-color: #ef4444;
   }
+
+  .track-info {
+    position: relative;
+  }
+  .delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    border: none;
+    color: var(--on-surface-variant);
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .track-item:hover .delete-btn {
+    display: flex;
+  }
+  .delete-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    color: #f87171;
+  }
+
 </style>
