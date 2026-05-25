@@ -27,6 +27,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         app.state.seek_to(percentage);
     }
 
+    let mut all_modified_clips = Vec::new();
     let painter = ui.painter();
     painter.rect_filled(
         rect,
@@ -56,10 +57,25 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 egui::vec2(clip_w, TRACK_HEIGHT - (CLIP_MARGIN_Y * 2.0)),
             );
 
+            let clip_id = ui.make_persistent_id(format!("clip_{}_{}", track.id, clip.id));
+            let clip_response = ui.interact(clip_rect, clip_id, egui::Sense::drag());
+
+            if clip_response.dragged() {
+                let drag_delta_x = clip_response.drag_delta().x;
+                let delta_percent = (drag_delta_x / rect.width()) * TIMELINE_PERCENT_MAX;
+                all_modified_clips.push((track.id, clip.id, clip.start_pos + delta_percent));
+            }
+
+            let bg_color = if clip_response.hovered() || clip_response.dragged() {
+                egui::Color32::from_rgba_premultiplied(70, 80, 120, 200)
+            } else {
+                egui::Color32::from_rgba_premultiplied(50, 60, 90, 200)
+            };
+
             painter.rect_filled(
                 clip_rect,
                 CLIP_BG_ROUNDING,
-                egui::Color32::from_rgba_premultiplied(50, 60, 90, 200),
+                bg_color,
             );
 
             painter.text(
@@ -82,6 +98,18 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                         egui::Stroke::new(WAVEFORM_STROKE_WIDTH, egui::Color32::from_rgb(114, 137, 218)),
                     );
                 }
+            }
+        }
+    }
+
+
+    for (t_id, clip_id, new_pos) in all_modified_clips {
+        #[allow(clippy::collapsible_if)]
+        if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
+            if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
+                clip.start_pos = new_pos.max(0.0);
+                #[cfg(target_arch = "wasm32")]
+                crate::notify_clip_moved(track.id, clip.id, clip.start_pos);
             }
         }
     }

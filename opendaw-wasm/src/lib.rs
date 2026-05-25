@@ -207,3 +207,30 @@ pub fn get_tracks_json() -> String {
         "[]".to_string()
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"], js_name = invoke)]
+    fn tauri_invoke(cmd: &str, args: JsValue) -> js_sys::Promise;
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn notify_clip_moved(track_id: usize, clip_id: usize, new_start_pos: f32) {
+    #[derive(serde::Serialize)]
+    struct MoveClipArgs {
+        track_id: usize,
+        clip_id: usize,
+        start_pos: f32,
+    }
+
+    let args = MoveClipArgs {
+        track_id,
+        clip_id,
+        start_pos: new_start_pos,
+    };
+
+    if let Ok(js_value) = serde_wasm_bindgen::to_value(&args) {
+        let _ = tauri_invoke("move_audio_clip", js_value);
+    }
+}
