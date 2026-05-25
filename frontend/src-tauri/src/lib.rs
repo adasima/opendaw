@@ -37,7 +37,11 @@ pub fn run() {
             app::remove_track,
             app::add_audio_clip,
             app::remove_audio_clip,
-            app::move_audio_clip
+            app::move_audio_clip,
+            app::add_midi_clip,
+            app::remove_midi_clip,
+            app::move_midi_clip,
+            app::update_midi_clip_notes
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
