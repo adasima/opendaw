@@ -74,7 +74,11 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
 /// プロジェクトの現在の状態をJSONとして取得する
 #[tauri::command]
 pub fn get_project_state(state: State<'_, AppState>) -> String {
-    let mut project_state = state.engine.project_state.read().unwrap().clone();
+    let project_state_guard = match state.engine.project_state.read() {
+        Ok(guard) => guard,
+        Err(_) => return "{}".to_string(), // Lock was poisoned, return empty state
+    };
+    let mut project_state = project_state_guard.clone();
     project_state.is_playing = state.engine.is_playing();
     project_state.bpm = state.engine.get_bpm();
     project_state.master_volume = state.engine.get_master_volume();
