@@ -191,6 +191,26 @@ impl OpenDawApp {
     }
 
     /// MCPサーバーからのコマンドを受信して状態を更新します。
+    /// 外部からプロジェクトのJSONを受け取り、状態を同期する
+    pub fn sync_project_state_json(&mut self, json_str: String) {
+        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&json_str) {
+            // is_playing
+            if let Some(is_playing) = parsed.get("is_playing").and_then(|v| v.as_bool()) {
+                self.state.is_playing = is_playing;
+            }
+            // bpm
+            if let Some(bpm) = parsed.get("bpm").and_then(|v| v.as_f64()) {
+                self.state.bpm = bpm as f32;
+            }
+            // master_volume
+            if let Some(vol) = parsed.get("master_volume").and_then(|v| v.as_f64()) {
+                self.state.master_volume = vol as f32;
+            }
+            // tracks, etc. (追加予定)
+            // if let Some(tracks) = parsed.get("tracks").and_then(|v| v.as_array()) { ... }
+        }
+    }
+
     pub fn poll_mcp_commands(&mut self) {
         if let Some(mcp_receiver) = &self.mcp_receiver {
             while let Ok(cmd) = mcp_receiver.try_recv() {
@@ -253,6 +273,12 @@ impl eframe::App for OpenDawApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // MCPサーバーからのメッセージを受信して状態を更新
         self.poll_mcp_commands();
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            let json_str = crate::get_tracks_json();
+            self.sync_project_state_json(json_str);
+        }
 
         // 初期化時にオーディオチャンネルをエンジンに渡す
         if let Some(audio_channels) = self.audio_channels_temp.take() {
