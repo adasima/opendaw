@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { invoke } from "@tauri-apps/api/core";
 
-  let { id = "egui_canvas" } = $props();
+  let { id = "egui_canvas", wasmModule = null } = $props();
   let pollInterval;
 
   async function pollProjectState() {
@@ -11,7 +11,12 @@
       const stateJson = await invoke("get_project_state");
 
       // 2. opendaw-wasmのエクスポート関数を呼び出して状態を渡す
-      if (window.wasmBindings && window.wasmBindings.set_tracks_json) {
+      if (wasmModule && wasmModule.set_tracks_json) {
+        wasmModule.set_tracks_json(stateJson);
+        if (wasmModule.request_repaint) {
+            wasmModule.request_repaint();
+        }
+      } else if (window.wasmBindings && window.wasmBindings.set_tracks_json) {
         window.wasmBindings.set_tracks_json(stateJson);
         window.wasmBindings.request_repaint();
       }
