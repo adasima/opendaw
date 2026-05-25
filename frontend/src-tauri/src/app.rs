@@ -11,9 +11,8 @@ pub struct AppState {
 #[tauri::command]
 pub fn play(state: State<'_, AppState>) {
     info!("Transport: Play");
-    if let Ok(mut proj) = state.engine.project_state.write() {
-        proj.is_playing = true;
-    }
+    let mut proj = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    proj.is_playing = true;
     state.engine.play();
 }
 
@@ -21,9 +20,8 @@ pub fn play(state: State<'_, AppState>) {
 #[tauri::command]
 pub fn pause(state: State<'_, AppState>) {
     info!("Transport: Pause");
-    if let Ok(mut proj) = state.engine.project_state.write() {
-        proj.is_playing = false;
-    }
+    let mut proj = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    proj.is_playing = false;
     state.engine.pause();
 }
 
@@ -31,9 +29,8 @@ pub fn pause(state: State<'_, AppState>) {
 #[tauri::command]
 pub fn stop(state: State<'_, AppState>) {
     info!("Transport: Stop");
-    if let Ok(mut proj) = state.engine.project_state.write() {
-        proj.is_playing = false;
-    }
+    let mut proj = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    proj.is_playing = false;
     state.engine.stop();
 }
 
@@ -41,9 +38,8 @@ pub fn stop(state: State<'_, AppState>) {
 #[tauri::command]
 pub fn set_bpm(bpm: f64, state: State<'_, AppState>) {
     info!("Transport: Set BPM to {}", bpm);
-    if let Ok(mut proj) = state.engine.project_state.write() {
-        proj.bpm = bpm;
-    }
+    let mut proj = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    proj.bpm = bpm;
     state.engine.set_bpm(bpm);
 }
 
@@ -51,9 +47,8 @@ pub fn set_bpm(bpm: f64, state: State<'_, AppState>) {
 #[tauri::command]
 pub fn set_master_volume(volume: f64, state: State<'_, AppState>) {
     info!("Mixer: Set Master Volume to {}", volume);
-    if let Ok(mut proj) = state.engine.project_state.write() {
-        proj.master_volume = volume;
-    }
+    let mut proj = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    proj.master_volume = volume;
     state.engine.set_master_volume(volume);
 }
 
@@ -76,10 +71,9 @@ pub fn set_track_midi_routing(track_id: u32, device: String, channel: u8, state:
 #[tauri::command]
 pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>) {
     info!("Mixer: Set track {} volume to {}", track_id, volume);
-    if let Ok(mut proj) = _state.engine.project_state.write() {
-        if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
-            track.volume = volume as f32;
-        }
+    let mut proj = _state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+        track.volume = volume as f32;
     }
     // _state.engine.set_track_volume(track_id, volume);
 }
@@ -88,10 +82,9 @@ pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>)
 #[tauri::command]
 pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
     info!("Mixer: Set track {} pan to {}", track_id, pan);
-    if let Ok(mut proj) = _state.engine.project_state.write() {
-        if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
-            track.pan = pan as f32;
-        }
+    let mut proj = _state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+        track.pan = pan as f32;
     }
     // _state.engine.set_track_pan(track_id, pan);
 }
