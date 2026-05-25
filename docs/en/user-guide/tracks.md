@@ -6,9 +6,10 @@
 The Tracks panel is located on the left side of the screen and displays a list of tracks currently in the project. A track is the fundamental unit for assigning independent audio sources or instruments. Selecting a track opens the **Track Details** panel on the right side, allowing for more advanced configuration.
 
 ## Basic Usage
-### Adding and Selecting Tracks
+### Adding, Selecting, and Deleting Tracks
 1. Click the **+** button at the top of the panel to add a new track. (Track type selection will be added in a future update.)
 2. Click any track in the track list to make it active (selected), which will display the **Track Details** panel on the right side.
+3. Hover over a track and click the **✕** button (Delete Track) that appears to delete the track.
 
 ### Track Controls
 The following buttons are arranged on the track header, allowing you to quickly toggle states.
@@ -40,5 +41,4 @@ In the current version, there are no keyboard shortcuts dedicated specifically t
 - [Audio Import](../user-guide/audio-import.md)
 
 ## Notes and Limitations
-> - In the current version, deleting tracks via the UI (e.g., an X button) is not supported.
 > - MIDI Routing settings are only functional if a MIDI device is connected.
