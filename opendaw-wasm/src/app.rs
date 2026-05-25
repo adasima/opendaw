@@ -192,6 +192,7 @@ impl OpenDawApp {
 
     /// MCPサーバーからのコマンドを受信して状態を更新します。
     /// 外部からプロジェクトのJSONを受け取り、状態を同期する
+    #[allow(clippy::collapsible_if)]
     pub fn sync_project_state_json(&mut self, json_str: String) {
         if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&json_str) {
             // is_playing
@@ -206,8 +207,12 @@ impl OpenDawApp {
             if let Some(vol) = parsed.get("master_volume").and_then(|v| v.as_f64()) {
                 self.state.master_volume = vol as f32;
             }
-            // tracks, etc. (追加予定)
-            // if let Some(tracks) = parsed.get("tracks").and_then(|v| v.as_array()) { ... }
+            // tracks
+            if let Some(tracks_array) = parsed.get("tracks").and_then(|v| v.as_array()) {
+                if let Ok(tracks) = serde_json::from_value::<Vec<crate::state::track::Track>>(serde_json::Value::Array(tracks_array.clone())) {
+                    self.state.tracks = tracks;
+                }
+            }
         }
     }
 
