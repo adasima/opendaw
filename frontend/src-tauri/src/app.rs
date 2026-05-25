@@ -74,14 +74,10 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
 /// プロジェクトの現在の状態をJSONとして取得する
 #[tauri::command]
 pub fn get_project_state(state: State<'_, AppState>) -> String {
-    // 現在はダミーのJSONを返すが、将来的にはstate.engineから取得する
-    // egui側でJSONをパースして表示する
-    // state.engineからトラック、クリップ等のプロジェクト状態を取得してJSONとして返すようにする
-    // 今はとりあえず空配列を返す
-    serde_json::json!({
-        "is_playing": state.engine.is_playing(),
-        "bpm": state.engine.get_bpm(),
-        "master_volume": state.engine.get_master_volume(),
-        "tracks": []
-    }).to_string()
+    let mut project_state = state.engine.project_state.read().unwrap().clone();
+    project_state.is_playing = state.engine.is_playing();
+    project_state.bpm = state.engine.get_bpm();
+    project_state.master_volume = state.engine.get_master_volume();
+
+    serde_json::to_string(&project_state).unwrap_or_else(|_| "{}".to_string())
 }
