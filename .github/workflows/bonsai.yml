@@ -16,6 +16,7 @@ jobs:
       - name: Enable Auto-merge for Jules
         # --auto はCIステータスチェック(ci.yml)が通るまでマージを待機する
         # CIが失敗した場合、マージされない（安全弁）
+        continue-on-error: true
         run: gh pr merge "${{ github.event.pull_request.html_url }}" --squash --auto --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
