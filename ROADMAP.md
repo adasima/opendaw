@@ -44,9 +44,11 @@
 - [x] [3] @A frontend/src-tauri/src/engine/midi_route.rs を作成し、MIDI入力信号を各トラックにルーティングするロジックを実装する
 - [x] [4] @B frontend/src-tauri/src/app.rs を更新し、MIDIデバイス選択とルーティング設定のためのTauri Commandを追加する
 
-## Phase 25: タイムラインキャンバスのオーディオ波形・MIDIノート描画と連携
-> Tauriから送信されたプロジェクト状態 (トラック、オーディオクリップ、MIDIシーケンス等) をもとに、WASM(egui)キャンバス上で波形およびノートの描画を行うための機能統合。
-- [ ] [1] @A opendaw-wasm/src/app.rs を更新し、Tauriから状態 (プロジェクト・トラック構造) を受け取るためのインターフェース(WASM関数のエクスポート)を実装する (対象: opendaw-wasm/src/app.rs)
-- [ ] [2] @A opendaw-wasm/src/ui/timeline.rs を更新し、受け取った状態をもとにオーディオクリップの矩形と簡易波形を描画する処理を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [3] @A opendaw-wasm/src/ui/piano_roll.rs を更新し、受け取った状態をもとにMIDIノートをキャンバス上に描画する処理を実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
-- [ ] [4] @B frontend/src/components/TimelineCanvas.svelte を更新し、Tauriのバックエンドから定期的にプロジェクト状態を取得してWASMモジュールへ渡すポーリングループを実装する (対象: frontend/src/components/TimelineCanvas.svelte)
+## Phase 25: タイムラインキャンバスのオーディオ波形・MIDIノート描画と連携、およびバックエンドリアルタイム性の改善
+> Tauriから送信されたプロジェクト状態 (トラック、オーディオクリップ、MIDIシーケンス等) をもとに、WASM(egui)キャンバス上で波形およびノートの描画を行うための機能統合。あわせて、Wardenにより報告されたオーディオスレッドのリアルタイム制約違反を修正する。
+- [ ] [1] @A frontend/src-tauri/src/engine/mod.rs と frontend/src-tauri/src/engine/midi_route.rs を更新し、`EngineHandle::midi_router` の同期を `RwLock` から lock-free なデータ構造 (RingBuffer等) へ移行し、オーディオスレッド内でのロックを排除する (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/engine/midi_route.rs)
+- [ ] [2] @A frontend/src-tauri/src/app.rs の `get_project_state` コマンドを実装し、`state.engine` からトラック、クリップ等のプロジェクト状態を取得してJSONとして返すようにする (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/engine/mod.rs)
+- [ ] [3] @A opendaw-wasm/src/app.rs の `update` 内で、`get_tracks_json()` で取得したJSONをパースし、WASM側の `app.state` にプロジェクト状態を同期するロジックを実装する (対象: opendaw-wasm/src/app.rs)
+- [ ] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、同期された `app.state` をもとにオーディオクリップの矩形と波形を描画する処理を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、同期された `app.state` をもとにMIDIノートをキャンバス上に描画する処理を実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [x] [6] @B frontend/src/components/TimelineCanvas.svelte を更新し、Tauriからプロジェクト状態を取得してWASMへ渡すポーリングループを実装する (対象: frontend/src/components/TimelineCanvas.svelte)
