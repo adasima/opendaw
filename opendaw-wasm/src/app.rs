@@ -30,6 +30,7 @@ pub struct OpenDawApp {
     pub was_recording: bool,
     pub piano_roll: crate::ui::piano_roll::PianoRoll,
     pub selected_track_id: Option<usize>,
+    pub selected_clip_id: Option<usize>,
     pub is_dragging_clip: bool,
 }
 
@@ -50,6 +51,7 @@ impl Default for OpenDawApp {
             was_recording: false,
             piano_roll: crate::ui::piano_roll::PianoRoll::default(),
             selected_track_id: None,
+            selected_clip_id: None,
             is_dragging_clip: false,
         }
     }
@@ -327,6 +329,7 @@ impl OpenDawApp {
                     }
                     crate::mcp::channel::McpCommand::SelectTrack(id_opt) => {
                         self.selected_track_id = id_opt;
+                        self.selected_clip_id = None;
                     }
                     crate::mcp::channel::McpCommand::ToggleMute(id) => {
                         if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
@@ -480,6 +483,7 @@ impl eframe::App for OpenDawApp {
                     // 脱出ボタン
                     if ui.button("⬅ 戻る (閉じる)").clicked() {
                         self.selected_track_id = None;
+                        self.selected_clip_id = None;
                     }
                     ui.separator();
                     crate::ui::piano_roll::draw_piano_roll(ui, self);
@@ -493,6 +497,7 @@ impl eframe::App for OpenDawApp {
         if let Some(_track_id) = self.selected_track_id {
             if ui.button("⬅ 戻る (閉じる)").clicked() {
                 self.selected_track_id = None;
+                self.selected_clip_id = None;
             }
             ui.separator();
             crate::ui::piano_roll::draw_piano_roll(ui, self);
