@@ -26,8 +26,10 @@ jobs:
 
       - name: Install Rust toolchain
         if: steps.changes.outputs.code_changed == 'true'
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
         with:
+          toolchain: stable
+          profile: minimal
           components: clippy
 
       - name: Cache cargo
