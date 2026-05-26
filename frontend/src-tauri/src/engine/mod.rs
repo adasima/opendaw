@@ -35,6 +35,7 @@ pub struct EngineHandle {
     midi_route_tx: Arc<std::sync::Mutex<MidiRouteProducer>>,
     event_tx: Sender<EngineEvent>,
     pub project_state: Arc<std::sync::RwLock<ProjectState>>,
+    pub history: Arc<std::sync::RwLock<crate::state::history::HistoryManager>>,
 }
 
 impl Default for EngineHandle {
@@ -57,6 +58,7 @@ impl EngineHandle {
             midi_route_tx: Arc::new(std::sync::Mutex::new(route_tx)),
             event_tx: tx,
             project_state: Arc::new(std::sync::RwLock::new(ProjectState::default())),
+            history: Arc::new(std::sync::RwLock::new(crate::state::history::HistoryManager::new())),
         };
         (handle, rx, route_rx)
     }
