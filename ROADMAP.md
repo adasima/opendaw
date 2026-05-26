@@ -73,3 +73,10 @@
 - [x] [3] @B opendaw-wasm/src/app.rs を更新し、Tauriからの `sync_project_state_json` でMIDIクリップの同期を確実に行えるようパース処理を改善する (対象: opendaw-wasm/src/app.rs)
 - [ ] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、MIDIクリップのドラッグ移動を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 - [ ] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、ノートの追加・削除・移動イベントをTauriへ通知する仕組みを実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+
+## Phase 29: ミキサーとエフェクトの機能強化
+> ミキサーUIの拡張と、各トラックのインサートエフェクト（EQ, Compressor, Delay等）の追加・管理機能を実装する。
+- [ ] [1] @A frontend/src-tauri/src/app.rs に `add_track_effect`, `remove_track_effect`, `update_effect_params` のTauri Commandを実装する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] @A frontend/src-tauri/src/state/track.rs などを更新し、エフェクトチェーンを管理するデータ構造を追加・拡充する (対象: frontend/src-tauri/src/state/track.rs)
+- [ ] [3] @B frontend/src/components/Mixer.svelte を更新し、各トラックのエフェクトスロットを表示・操作（追加・削除・パラメータ調整）できるUIを追加する (対象: frontend/src/components/Mixer.svelte)
+- [ ] [4] @B opendaw-wasm/src/app.rs の `sync_project_state_json` を更新し、エフェクト情報をWASM側にも同期できるようにする (対象: opendaw-wasm/src/app.rs)
