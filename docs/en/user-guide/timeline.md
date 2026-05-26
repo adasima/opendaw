@@ -3,7 +3,7 @@
 > Features for displaying the track's waveform, checking the playback position (playhead), performing seek operations, and moving clips.
 
 ## Overview
-The main timeline is used to visually grasp the overall flow of the project. It displays the playhead indicating the current playback position and audio clips (e.g., recorded waveform data) placed on each track.
+The main timeline is used to visually grasp the overall flow of the project. It displays the playhead indicating the current playback position, along with audio clips (e.g., recorded waveform data) and MIDI clips placed on each track.
 
 ## Basic Usage
 ### Playhead Operation (Seek)
@@ -11,7 +11,7 @@ The main timeline is used to visually grasp the overall flow of the project. It 
 2. The track's playback position is instantly changed based on the clicked position (percentage relative to the width).
 
 ### Clip Operation
-1. You can change the start position (time) of an **audio clip by dragging it** across the track.
+1. You can change the start position of an **audio clip or MIDI clip by dragging it** across the track.
 2. While moving a clip, its position is updated in real-time on the UI, and the state is synchronized with the backend (Tauri) at the moment you finish dragging (drop).
 
 ## Detailed Settings
