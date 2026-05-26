@@ -1,4 +1,5 @@
 pub mod clip;
+pub mod history;
 
 use serde::{Deserialize, Serialize};
 

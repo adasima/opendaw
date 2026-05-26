@@ -3,6 +3,58 @@ use tauri::State;
 use std::sync::Arc;
 use crate::engine::EngineHandle;
 
+
+
+
+/// Undo (取り消し) を実行する
+#[tauri::command]
+pub fn undo(state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Undo");
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let mut history = state.engine.history.write().unwrap_or_else(|e| e.into_inner());
+
+    if let Some(previous_state) = history.undo(&project_state) {
+        *project_state = previous_state.clone();
+
+        // エンジン側の値も更新する
+        state.engine.set_bpm(project_state.bpm);
+        state.engine.set_master_volume(project_state.master_volume);
+
+        if project_state.is_playing {
+            state.engine.play();
+        } else {
+            state.engine.pause();
+        }
+    }
+
+    Ok(())
+}
+
+/// Redo (やり直し) を実行する
+#[tauri::command]
+pub fn redo(state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Redo");
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let mut history = state.engine.history.write().unwrap_or_else(|e| e.into_inner());
+
+    if let Some(next_state) = history.redo(&project_state) {
+        *project_state = next_state.clone();
+
+        // エンジン側の値も更新する
+        state.engine.set_bpm(project_state.bpm);
+        state.engine.set_master_volume(project_state.master_volume);
+
+        if project_state.is_playing {
+            state.engine.play();
+        } else {
+            state.engine.pause();
+        }
+    }
+
+    Ok(())
+}
+
+
 pub struct AppState {
     pub engine: Arc<EngineHandle>,
 }
@@ -106,10 +158,12 @@ pub fn get_project_state(state: State<'_, AppState>) -> String {
 pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String> {
     info!("Project: Add track '{}'", name);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     let new_id = project_state.tracks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
     let track = crate::state::Track::new(new_id, name);
     project_state.tracks.push(track);
-    Ok(new_id as u32)
+    state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(new_id as u32)
 }
 
 /// トラックを削除する
@@ -117,8 +171,10 @@ pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String
 pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Remove track {}", track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     project_state.tracks.retain(|t| t.id != track_id);
-    Ok(())
+    state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
 }
 
 
@@ -127,6 +183,7 @@ pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), S
 pub fn add_audio_clip(track_id: usize, name: String, start_pos: f32, length: f32, state: State<'_, AppState>) -> Result<usize, String> {
     info!("Project: Add audio clip '{}' to track {}", name, track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let new_id = track.clips.iter().map(|c| c.id).max().unwrap_or(0) + 1;
         let clip = crate::state::clip::AudioClip {
@@ -137,6 +194,7 @@ pub fn add_audio_clip(track_id: usize, name: String, start_pos: f32, length: f32
             waveform_summary: Vec::new(),
         };
         track.clips.push(clip);
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
         Ok(new_id)
     } else {
         Err(format!("Track {} not found", track_id))
@@ -148,8 +206,10 @@ pub fn add_audio_clip(track_id: usize, name: String, start_pos: f32, length: f32
 pub fn remove_audio_clip(track_id: usize, clip_id: usize, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Remove audio clip {} from track {}", clip_id, track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         track.clips.retain(|c| c.id != clip_id);
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -161,10 +221,12 @@ pub fn remove_audio_clip(track_id: usize, clip_id: usize, state: State<'_, AppSt
 pub fn move_audio_clip(track_id: usize, clip_id: usize, new_start_pos: f32, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Move audio clip {} in track {} to {}", clip_id, track_id, new_start_pos);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start_pos = new_start_pos;
-            Ok(())
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))
         }
@@ -178,6 +240,7 @@ pub fn move_audio_clip(track_id: usize, clip_id: usize, new_start_pos: f32, stat
 pub fn add_midi_clip(track_id: usize, name: String, start_beat: f64, length_beats: f64, state: State<'_, AppState>) -> Result<usize, String> {
     info!("Project: Add midi clip '{}' to track {}", name, track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let new_id = track.midi_clips.iter().map(|c| c.id).max().unwrap_or(0) + 1;
         let clip = crate::state::clip::MidiClip {
@@ -188,6 +251,7 @@ pub fn add_midi_clip(track_id: usize, name: String, start_beat: f64, length_beat
             sequence: crate::midi::sequence::Sequence::new(),
         };
         track.midi_clips.push(clip);
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
         Ok(new_id)
     } else {
         Err(format!("Track {} not found", track_id))
@@ -199,8 +263,10 @@ pub fn add_midi_clip(track_id: usize, name: String, start_beat: f64, length_beat
 pub fn remove_midi_clip(track_id: usize, clip_id: usize, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Remove midi clip {} from track {}", clip_id, track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         track.midi_clips.retain(|c| c.id != clip_id);
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -212,10 +278,12 @@ pub fn remove_midi_clip(track_id: usize, clip_id: usize, state: State<'_, AppSta
 pub fn move_midi_clip(track_id: usize, clip_id: usize, new_start_beat: f64, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Move midi clip {} in track {} to {}", clip_id, track_id, new_start_beat);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start_beat = new_start_beat;
-            Ok(())
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))
         }
@@ -229,6 +297,7 @@ pub fn move_midi_clip(track_id: usize, clip_id: usize, new_start_beat: f64, stat
 pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate::midi::sequence::NoteEvent>, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Update midi clip notes for clip {} in track {}", clip_id, track_id);
     let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
     if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
             clip.sequence.notes = notes;
@@ -245,7 +314,8 @@ pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate:
             }
             clip.sequence = new_seq;
 
-            Ok(())
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))
         }
