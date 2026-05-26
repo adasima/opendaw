@@ -24,7 +24,9 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
+                .invoke_handler(tauri::generate_handler![
+            app::save_project,
+            app::load_project,
             app::play,
             app::pause,
             app::stop,

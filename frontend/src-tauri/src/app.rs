@@ -256,3 +256,52 @@ pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate:
         Err(format!("Track {} not found", track_id))
     }
 }
+
+/// プロジェクトの状態をファイルに保存する
+#[tauri::command]
+pub fn save_project(path: String, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Save project to {}", path);
+    let project_state_guard = match state.engine.project_state.read() {
+        Ok(guard) => guard,
+        Err(_) => return Err("Failed to acquire read lock on project state".into()),
+    };
+
+    let mut project_state = project_state_guard.clone();
+    project_state.is_playing = state.engine.is_playing();
+    project_state.bpm = state.engine.get_bpm();
+    project_state.master_volume = state.engine.get_master_volume();
+
+    let json = serde_json::to_string_pretty(&project_state)
+        .map_err(|e| format!("Serialization error: {}", e))?;
+
+    std::fs::write(&path, json)
+        .map_err(|e| format!("File write error: {}", e))?;
+
+    Ok(())
+}
+
+/// ファイルからプロジェクトの状態を読み込む
+#[tauri::command]
+pub fn load_project(path: String, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Load project from {}", path);
+    let json = std::fs::read_to_string(&path)
+        .map_err(|e| format!("File read error: {}", e))?;
+
+    let new_state: crate::state::ProjectState = serde_json::from_str(&json)
+        .map_err(|e| format!("Deserialization error: {}", e))?;
+
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    *project_state = new_state.clone();
+
+    // エンジン側の値も更新する
+    state.engine.set_bpm(project_state.bpm);
+    state.engine.set_master_volume(project_state.master_volume);
+
+    if project_state.is_playing {
+        state.engine.play();
+    } else {
+        state.engine.pause();
+    }
+
+    Ok(())
+}
