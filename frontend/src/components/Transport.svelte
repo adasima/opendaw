@@ -1,14 +1,50 @@
 <script>
   import { invoke } from "@tauri-apps/api/core";
+  import { save, open } from "@tauri-apps/plugin-dialog";
   let { timeString, onPlay, onStop, onToggleLoop, bpm = $bindable(120.0) } = $props();
 
   function handlePause() {
     invoke("pause").catch(console.error);
   }
+
+  async function handleSaveProject() {
+    try {
+      const path = await save({
+        filters: [{
+          name: 'OpenDAW Project',
+          extensions: ['json']
+        }]
+      });
+      if (path) {
+        await invoke("save_project", { path });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleLoadProject() {
+    try {
+      const path = await open({
+        multiple: false,
+        filters: [{
+          name: 'OpenDAW Project',
+          extensions: ['json']
+        }]
+      });
+      if (path) {
+        await invoke("load_project", { path });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 </script>
 
 <div class="transport-container">
   <div class="transport-controls">
+    <button class="transport-btn" onclick={handleSaveProject} title="Save Project">💾</button>
+    <button class="transport-btn" onclick={handleLoadProject} title="Load Project">📂</button>
     <button class="transport-btn" onclick={onToggleLoop} title="Toggle Loop"
       >🔁</button
     >
