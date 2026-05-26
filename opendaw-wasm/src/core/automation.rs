@@ -37,12 +37,18 @@ impl AutomationEnvelope {
             return 0.0;
         }
 
-        if t <= self.points.first().unwrap().time {
-            return self.points.first().unwrap().value;
+        #[allow(clippy::collapsible_if)]
+        if let Some(first) = self.points.first() {
+            if t <= first.time {
+                return first.value;
+            }
         }
 
-        if t >= self.points.last().unwrap().time {
-            return self.points.last().unwrap().value;
+        #[allow(clippy::collapsible_if)]
+        if let Some(last) = self.points.last() {
+            if t >= last.time {
+                return last.value;
+            }
         }
 
         for window in self.points.windows(2) {
