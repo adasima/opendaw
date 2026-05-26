@@ -28,6 +28,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     }
 
     let mut all_modified_clips = Vec::new();
+    let mut all_modified_midi_clips = Vec::new();
     let mut is_dragging_any = false;
     let painter = ui.painter();
     painter.rect_filled(
@@ -107,6 +108,50 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 }
             }
         }
+
+        for clip in &track.midi_clips {
+            let clip_x = rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * clip.start_beat as f32;
+            let clip_w = (rect.width() / TIMELINE_PERCENT_MAX) * clip.length_beats as f32;
+            let clip_rect = egui::Rect::from_min_size(
+                egui::pos2(clip_x, track_rect.top() + CLIP_MARGIN_Y),
+                egui::vec2(clip_w, TRACK_HEIGHT - (CLIP_MARGIN_Y * 2.0)),
+            );
+
+            let clip_id = ui.make_persistent_id(format!("midi_clip_{}_{}", track.id, clip.id));
+            let clip_response = ui.interact(clip_rect, clip_id, egui::Sense::drag());
+
+            if clip_response.dragged() {
+                is_dragging_any = true;
+                let drag_delta_x = clip_response.drag_delta().x;
+                let delta_percent = (drag_delta_x / rect.width()) * TIMELINE_PERCENT_MAX;
+                all_modified_midi_clips.push((track.id, clip.id, clip.start_beat + delta_percent as f64));
+            }
+
+            if clip_response.drag_stopped() {
+                #[cfg(target_arch = "wasm32")]
+                crate::notify_midi_clip_moved(track.id, clip.id, clip.start_beat);
+            }
+
+            let bg_color = if clip_response.hovered() || clip_response.dragged() {
+                egui::Color32::from_rgba_premultiplied(120, 80, 150, 200)
+            } else {
+                egui::Color32::from_rgba_premultiplied(90, 60, 110, 200)
+            };
+
+            painter.rect_filled(
+                clip_rect,
+                CLIP_BG_ROUNDING,
+                bg_color,
+            );
+
+            painter.text(
+                clip_rect.left_top() + egui::vec2(CLIP_PADDING, CLIP_PADDING),
+                egui::Align2::LEFT_TOP,
+                &clip.name,
+                egui::FontId::proportional(TEXT_SIZE),
+                egui::Color32::WHITE,
+            );
+        }
     }
 
 
@@ -115,6 +160,15 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
             if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
                 clip.start_pos = new_pos.max(0.0);
+            }
+        }
+    }
+
+    for (t_id, clip_id, new_pos) in all_modified_midi_clips {
+        #[allow(clippy::collapsible_if)]
+        if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
+            if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
+                clip.start_beat = new_pos.max(0.0);
             }
         }
     }
