@@ -81,8 +81,8 @@
 
 ## Phase 30: アンドゥ・リドゥ (Undo / Redo) 機能の基盤実装
 > ユーザーが誤った操作を取り消したり、取り消しをやり直したりできる履歴管理機能（Undo / Redo）をバックエンドとフロントエンドに実装する。
-- [ ] [1] @A frontend/src-tauri/src/state/history.rs を作成し、`ProjectState` のスナップショット履歴を管理する `HistoryManager` 構造体（undo/redoスタック）を定義する (対象: frontend/src-tauri/src/state/history.rs)
-- [ ] [2] @A frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [3] @A frontend/src-tauri/src/engine/mod.rs または `AppState` 内に履歴管理のフィールドを追加し、各種操作時（クリップ追加など）に状態のスナップショットを保存する処理を組み込む (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/app.rs)
-- [ ] [4] @A frontend/src-tauri/src/app.rs に `undo` と `redo` の Tauri Command を実装し、履歴からプロジェクト状態を復元するようにする (対象: frontend/src-tauri/src/app.rs)
+- [x] [1] @A frontend/src-tauri/src/state/history.rs を作成し、`ProjectState` のスナップショット履歴を管理する `HistoryManager` 構造体（undo/redoスタック）を定義する (対象: frontend/src-tauri/src/state/history.rs)
+- [x] [2] @A frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [3] @A frontend/src-tauri/src/engine/mod.rs または `AppState` 内に履歴管理のフィールドを追加し、各種操作時（クリップ追加など）に状態のスナップショットを保存する処理を組み込む (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/app.rs)
+- [x] [4] @A frontend/src-tauri/src/app.rs に `undo` と `redo` の Tauri Command を実装し、履歴からプロジェクト状態を復元するようにする (対象: frontend/src-tauri/src/app.rs)
 - [ ] [5] @B frontend/src/components/Transport.svelte を更新し、Undo と Redo のUIボタンを追加して、Tauri Command を呼び出す連携処理を実装する (対象: frontend/src/components/Transport.svelte)
