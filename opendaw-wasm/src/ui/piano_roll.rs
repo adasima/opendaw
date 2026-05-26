@@ -1,7 +1,7 @@
 use egui::{Color32, Pos2, Rect, Sense, Stroke, Vec2, PointerButton};
 
 pub struct PianoRoll {
-    // notes are now in state.active_sequence
+    // notes are now in app.state.active_sequence
     pub pitch_bend_curve: Vec<(u32, f32)>, // (tick, bend_value -1.0 to 1.0)
 
     pan: Vec2,
@@ -29,12 +29,14 @@ impl Default for PianoRoll {
 pub fn draw_piano_roll(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
     ui.group(|ui| {
         ui.heading("Piano Roll & ARA2 / SV2 Editor");
-        app.piano_roll.show(ui, &mut app.state);
+        let mut piano_roll = std::mem::take(&mut app.piano_roll);
+        piano_roll.show(ui, app);
+        app.piano_roll = piano_roll;
     });
 }
 
 impl PianoRoll {
-    pub fn show(&mut self, ui: &mut egui::Ui, state: &mut crate::state::DawState) -> egui::Response {
+    pub fn show(&mut self, ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) -> egui::Response {
         let keys_width = 60.0;
         let response = ui.allocate_response(ui.available_size(), Sense::click_and_drag());
         let rect = response.rect;
@@ -62,8 +64,18 @@ impl PianoRoll {
 
             // Release drag
             if !i.pointer.button_down(PointerButton::Primary) {
+                let modified = self.dragging_note.is_some() || self.resizing_note.is_some();
                 self.dragging_note = None;
                 self.resizing_note = None;
+
+                if modified {
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
+                            crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                        }
+                    }
+                }
             }
         });
 
@@ -87,7 +99,7 @@ impl PianoRoll {
                 let hover_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
                 // Change cursor on hover
-                for note in state.active_sequence.notes.iter().rev() {
+                for note in app.state.active_sequence.notes.iter().rev() {
                     let note_rect = self.note_rect(note, grid_rect.min);
                     if note_rect.contains(pos) {
                         if pos.x > note_rect.max.x - 10.0 {
@@ -100,7 +112,7 @@ impl PianoRoll {
                 if response.drag_started_by(PointerButton::Primary) {
                     // Try to pick a note (reverse order so top note is picked)
                     let mut clicked_note = None;
-                    for note in state.active_sequence.notes.iter().rev() {
+                    for note in app.state.active_sequence.notes.iter().rev() {
                         let note_rect = self.note_rect(note, grid_rect.min);
                         if note_rect.contains(pos) {
                             clicked_note = Some(note.id);
@@ -118,25 +130,43 @@ impl PianoRoll {
                         // Add a new note
                         let snap_tick = (hover_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4);
 
-                        let id = state.active_sequence.add_note(hover_pitch, 100, snap_tick as f64 / self.ticks_per_beat as f64, 0.25);
-                        if let Some(last_note) = state.active_sequence.get_note(id) {
+                        let id = app.state.active_sequence.add_note(hover_pitch, 100, snap_tick as f64 / self.ticks_per_beat as f64, 0.25);
+                        if let Some(last_note) = app.state.active_sequence.get_note(id) {
                             let note_rect = self.note_rect(last_note, grid_rect.min);
                             self.dragging_note = Some((last_note.id, pos - note_rect.min));
+                        }
+
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
+                                crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                            }
                         }
                     }
                 } else if response.clicked_by(PointerButton::Secondary) {
                     // Delete note on right click
 
                     let mut to_remove = Vec::new();
-                    for n in &state.active_sequence.notes {
+                    for n in &app.state.active_sequence.notes {
                         if self.note_rect(n, grid_rect.min).contains(pos) {
                             to_remove.push(n.id);
                         }
                     }
+
+                    let mut removed_any = false;
                     for id in to_remove {
-                        state.active_sequence.remove_note(id);
+                        app.state.active_sequence.remove_note(id);
+                        removed_any = true;
                     }
 
+                    if removed_any {
+                        #[cfg(target_arch = "wasm32")]
+                        {
+                            if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
+                                crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -153,7 +183,7 @@ impl PianoRoll {
 
                     let new_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
-                    if let Some(note) = state.active_sequence.get_note_mut(id) {
+                    if let Some(note) = app.state.active_sequence.get_note_mut(id) {
                         note.start_beat = new_tick as f64 / self.ticks_per_beat as f64;
                         note.pitch = new_pitch;
                     }
@@ -165,7 +195,7 @@ impl PianoRoll {
                     let mut new_end_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
                     new_end_tick = (new_end_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4); // snap to 16th
 
-                    if let Some(note) = state.active_sequence.get_note_mut(id) {
+                    if let Some(note) = app.state.active_sequence.get_note_mut(id) {
                         if (new_end_tick as f64 / self.ticks_per_beat as f64) > note.start_beat {
                             note.duration_beats = (new_end_tick as f64 / self.ticks_per_beat as f64) - note.start_beat;
                         } else {
@@ -263,7 +293,7 @@ impl PianoRoll {
         }
 
         // 3. Draw Notes and Lyrics
-        for note in &state.active_sequence.notes {
+        for note in &app.state.active_sequence.notes {
             let note_rect = self.note_rect(note, grid_rect.min);
             if note_rect.max.x < grid_rect.min.x || note_rect.min.x > grid_rect.max.x ||
                note_rect.max.y < grid_rect.min.y || note_rect.min.y > grid_rect.max.y {

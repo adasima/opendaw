@@ -254,3 +254,23 @@ pub fn notify_midi_clip_moved(track_id: usize, clip_id: usize, new_start_beat: f
         let _ = tauri_invoke("move_midi_clip", js_value);
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+pub fn notify_update_midi_clip_notes(track_id: usize, clip_id: usize, notes: &Vec<crate::midi::sequence::NoteEvent>) {
+    #[derive(serde::Serialize)]
+    struct UpdateMidiClipNotesArgs<'a> {
+        track_id: usize,
+        clip_id: usize,
+        notes: &'a Vec<crate::midi::sequence::NoteEvent>,
+    }
+
+    let args = UpdateMidiClipNotesArgs {
+        track_id,
+        clip_id,
+        notes,
+    };
+
+    if let Ok(js_value) = serde_wasm_bindgen::to_value(&args) {
+        let _ = tauri_invoke("update_midi_clip_notes", js_value);
+    }
+}

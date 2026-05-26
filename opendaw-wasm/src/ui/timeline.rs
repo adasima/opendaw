@@ -118,7 +118,13 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
             );
 
             let clip_id = ui.make_persistent_id(format!("midi_clip_{}_{}", track.id, clip.id));
-            let clip_response = ui.interact(clip_rect, clip_id, egui::Sense::drag());
+            let clip_response = ui.interact(clip_rect, clip_id, egui::Sense::click_and_drag());
+
+            if clip_response.clicked() {
+                app.selected_track_id = Some(track.id);
+                app.selected_clip_id = Some(clip.id);
+                app.state.active_sequence = clip.sequence.clone();
+            }
 
             if clip_response.dragged() {
                 is_dragging_any = true;
