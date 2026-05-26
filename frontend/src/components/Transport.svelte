@@ -45,12 +45,22 @@
       console.error(e);
     }
   }
+
+  function handleUndo() {
+    invoke("undo").catch(console.error);
+  }
+
+  function handleRedo() {
+    invoke("redo").catch(console.error);
+  }
 </script>
 
 <div class="transport-container">
   <div class="transport-controls">
     <button class="transport-btn" onclick={handleSaveProject} title="Save Project">💾</button>
     <button class="transport-btn" onclick={handleLoadProject} title="Load Project">📂</button>
+    <button class="transport-btn" onclick={handleUndo} title="Undo">↩️</button>
+    <button class="transport-btn" onclick={handleRedo} title="Redo">↪️</button>
     <button class="transport-btn" onclick={onToggleLoop} title="Toggle Loop"
       >🔁</button
     >
