@@ -78,3 +78,51 @@ impl HistoryManager {
         self.redo_stack.clear();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_history_manager_undo_redo() {
+        let mut history = HistoryManager::new();
+        let initial_state = ProjectState::default();
+
+        let mut state1 = ProjectState::default();
+        state1.bpm = 130.0;
+
+        let mut state2 = ProjectState::default();
+        state2.bpm = 140.0;
+
+        history.save_snapshot(&initial_state);
+        history.save_snapshot(&state1);
+
+        // Undo 1
+        if let Some(prev_state) = history.undo(&state2) {
+            assert_eq!(prev_state.bpm, 130.0);
+
+            // Undo 2
+            if let Some(initial) = history.undo(&prev_state) {
+                assert_eq!(initial.bpm, 120.0);
+
+                // Redo 1
+                if let Some(redone1) = history.redo(&initial) {
+                    assert_eq!(redone1.bpm, 130.0);
+
+                    // Redo 2
+                    if let Some(redone2) = history.redo(&redone1) {
+                        assert_eq!(redone2.bpm, 140.0);
+                    } else {
+                        panic!("Expected second redo state");
+                    }
+                } else {
+                    panic!("Expected first redo state");
+                }
+            } else {
+                panic!("Expected initial state on second undo");
+            }
+        } else {
+            panic!("Expected previous state on first undo");
+        }
+    }
+}
