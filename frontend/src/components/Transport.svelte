@@ -7,6 +7,9 @@
     invoke("pause").catch(console.error);
   }
 
+  /**
+   * プロジェクトの状態をJSONファイルとして保存します。
+   */
   async function handleSaveProject() {
     try {
       const path = await save({
@@ -23,6 +26,9 @@
     }
   }
 
+  /**
+   * JSONファイルからプロジェクトの状態を読み込みます。
+   */
   async function handleLoadProject() {
     try {
       const path = await open({

@@ -77,4 +77,4 @@
 ## Phase 29: プロジェクトファイルの保存・読み込み機能の実装
 > ユーザーが現在のプロジェクト状態をファイルに保存し、後で読み込めるようにする機能。
 - [x] [1] @A frontend/src-tauri/src/app.rs に save_project と load_project のTauri Commandを実装する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [2] @B frontend/src/components/Transport.svelte に保存・読み込みボタンを追加し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
+- [x] [2] @B frontend/src/components/Transport.svelte に保存・読み込みボタンを追加し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
