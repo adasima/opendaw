@@ -30,4 +30,4 @@ Represents a collection of MIDI notes created and edited in the Piano Roll edito
 - [Tracks](tracks.md)
 
 ## Notes & Limitations
-> - In the current version, synchronization between the UI and backend (Tauri) via dragging clips works, but complete management functionality for MIDI clips and piano roll events is still partially under development (Phase 28).
+> - In the current version, synchronization between the UI and backend (Tauri) via dragging clips works.
