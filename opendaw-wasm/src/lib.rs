@@ -234,3 +234,23 @@ pub fn notify_clip_moved(track_id: usize, clip_id: usize, new_start_pos: f32) {
         let _ = tauri_invoke("move_audio_clip", js_value);
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+pub fn notify_midi_clip_moved(track_id: usize, clip_id: usize, new_start_beat: f64) {
+    #[derive(serde::Serialize)]
+    struct MoveMidiClipArgs {
+        track_id: usize,
+        clip_id: usize,
+        new_start_beat: f64,
+    }
+
+    let args = MoveMidiClipArgs {
+        track_id,
+        clip_id,
+        new_start_beat,
+    };
+
+    if let Ok(js_value) = serde_wasm_bindgen::to_value(&args) {
+        let _ = tauri_invoke("move_midi_clip", js_value);
+    }
+}
