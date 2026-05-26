@@ -66,10 +66,15 @@
 - [x] [2] @B opendaw-wasm/src/app.rs を更新し、Tauriからの `sync_project_state_json` でオーディオクリップの同期を確実に行えるようパース処理を改善する (対象: opendaw-wasm/src/app.rs)
 - [x] [3] @B opendaw-wasm/src/ui/timeline.rs を更新し、オーディオクリップのドラッグによる移動を実装し、状態変更を Tauri へ通知するイベントフローを構築する (対象: opendaw-wasm/src/ui/timeline.rs)
 
-## Phase 28: MIDIクリップの管理機能とピアノロールの連携 (Tauri & WASM統合) (進行中)
+## Phase 28: MIDIクリップの管理機能とピアノロールの連携 (Tauri & WASM統合) (完了)
 > タイムラインからMIDIクリップを追加・削除・移動できるようにし、ピアノロールの編集内容をTauriバックエンドへ同期する仕組みを構築する。
 - [x] [1] @A frontend/src-tauri/src/app.rs に `add_midi_clip`, `remove_midi_clip`, `move_midi_clip` などのTauri Commandを実装し、`ProjectState` を更新できるようにする (対象: frontend/src-tauri/src/app.rs)
 - [x] [2] @A frontend/src-tauri/src/app.rs に `update_midi_clip_notes` のTauri Commandを実装し、ピアノロールから送られたノート情報を更新できるようにする (対象: frontend/src-tauri/src/app.rs)
 - [x] [3] @B opendaw-wasm/src/app.rs を更新し、Tauriからの `sync_project_state_json` でMIDIクリップの同期を確実に行えるようパース処理を改善する (対象: opendaw-wasm/src/app.rs)
-- [ ] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、MIDIクリップのドラッグ移動を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、ノートの追加・削除・移動イベントをTauriへ通知する仕組みを実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [x] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、MIDIクリップのドラッグ移動を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [x] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、ノートの追加・削除・移動イベントをTauriへ通知する仕組みを実装する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+
+## Phase 29: プロジェクトファイルの保存・読み込み機能の実装
+> ユーザーが現在のプロジェクト状態をファイルに保存し、後で読み込めるようにする機能。
+- [ ] [1] @A frontend/src-tauri/src/app.rs に save_project と load_project のTauri Commandを実装する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] @B frontend/src/components/Transport.svelte に保存・読み込みボタンを追加し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
