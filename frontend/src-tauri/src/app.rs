@@ -92,10 +92,7 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
 /// プロジェクトの現在の状態をJSONとして取得する
 #[tauri::command]
 pub fn get_project_state(state: State<'_, AppState>) -> String {
-    let project_state_guard = match state.engine.project_state.read() {
-        Ok(guard) => guard,
-        Err(_) => return "{}".to_string(), // Lock was poisoned, return empty state
-    };
+    let project_state_guard = state.engine.project_state.read().unwrap_or_else(|e| e.into_inner());
     let mut project_state = project_state_guard.clone();
     project_state.is_playing = state.engine.is_playing();
     project_state.bpm = state.engine.get_bpm();
@@ -261,10 +258,7 @@ pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate:
 #[tauri::command]
 pub fn save_project(path: String, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Save project to {}", path);
-    let project_state_guard = match state.engine.project_state.read() {
-        Ok(guard) => guard,
-        Err(_) => return Err("Failed to acquire read lock on project state".into()),
-    };
+    let project_state_guard = state.engine.project_state.read().unwrap_or_else(|e| e.into_inner());
 
     let mut project_state = project_state_guard.clone();
     project_state.is_playing = state.engine.is_playing();
@@ -304,4 +298,26 @@ pub fn load_project(path: String, state: State<'_, AppState>) -> Result<(), Stri
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_save_load_project_serialize() {
+        let mut state = crate::state::ProjectState::default();
+        state.bpm = 130.0;
+        state.master_volume = 0.5;
+
+        let track = crate::state::Track::new(1, "Test Track");
+        state.tracks.push(track);
+
+        let json = serde_json::to_string(&state).unwrap();
+        let loaded: crate::state::ProjectState = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(loaded.bpm, 130.0);
+        assert_eq!(loaded.master_volume, 0.5);
+        assert_eq!(loaded.tracks.len(), 1);
+        assert_eq!(loaded.tracks[0].name, "Test Track");
+    }
 }
