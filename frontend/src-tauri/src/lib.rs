@@ -2,6 +2,7 @@ pub mod app;
 pub mod engine;
 pub mod midi;
 pub mod state;
+pub mod commands;
 
 use std::sync::Arc;
 use engine::EngineHandle;
@@ -26,28 +27,30 @@ pub fn run() {
             Ok(())
         })
                 .invoke_handler(tauri::generate_handler![
-            app::save_project,
-            app::load_project,
-            app::play,
-            app::pause,
-            app::stop,
-            app::set_bpm,
-            app::set_master_volume,
-            app::set_grid_settings,
-            app::get_midi_devices,
-            app::set_track_midi_routing,
-            app::get_project_state,
-            app::add_track,
-            app::remove_track,
-            app::add_audio_clip,
-            app::remove_audio_clip,
-            app::move_audio_clip,
-            app::add_midi_clip,
-            app::remove_midi_clip,
-            app::move_midi_clip,
-            app::update_midi_clip_notes,
-            app::undo,
-            app::redo
+            crate::commands::project::save_project,
+            crate::commands::project::load_project,
+            crate::commands::project::undo,
+            crate::commands::project::redo,
+            crate::commands::project::set_grid_settings,
+            crate::commands::project::get_project_state,
+            crate::commands::transport::play,
+            crate::commands::transport::pause,
+            crate::commands::transport::stop,
+            crate::commands::transport::set_bpm,
+            crate::commands::transport::set_master_volume,
+            crate::commands::transport::get_midi_devices,
+            crate::commands::track::add_track,
+            crate::commands::track::remove_track,
+            crate::commands::track::set_track_midi_routing,
+            crate::commands::track::set_track_volume,
+            crate::commands::track::set_track_pan,
+            crate::commands::clip::add_audio_clip,
+            crate::commands::clip::remove_audio_clip,
+            crate::commands::clip::move_audio_clip,
+            crate::commands::clip::add_midi_clip,
+            crate::commands::clip::remove_midi_clip,
+            crate::commands::clip::move_midi_clip,
+            crate::commands::clip::update_midi_clip_notes,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
