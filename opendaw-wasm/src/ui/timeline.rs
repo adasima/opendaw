@@ -66,7 +66,13 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 is_dragging_any = true;
                 let drag_delta_x = clip_response.drag_delta().x;
                 let delta_percent = (drag_delta_x / rect.width()) * TIMELINE_PERCENT_MAX;
-                all_modified_clips.push((track.id, clip.id, clip.start_pos + delta_percent));
+                let mut new_pos = clip.start_pos + delta_percent;
+
+                if app.state.is_grid_enabled {
+                    let snap_step = 100.0 / (app.state.grid_resolution as f32 * 4.0);
+                    new_pos = (new_pos / snap_step).round() * snap_step;
+                }
+                all_modified_clips.push((track.id, clip.id, new_pos));
             }
 
             if clip_response.drag_stopped() {
@@ -130,7 +136,13 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 is_dragging_any = true;
                 let drag_delta_x = clip_response.drag_delta().x;
                 let delta_percent = (drag_delta_x / rect.width()) * TIMELINE_PERCENT_MAX;
-                all_modified_midi_clips.push((track.id, clip.id, clip.start_beat + delta_percent as f64));
+                let mut new_pos = clip.start_beat + delta_percent as f64;
+
+                if app.state.is_grid_enabled {
+                    let snap_step = 100.0 / (app.state.grid_resolution as f64 * 4.0);
+                    new_pos = (new_pos / snap_step).round() * snap_step;
+                }
+                all_modified_midi_clips.push((track.id, clip.id, new_pos));
             }
 
             if clip_response.drag_stopped() {

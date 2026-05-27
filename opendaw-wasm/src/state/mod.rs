@@ -30,6 +30,8 @@ pub struct DawState {
     pub tracks: Vec<track::Track>,
     pub next_track_id: usize,
     pub active_sequence: Sequence,
+    pub is_grid_enabled: bool,
+    pub grid_resolution: u32,
 }
 
 impl Default for DawState {
@@ -46,6 +48,8 @@ impl Default for DawState {
             tracks: Vec::new(),
             next_track_id: 1,
             active_sequence: Sequence::new(),
+            is_grid_enabled: true,
+            grid_resolution: 4,
         }
     }
 }
