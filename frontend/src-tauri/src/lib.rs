@@ -33,6 +33,7 @@ pub fn run() {
             app::stop,
             app::set_bpm,
             app::set_master_volume,
+            app::set_grid_settings,
             app::get_midi_devices,
             app::set_track_midi_routing,
             app::get_project_state,

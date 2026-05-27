@@ -53,6 +53,28 @@
   function handleRedo() {
     invoke("redo").catch(console.error);
   }
+
+  let isGridEnabled = $state(true);
+  let gridResolution = $state(4); // デフォルトは1/4音符
+
+  /**
+   * グリッド設定をバックエンドに送信します。
+   */
+  async function handleGridSettingsChange() {
+    try {
+      await invoke("set_grid_settings", {
+        isEnabled: isGridEnabled,
+        resolution: parseInt(gridResolution.toString(), 10)
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function toggleGrid() {
+    isGridEnabled = !isGridEnabled;
+    handleGridSettingsChange();
+  }
 </script>
 
 <div class="transport-container">
@@ -76,6 +98,28 @@
     <span class="bpm-label">BPM:</span>
     <input type="number" class="bpm-number" bind:value={bpm} min="20" max="300" step="1" />
     <input type="range" class="bpm-slider" bind:value={bpm} min="20" max="300" step="1" />
+  </div>
+  <div class="grid-control">
+    <button
+      class="transport-btn grid-btn {isGridEnabled ? 'active' : ''}"
+      onclick={toggleGrid}
+      title="Toggle Grid Snap"
+    >
+      🧲
+    </button>
+    <select
+      class="grid-resolution-select"
+      bind:value={gridResolution}
+      onchange={handleGridSettingsChange}
+      disabled={!isGridEnabled}
+    >
+      <option value="1">1/1</option>
+      <option value="2">1/2</option>
+      <option value="4">1/4</option>
+      <option value="8">1/8</option>
+      <option value="16">1/16</option>
+      <option value="32">1/32</option>
+    </select>
   </div>
 </div>
 
@@ -169,5 +213,48 @@
 
   .bpm-slider {
     width: 100px;
+  }
+
+  .grid-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px inset rgba(255, 255, 255, 0.1);
+  }
+
+  .grid-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  .grid-btn.active {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary);
+  }
+
+  .grid-resolution-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--outline);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 4px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .grid-resolution-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .grid-resolution-select option {
+    background: #2a2a2a;
+    color: white;
   }
 </style>

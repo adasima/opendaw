@@ -104,6 +104,16 @@ pub fn set_master_volume(volume: f64, state: State<'_, AppState>) {
     state.engine.set_master_volume(volume);
 }
 
+/// グリッド設定を更新する
+#[tauri::command]
+pub fn set_grid_settings(is_enabled: bool, resolution: u32, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Project: Set Grid Settings: enabled={}, resolution={}", is_enabled, resolution);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    project_state.grid_settings.is_enabled = is_enabled;
+    project_state.grid_settings.resolution = resolution;
+    Ok(())
+}
+
 /// MIDIデバイスのリストを取得する
 #[tauri::command]
 pub fn get_midi_devices() -> Vec<String> {

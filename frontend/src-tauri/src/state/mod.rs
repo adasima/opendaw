@@ -4,11 +4,28 @@ pub mod history;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+/// グリッドスナップの設定を保持する構造体
+pub struct GridSettings {
+    pub is_enabled: bool,
+    pub resolution: u32,
+}
+
+impl Default for GridSettings {
+    fn default() -> Self {
+        Self {
+            is_enabled: true,
+            resolution: 4, // 1/4 (四分音符) をデフォルト
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 /// プロジェクトの全体状態を保持する構造体
 pub struct ProjectState {
     pub is_playing: bool,
     pub bpm: f64,
     pub master_volume: f64,
+    pub grid_settings: GridSettings,
     pub tracks: Vec<Track>,
 }
 
@@ -18,6 +35,7 @@ impl Default for ProjectState {
             is_playing: false,
             bpm: 120.0,
             master_volume: 0.8,
+            grid_settings: GridSettings::default(),
             tracks: Vec::new(),
         }
     }
