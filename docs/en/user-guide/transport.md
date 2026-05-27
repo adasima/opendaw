@@ -6,12 +6,16 @@
 The transport control is necessary to manipulate the playback position (playhead) on the timeline and manage the playback state of the project. It is located in the main panel at the bottom center of the screen.
 
 ## Basic Usage
-1. Click the **⏺ (Record)** button to toggle recording mode. While recording, the button changes to a red **⏺ (On)**.
-2. Click the **▶ (Play)** button to start playback. While playing, the button changes to **⏸ (Pause)**.
-3. Click the **⏸ (Pause)** button to pause playback.
-4. Click the **⏹ (Stop)** button to stop playback and return the playhead to the beginning (0.0).
-5. Click the **🔁 (Loop)** button to toggle loop playback on and off. When loop is on, playback will automatically restart from the beginning when it reaches the end of the timeline.
-6. Click the **⏱ (Metronome)** button to toggle the metronome on and off.
+1. Click the **💾 (Save Project)** button to save the current project state to a file.
+2. Click the **📂 (Load Project)** button to load a saved project file.
+3. Click the **↩️ (Undo)** button to revert the previous project editing action.
+4. Click the **↪️ (Redo)** button to re-apply the reverted action.
+5. Click the **⏺ (Record)** button to toggle recording mode. While recording, the button changes to a red **⏺ (On)**.
+6. Click the **▶ (Play)** button to start playback. While playing, the button changes to **⏸ (Pause)**.
+7. Click the **⏸ (Pause)** button to pause playback.
+8. Click the **⏹ (Stop)** button to stop playback and return the playhead to the beginning (0.0).
+9. Click the **🔁 (Loop)** button to toggle loop playback on and off. When loop is on, playback will automatically restart from the beginning when it reaches the end of the timeline.
+10. Click the **⏱ (Metronome)** button to toggle the metronome on and off.
 
 ## Detailed Settings
 
