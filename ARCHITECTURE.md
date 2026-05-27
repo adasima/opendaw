@@ -5,7 +5,7 @@
 ## モジュール構造 (Tauri + Svelte + egui(WASM) ハイブリッド構成)
 
 ```
-src-tauri/               # Tauri バックエンド (Rust)
+frontend/src-tauri/      # Tauri バックエンド (Rust)
 ├── src/
 │   ├── main.rs          # エントリーポイント（Tauri起動 + Tokioランタイム）
 │   ├── app.rs           # アプリケーション状態管理、Tauriコマンド (IPC)
@@ -20,7 +20,7 @@ src-tauri/               # Tauri バックエンド (Rust)
 │   ├── state/           # バックエンド状態
 │   └── mcp/             # MCPサーバー
 │
-src/                     # フロントエンド UI枠組み (Svelte + TypeScript)
+frontend/src/            # フロントエンド UI枠組み (Svelte + TypeScript)
 ├── App.svelte           # ルートコンポーネント
 ├── components/          # UIコンポーネント (ミキサー、トラックパネルなど)
 │   ├── DeviceChain.svelte # インストゥルメント/エフェクト・ラックUI
@@ -80,5 +80,5 @@ opendaw-wasm/            # フロントエンド描画エンジン (Rust + egui 
 - バックエンド(Rust)はコアロジックとオーディオ処理に専念。
 
 ### 4. ハイブリッド開発（聖域ルール）
-- `src-tauri/src/core/` や `src-tauri/src/plugin/` などの高度な基盤ディレクトリは「聖域（Sanctuary）」とし、人間（ユーザー）が直接管理・実装を行います。
+- `frontend/src-tauri/src/core/` や `frontend/src-tauri/src/plugin/` などの高度な基盤ディレクトリは「聖域（Sanctuary）」とし、人間（ユーザー）が直接管理・実装を行います。
 - AIエージェントはこれらの聖域ディレクトリ内のファイルを直接変更してはいけません。
