@@ -8,7 +8,7 @@
 frontend/src-tauri/      # Tauri バックエンド (Rust)
 ├── src/
 │   ├── main.rs          # エントリーポイント（Tauri起動 + Tokioランタイム）
-│   ├── app.rs           # アプリケーション状態管理、Tauriコマンド (IPC)
+│   ├── app.rs           # アプリケーション状態管理
 │   ├── commands/        # Tauri コマンド (プロジェクト、トラック、クリップ等の操作)
 │   ├── engine/          # オーディオエンジン（リアルタイムスレッド）
 │   │   ├── mod.rs

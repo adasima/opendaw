@@ -113,7 +113,7 @@
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
 - [ ] [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
 - [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画とポイントの追加・移動（ドラッグ）のUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 - [ ] [5] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
@@ -122,7 +122,7 @@
 ## Phase 34: サブバス / センド＆リターン・ルーティング
 > 複数トラックをグループ化するサブバス、およびリバーブ等の空間系エフェクト用センドトラック。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/track.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/track.rs)
 - [ ] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
 - [ ] 人間: オーディオエンジンのグラフ処理順序をトポロジカルソートし、バス階層に応じたレンダリングを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
 
@@ -136,7 +136,7 @@
 ## Phase 36: インストゥルメント / エフェクト・ラックとマクロコントロール (Ableton Live風)
 > 複数のプラグインやエフェクトを一つの「ラック」にまとめ、パラレル処理や単一のマクロノブで複数パラメータを同時制御する機能。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内に複数のデバイスをグループ化する `DeviceRack` のデータ構造を追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、ラック内にデバイスを追加・削除・並べ替えるTauri Commandを追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/plugin.rs に、ラック内にデバイスを追加・削除・並べ替えるTauri Commandを追加する (対象: frontend/src-tauri/src/commands/plugin.rs)
 - [ ] [3] frontend/src/components/DeviceChain.svelte (新規) を作成し、トラックの下部または別パネルでデバイスチェーン/ラックの内容を水平方向に表示するUIを実装する (対象: frontend/src/components/DeviceChain.svelte, frontend/src/App.svelte)
 - [ ] [4] frontend/src/components/DeviceChain.svelte に、複数パラメータを1つのノブで操作できる「マクロコントロール」のUIを実装する (対象: frontend/src/components/DeviceChain.svelte)
 - [ ] 人間: オーディオエンジンに並列処理グラフノードを追加し、ラック内のデバイス間の音声・MIDI信号のルーティングを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
@@ -144,26 +144,26 @@
 ## Phase 37: コードトラックとハーモニーの自動追従 (Studio One風)
 > 楽曲のコード進行を専用トラックで管理し、それに合わせてMIDIやオーディオのピッチが自動追従（移調）する作曲支援機能。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` に `ChordTrack` （時間とコード情報のリスト）のフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、コードイベントを追加・編集・削除する Tauri Command を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/project.rs に、コードイベントを追加・編集・削除する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/project.rs)
 - [ ] [3] opendaw-wasm/src/ui/timeline.rs を更新し、タイムライン上部に専用のコードトラックレーンを描画し、コード名（例: "Cmaj7"）を表示・編集するUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 - [ ] 人間: MIDIクリップ再生時に、現在のコードスケールに合わせてノートをリアルタイムに移調するエンジンを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 38: スクラッチパッド / アレンジ実験エリア (Studio One風)
 > メインのアレンジを壊さずにアイデア（Aメロ別バージョンなど）を試せる機能。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` に複数のタイムライン（`Arrangement`）を保持し、現在アクティブなものを切り替えられるデータ構造を実装する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、アレンジメントの追加・削除・切り替えを行う Tauri Command を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/project.rs に、アレンジメントの追加・削除・切り替えを行う Tauri Command を追加する (対象: frontend/src-tauri/src/commands/project.rs)
 - [ ] [3] frontend/src/components/Transport.svelte または新しいコントロールパネルを更新し、アクティブなアレンジメント/スクラッチパッドを選択するドロップダウンを実装する (対象: frontend/src/components/Transport.svelte)
 - [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、画面を分割してメインアレンジとスクラッチパッドを並べて表示し、両者間でクリップをD&D移動できるUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 
 ## Phase 39: リアルタイム・タイムワープとグルーヴ (Ableton Live風)
 > オーディオのタイミングをリアルタイムで伸縮・補正（ワープ）する機能と、MIDIのスウィング感を管理するグルーヴ機能。
 - [ ] [1] frontend/src-tauri/src/state/clip.rs を更新し、`AudioClip` にワープマーカー（オーディオ内の時間とタイムライン上の時間のマッピング）のリストを追加する (対象: frontend/src-tauri/src/state/clip.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、ワープマーカーを追加・移動・削除する Tauri Command を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [2] frontend/src-tauri/src/commands/clip.rs に、ワープマーカーを追加・移動・削除する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/clip.rs)
 - [ ] [3] opendaw-wasm/src/ui/timeline.rs を更新し、オーディオクリップ上にワープマーカーを描画し、ドラッグでタイミングを調整できるUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 - [ ] 人間: `rubato` 等のRustリサンプリングクレートを用いた高品質なタイムストレッチアルゴリズムをオーディオエンジンに統合し、ワープマーカーに従ってリアルタイムに再生速度を可変させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 40: MCP / Max for Live ライクなエージェントAPI統合
 > DAW自体がMCPサーバーとしてAPIを公開し、外部AIや自作スクリプトで独自のAIジェネレーターやエフェクトを簡単に組み込めるようにする拡張機能。
 - [ ] 人間: TauriコマンドおよびRustのコアロジックをラップするMCPサーバ機能を実装し、外部エージェントからの操作を受け付ける (対象: frontend/src-tauri/src/mcp/)
-- [ ] [1] frontend/src-tauri/src/app.rs を更新し、MCPサーバーの起動・停止やポート設定を行う Tauri Command を実装する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [1] frontend/src-tauri/src/commands/project.rs を更新し、MCPサーバーの起動・停止やポート設定を行う Tauri Command を実装する (対象: frontend/src-tauri/src/commands/project.rs)
 - [ ] [2] frontend/src/components/TrackDetails.svelte などの設定画面に、MCPサーバーのステータス表示や設定パネルを追加する (対象: frontend/src/components/TrackDetails.svelte)
