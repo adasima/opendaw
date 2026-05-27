@@ -95,19 +95,20 @@
 - [x] [5] opendaw-wasm/src/ui/piano_roll.rs を更新し、MIDIノートの追加・移動・長さ変更時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/piano_roll.rs)
 - [x] [6] frontend/src/components/Transport.svelte または新しいコントロールパネルを更新し、グリッドの有効/無効や分解能を変更するUIを実装し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
 
+## Phase 32: コードのリファクタリングとプラグインホスティング（VST3 / CLAP）の完全統合
+> Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
+- [ ] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
+- [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: src-tauri/src/plugin/host.rs)
+- [ ] [1] frontend/src-tauri/src/state/track.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/track.rs)
+- [ ] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
+- [ ] [3] frontend/src/components/PluginBrowser.svelte を更新し、プラグインをトラックにロードするためのUI連携（D&Dまたはクリック）を実装する (対象: frontend/src/components/PluginBrowser.svelte, frontend/src/components/Tracks.svelte)
+- [ ] [4] frontend/src/components/TrackDetails.svelte を更新し、選択されたトラックにロードされているプラグイン一覧を表示し、プラグインGUIを開くボタンを追加する (対象: frontend/src/components/TrackDetails.svelte)
+
 ---
 
 ## 🚀 今後のマイルストーン（商業DAW水準 ＆ Live / Studio One 融合）
 
 > 以下のフェーズは、商業DAWに迫るクオリティを実現し、Ableton Liveの非線形なクリエイティビティとStudio Oneの直感的なワークフローを融合させるためのアイデアストックです。Architectエージェントはこれらを参考にし、必要に応じて詳細なタスクへ分解してください。（順不同で着手可能）
-
-## Phase 32: プラグインホスティング（VST3 / CLAP）の完全統合とオーディオグラフ
-> 実際のオーディオグラフ内でプラグインを動作させ、音声信号を処理する。
-- [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: src-tauri/src/plugin/host.rs)
-- [ ] [1] frontend/src-tauri/src/state/track.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/track.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs に、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [3] frontend/src/components/PluginBrowser.svelte を更新し、プラグインをトラックにロードするためのUI連携（D&Dまたはクリック）を実装する (対象: frontend/src/components/PluginBrowser.svelte, frontend/src/components/Tracks.svelte)
-- [ ] [4] frontend/src/components/TrackDetails.svelte を更新し、選択されたトラックにロードされているプラグイン一覧を表示し、プラグインGUIを開くボタンを追加する (対象: frontend/src/components/TrackDetails.svelte)
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
