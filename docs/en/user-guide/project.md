@@ -24,6 +24,7 @@ Currently, a project file (`.aura`) contains the following information:
 | BPM | The tempo of the project (Beats Per Minute) |
 | Master Volume | The overall output volume |
 | Track Information | Names and settings of each added track |
+| Grid Settings | The enabled/disabled state of the grid and its resolution (e.g., 1/4) |
 
 *Note: Temporary playback states, such as whether playback is active or the playhead position, are not saved and will be reset to their initial state upon loading.
 
