@@ -23,6 +23,7 @@ src-tauri/               # Tauri バックエンド (Rust)
 src/                     # フロントエンド UI枠組み (Svelte + TypeScript)
 ├── App.svelte           # ルートコンポーネント
 ├── components/          # UIコンポーネント (ミキサー、トラックパネルなど)
+│   ├── DeviceChain.svelte # インストゥルメント/エフェクト・ラックUI
 ├── lib/                 # Tauri IPC呼び出し、フロントエンド状態管理
 └── assets/              # 静的リソース
 │
