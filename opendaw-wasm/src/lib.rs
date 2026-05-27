@@ -76,12 +76,12 @@ pub fn start(canvas_id: &str) {
     // WASM関数のために送信機を保持
     MCP_TX.with(|tx| *tx.borrow_mut() = Some(mcp_tx));
 
-    let document = web_sys::window().unwrap().document().unwrap();
+    let document = web_sys::window().expect("no global `window` exists").document().expect("should have a document on window");
     let canvas = document
         .get_element_by_id(canvas_id)
         .expect("failed to find canvas")
         .dyn_into::<web_sys::HtmlCanvasElement>()
-        .unwrap();
+        .expect("element is not a canvas");
 
     wasm_bindgen_futures::spawn_local(async move {
         let result = eframe::WebRunner::new()

@@ -319,8 +319,8 @@ pub fn update_midi_clip_notes(track_id: usize, clip_id: usize, notes: Vec<crate:
             // 新しい Sequence を作り、notes を設定し、
             // 次のIDが適切になるようにするため、add_note_eventを使う
             let mut new_seq = crate::midi::sequence::Sequence::new();
-            for note in clip.sequence.notes.clone() {
-                new_seq.add_note_event(note);
+            for note in &clip.sequence.notes {
+                new_seq.add_note_event(note.clone());
             }
             clip.sequence = new_seq;
 
