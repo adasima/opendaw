@@ -53,6 +53,7 @@ pub struct Track {
     pub is_record_armed: bool,
     pub clips: Vec<clip::AudioClip>,
     pub midi_clips: Vec<clip::MidiClip>,
+    pub plugins: Vec<String>,
 }
 
 impl Track {
@@ -68,6 +69,7 @@ impl Track {
             is_record_armed: false,
             clips: Vec::new(),
             midi_clips: Vec::new(),
+            plugins: Vec::new(),
         }
     }
 }
