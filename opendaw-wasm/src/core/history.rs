@@ -148,15 +148,15 @@ mod tests {
         assert!(!history.can_undo());
         assert!(!history.can_redo());
 
-        history.execute_command(cmd1).unwrap();
+        history.execute_command(cmd1).expect("Failed to execute cmd1");
         assert!(history.can_undo());
         
-        history.execute_command(cmd2).unwrap();
+        history.execute_command(cmd2).expect("Failed to execute cmd2");
         
-        history.undo().unwrap(); // undo cmd2
+        history.undo().expect("Failed to undo cmd2"); // undo cmd2
         assert!(history.can_redo());
         
-        history.redo().unwrap(); // redo cmd2
+        history.redo().expect("Failed to redo cmd2"); // redo cmd2
         assert!(history.can_undo());
     }
 }
