@@ -71,3 +71,23 @@ impl Track {
         }
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_grid_settings_default() {
+        let settings = GridSettings::default();
+        assert_eq!(settings.is_enabled, true);
+        assert_eq!(settings.resolution, 4);
+    }
+
+    #[test]
+    fn test_project_state_default() {
+        let state = ProjectState::default();
+        assert_eq!(state.grid_settings.is_enabled, true);
+        assert_eq!(state.grid_settings.resolution, 4);
+    }
+}
