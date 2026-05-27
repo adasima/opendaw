@@ -31,3 +31,10 @@ In the current version, there are no keyboard shortcuts dedicated to transport o
 
 ## Notes and Limitations
 > In the current version, changing the BPM simply affects the overall playback speed proportionally. Also, the playhead position is managed as a percentage (0.0 to 100.0), and the virtual time (Time) is calculated and displayed based on the playhead position.
+
+## Grid Settings
+A feature that snaps the placement and movement of clips and MIDI notes on the timeline and piano roll to a specified resolution (beats or measures).
+
+1. Click the **Grid Button** in the transport panel to toggle grid snap on or off.
+2. Select the snapping unit from the adjacent **Resolution Dropdown** (e.g., `1/4`, `1/8`, `1/16`).
+3. When the grid is enabled, dragging clips or adding, moving, and resizing notes in the piano roll will automatically snap to the selected resolution.

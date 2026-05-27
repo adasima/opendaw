@@ -31,3 +31,6 @@ In the current version, there are no keyboard shortcuts dedicated to timeline op
 
 ## Notes and Limitations
 > The playhead position is managed as a percentage (0.0 to 100.0).
+
+## Grid Snap
+When moving clips, if the grid setting is enabled in the transport panel, they will automatically snap to the selected resolution (beats or measures).

@@ -30,3 +30,6 @@ In the current version, the piano roll interface operates based on the following
 
 ## Notes & Limitations
 > - Currently, when a note is added, its velocity (100) is set as a fixed value.
+
+## Grid Snap
+When adding, moving, or resizing notes on the piano roll, if the grid setting is enabled in the transport panel, the operation will snap to the selected resolution.
