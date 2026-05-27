@@ -97,7 +97,7 @@
 
 ## Phase 32: コードのリファクタリングとプラグインホスティング（VST3 / CLAP）の完全統合
 > Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
-- [ ] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
+- [x] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: src-tauri/src/plugin/host.rs)
 - [ ] [1] frontend/src-tauri/src/state/track.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/track.rs)
 - [ ] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
