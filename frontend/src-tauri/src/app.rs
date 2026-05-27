@@ -392,8 +392,8 @@ mod tests {
         let track = crate::state::Track::new(1, "Test Track");
         state.tracks.push(track);
 
-        let json = serde_json::to_string(&state).unwrap();
-        let loaded: crate::state::ProjectState = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&state).expect("Failed to serialize state");
+        let loaded: crate::state::ProjectState = serde_json::from_str(&json).expect("Failed to deserialize state");
 
         assert_eq!(loaded.bpm, 130.0);
         assert_eq!(loaded.master_volume, 0.5);
