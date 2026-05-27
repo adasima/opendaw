@@ -1,4 +1,5 @@
 pub mod app;
+pub mod commands;
 pub mod engine;
 pub mod midi;
 pub mod state;
@@ -26,28 +27,28 @@ pub fn run() {
             Ok(())
         })
                 .invoke_handler(tauri::generate_handler![
-            app::save_project,
-            app::load_project,
-            app::play,
-            app::pause,
-            app::stop,
-            app::set_bpm,
-            app::set_master_volume,
-            app::set_grid_settings,
-            app::get_midi_devices,
-            app::set_track_midi_routing,
-            app::get_project_state,
-            app::add_track,
-            app::remove_track,
-            app::add_audio_clip,
-            app::remove_audio_clip,
-            app::move_audio_clip,
-            app::add_midi_clip,
-            app::remove_midi_clip,
-            app::move_midi_clip,
-            app::update_midi_clip_notes,
-            app::undo,
-            app::redo
+            commands::project::save_project,
+            commands::project::load_project,
+            commands::transport::play,
+            commands::transport::pause,
+            commands::transport::stop,
+            commands::transport::set_bpm,
+            commands::track::set_master_volume,
+            commands::project::set_grid_settings,
+            commands::track::get_midi_devices,
+            commands::track::set_track_midi_routing,
+            commands::project::get_project_state,
+            commands::track::add_track,
+            commands::track::remove_track,
+            commands::clip::add_audio_clip,
+            commands::clip::remove_audio_clip,
+            commands::clip::move_audio_clip,
+            commands::clip::add_midi_clip,
+            commands::clip::remove_midi_clip,
+            commands::clip::move_midi_clip,
+            commands::clip::update_midi_clip_notes,
+            commands::project::undo,
+            commands::project::redo
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
