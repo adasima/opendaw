@@ -1,0 +1,26 @@
+🚀 Nova(@B): [Phase 31 グリッドスナップとクオンタイズ機能の実装]
+
+💡 **何を**:
+- opendaw-wasmのDawStateにグリッドの有効/無効状態(`is_grid_enabled`)と分解能(`grid_resolution`)を追加し、Tauriから同期されるJSONをパースして反映する処理を実装しました。
+- タイムラインキャンバスでのオーディオクリップ、MIDIクリップのドラッグ移動時に、グリッド設定に基づくスナップ処理を適用しました。
+- ピアノロールでのMIDIノートの追加・移動・長さ変更時に、グリッド設定に基づくスナップ処理を適用しました。
+
+🎯 **なぜ**:
+ROADMAP.mdのPhase 31「グリッドスナップとクオンタイズ機能の実装」タスク [3], [4], [5] (@B) を完了させるためです。
+
+📁 **変更ファイル**:
+- `opendaw-wasm/src/app.rs`
+- `opendaw-wasm/src/state/mod.rs`
+- `opendaw-wasm/src/ui/piano_roll.rs`
+- `opendaw-wasm/src/ui/timeline.rs`
+- `ROADMAP.md`
+
+✅ **検証**:
+- `cargo test --manifest-path opendaw-wasm/Cargo.toml`
+- `cargo clippy --manifest-path opendaw-wasm/Cargo.toml -- -D warnings`
+- `cargo test --manifest-path frontend/src-tauri/Cargo.toml`
+- `wasm-pack build --target web`
+- `npm run build`
+すべてのテストとビルドが正常に通ることを確認しました。
+
+PR created automatically by Jules

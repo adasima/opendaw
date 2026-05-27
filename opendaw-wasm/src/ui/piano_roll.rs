@@ -128,7 +128,12 @@ impl PianoRoll {
 
                     if clicked_note.is_none() {
                         // Add a new note
-                        let snap_tick = (hover_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4);
+                        let mut snap_tick = hover_tick;
+                        if app.state.is_grid_enabled {
+                            let snap_step = self.ticks_per_beat / app.state.grid_resolution;
+                            snap_tick = (hover_tick / snap_step) * snap_step;
+                        }
+
 
                         let id = app.state.active_sequence.add_note(hover_pitch, 100, snap_tick as f64 / self.ticks_per_beat as f64, 0.25);
                         if let Some(last_note) = app.state.active_sequence.get_note(id) {
@@ -179,7 +184,10 @@ impl PianoRoll {
                     let grid_pos = new_pos - grid_rect.min + self.pan;
 
                     let mut new_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
-                    new_tick = (new_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4); // snap to 16th
+                    if app.state.is_grid_enabled {
+                        let snap_step = self.ticks_per_beat / app.state.grid_resolution;
+                        new_tick = (new_tick / snap_step) * snap_step;
+                    }
 
                     let new_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
@@ -193,7 +201,10 @@ impl PianoRoll {
                 if let Some(pos) = pointer_pos {
                     let grid_pos = pos - grid_rect.min + self.pan;
                     let mut new_end_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
-                    new_end_tick = (new_end_tick / (self.ticks_per_beat / 4)) * (self.ticks_per_beat / 4); // snap to 16th
+                    if app.state.is_grid_enabled {
+                        let snap_step = self.ticks_per_beat / app.state.grid_resolution;
+                        new_end_tick = (new_end_tick / snap_step) * snap_step;
+                    }
 
                     if let Some(note) = app.state.active_sequence.get_note_mut(id) {
                         if (new_end_tick as f64 / self.ticks_per_beat as f64) > note.start_beat {
@@ -268,7 +279,12 @@ impl PianoRoll {
         let min_tick = (self.pan.x / self.pixels_per_tick).max(0.0) as u32;
         let max_tick = min_tick + (grid_rect.width() / self.pixels_per_tick) as u32;
 
-        let snap_step = self.ticks_per_beat / 4;
+        let snap_step = if app.state.is_grid_enabled {
+            self.ticks_per_beat / app.state.grid_resolution
+        } else {
+            self.ticks_per_beat / 4 // fallback to visual default
+        };
+
         let mut t = (min_tick / snap_step) * snap_step;
         while t <= max_tick {
             let x = grid_rect.min.x + t as f32 * self.pixels_per_tick - self.pan.x;

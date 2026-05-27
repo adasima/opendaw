@@ -211,6 +211,15 @@ impl OpenDawApp {
             if let Some(vol) = parsed.get("master_volume").and_then(|v| v.as_f64()) {
                 self.state.master_volume = vol as f32;
             }
+            // grid_settings
+            if let Some(grid_settings) = parsed.get("grid_settings") {
+                if let Some(is_enabled) = grid_settings.get("is_enabled").and_then(|v| v.as_bool()) {
+                    self.state.is_grid_enabled = is_enabled;
+                }
+                if let Some(resolution) = grid_settings.get("resolution").and_then(|v| v.as_u64()) {
+                    self.state.grid_resolution = resolution as u32;
+                }
+            }
             // tracks
             if let Some(tracks_array) = parsed.get("tracks").and_then(|v| v.as_array()) {
                 for track_val in tracks_array {
