@@ -28,6 +28,7 @@ In the current version, there are no keyboard shortcuts dedicated to timeline op
 - [Transport Control](../user-guide/transport.md)
 - [Recording](../user-guide/recording.md)
 - [Clips](../user-guide/clips.md)
+- [Grid Snap](../user-guide/grid-snap.md)
 
 ## Notes and Limitations
 > The playhead position is managed as a percentage (0.0 to 100.0).

@@ -28,6 +28,7 @@
 - [トランスポートコントロール](../user-guide/transport.md)
 - [録音 (Recording)](../user-guide/recording.md)
 - [クリップ (Clips)](../user-guide/clips.md)
+- [グリッドスナップ](../user-guide/grid-snap.md)
 
 ## 注意事項・制限
 > プレイヘッドの位置はパーセンテージ（0.0 〜 100.0）で管理されています。

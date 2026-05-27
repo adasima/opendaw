@@ -28,6 +28,7 @@ In the current version, there are no keyboard shortcuts dedicated to transport o
 ## See Also
 - [Timeline & Waveform](../user-guide/timeline.md)
 - [Metronome](../user-guide/metronome.md)
+- [Grid Snap](../user-guide/grid-snap.md)
 
 ## Notes and Limitations
 > In the current version, changing the BPM simply affects the overall playback speed proportionally. Also, the playhead position is managed as a percentage (0.0 to 100.0), and the virtual time (Time) is calculated and displayed based on the playhead position.
