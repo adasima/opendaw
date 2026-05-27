@@ -85,4 +85,13 @@
 - [x] [2] @A frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
 - [x] [3] @A frontend/src-tauri/src/engine/mod.rs または `AppState` 内に履歴管理のフィールドを追加し、各種操作時（クリップ追加など）に状態のスナップショットを保存する処理を組み込む (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/app.rs)
 - [x] [4] @A frontend/src-tauri/src/app.rs に `undo` と `redo` の Tauri Command を実装し、履歴からプロジェクト状態を復元するようにする (対象: frontend/src-tauri/src/app.rs)
-- [ ] [5] @B frontend/src/components/Transport.svelte を更新し、Undo と Redo のUIボタンを追加して、Tauri Command を呼び出す連携処理を実装する (対象: frontend/src/components/Transport.svelte)
+- [x] [5] @B frontend/src/components/Transport.svelte を更新し、Undo と Redo のUIボタンを追加して、Tauri Command を呼び出す連携処理を実装する (対象: frontend/src/components/Transport.svelte)
+
+## Phase 31: グリッドスナップとクオンタイズ機能の実装
+> タイムラインやピアノロールでのクリップ・MIDIノートの配置時に、拍や小節などのグリッドにスナップ（吸着）する機能を実装する。
+- [ ] [1] @A frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` にグリッド設定（有効/無効、分解能など）のフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [ ] [2] @A frontend/src-tauri/src/app.rs にグリッド設定を更新する Tauri Command (`set_grid_settings`) を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [3] @B opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからグリッド設定をパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
+- [ ] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、クリップのドラッグ移動時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、MIDIノートの追加・移動・長さ変更時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [ ] [6] @A frontend/src/components/Transport.svelte または新しいコントロールパネルを更新し、グリッドの有効/無効や分解能を変更するUIを実装し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
