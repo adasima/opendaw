@@ -76,22 +76,68 @@
 
 ## Phase 29: プロジェクトファイルの保存・読み込み機能の実装
 > ユーザーが現在のプロジェクト状態をファイルに保存し、後で読み込めるようにする機能。
-- [x] [1] @A frontend/src-tauri/src/app.rs に save_project と load_project のTauri Commandを実装する (対象: frontend/src-tauri/src/app.rs)
-- [x] [2] @B frontend/src/components/Transport.svelte に保存・読み込みボタンを追加し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
-
 ## Phase 30: アンドゥ・リドゥ (Undo / Redo) 機能の基盤実装
 > ユーザーが誤った操作を取り消したり、取り消しをやり直したりできる履歴管理機能（Undo / Redo）をバックエンドとフロントエンドに実装する。
-- [x] [1] @A frontend/src-tauri/src/state/history.rs を作成し、`ProjectState` のスナップショット履歴を管理する `HistoryManager` 構造体（undo/redoスタック）を定義する (対象: frontend/src-tauri/src/state/history.rs)
-- [x] [2] @A frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
-- [x] [3] @A frontend/src-tauri/src/engine/mod.rs または `AppState` 内に履歴管理のフィールドを追加し、各種操作時（クリップ追加など）に状態のスナップショットを保存する処理を組み込む (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/app.rs)
-- [x] [4] @A frontend/src-tauri/src/app.rs に `undo` と `redo` の Tauri Command を実装し、履歴からプロジェクト状態を復元するようにする (対象: frontend/src-tauri/src/app.rs)
-- [x] [5] @B frontend/src/components/Transport.svelte を更新し、Undo と Redo のUIボタンを追加して、Tauri Command を呼び出す連携処理を実装する (対象: frontend/src/components/Transport.svelte)
+- [x] [1] frontend/src-tauri/src/state/history.rs を作成し、`ProjectState` のスナップショット履歴を管理する `HistoryManager` 構造体（undo/redoスタック）を定義する (対象: frontend/src-tauri/src/state/history.rs)
+- [x] [2] frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [3] frontend/src-tauri/src/engine/mod.rs または `AppState` 内に履歴管理のフィールドを追加し、各種操作時（クリップ追加など）に状態のスナップショットを保存する処理を組み込む (対象: frontend/src-tauri/src/engine/mod.rs, frontend/src-tauri/src/app.rs)
+- [x] [4] frontend/src-tauri/src/app.rs に `undo` と `redo` の Tauri Command を実装し、履歴からプロジェクト状態を復元するようにする (対象: frontend/src-tauri/src/app.rs)
+- [x] [5] frontend/src/components/Transport.svelte を更新し、Undo と Redo のUIボタンを追加して、Tauri Command を呼び出す連携処理を実装する (対象: frontend/src/components/Transport.svelte)
 
 ## Phase 31: グリッドスナップとクオンタイズ機能の実装
 > タイムラインやピアノロールでのクリップ・MIDIノートの配置時に、拍や小節などのグリッドにスナップ（吸着）する機能を実装する。
-- [ ] [1] @A frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` にグリッド設定（有効/無効、分解能など）のフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] @A frontend/src-tauri/src/app.rs にグリッド設定を更新する Tauri Command (`set_grid_settings`) を追加する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [3] @B opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからグリッド設定をパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
-- [ ] [4] @B opendaw-wasm/src/ui/timeline.rs を更新し、クリップのドラッグ移動時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [5] @B opendaw-wasm/src/ui/piano_roll.rs を更新し、MIDIノートの追加・移動・長さ変更時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/piano_roll.rs)
-- [ ] [6] @A frontend/src/components/Transport.svelte または新しいコントロールパネルを更新し、グリッドの有効/無効や分解能を変更するUIを実装し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` にグリッド設定（有効/無効、分解能など）のフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [ ] [2] frontend/src-tauri/src/app.rs にグリッド設定を更新する Tauri Command (`set_grid_settings`) を追加する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからグリッド設定をパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
+- [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、クリップのドラッグ移動時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [5] opendaw-wasm/src/ui/piano_roll.rs を更新し、MIDIノートの追加・移動・長さ変更時にグリッド設定に基づくスナップ処理を適用する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [ ] [6] frontend/src/components/Transport.svelte または新しいコントロールパネルを更新し、グリッドの有効/無効や分解能を変更するUIを実装し、Commandを呼び出す (対象: frontend/src/components/Transport.svelte)
+
+---
+
+## 🚀 今後のマイルストーン（商業DAW水準 ＆ Live / Studio One 融合）
+
+> 以下のフェーズは、商業DAWに迫るクオリティを実現し、Ableton Liveの非線形なクリエイティビティとStudio Oneの直感的なワークフローを融合させるためのアイデアストックです。Architectエージェントはこれらを参考にし、必要に応じて詳細なタスクへ分解してください。（順不同で着手可能）
+
+## Phase 32: プラグインホスティング（VST3 / CLAP）の完全統合とオーディオグラフ
+> 実際のオーディオグラフ内でプラグインを動作させ、音声信号を処理する。
+- [ ] `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する
+- [ ] プラグインブラウザからトラックへのドラッグ＆ドロップ・ロード機能を実装する
+
+## Phase 33: オートメーション（Automation）編集・再生基盤
+> ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
+- [ ] WASM (egui) 側にオートメーションカーブの描画・編集UIを追加する
+- [ ] オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装する
+
+## Phase 34: サブバス / センド＆リターン・ルーティング
+> 複数トラックをグループ化するサブバス、およびリバーブ等の空間系エフェクト用センドトラック。
+- [ ] `ProjectState` にトラックのルーティング先（出力バス）設定を追加する
+- [ ] オーディオエンジンのグラフ処理順序をトポロジカルソートし、バス階層に応じたレンダリングを実装する
+
+## Phase 35: 究極のドラッグ＆ドロップ・ワークフロー (Studio One風)
+> プラグイン、エフェクトチェイン、オーディオファイル、MIDIパターンをキャンバスやトラックにD&Dするだけで即座にロード＆ルーティングされる仕組み。
+- [ ] WASMキャンバスとSvelte間の高度なD&D状態共有・処理基盤を実装する
+
+## Phase 36: インストゥルメント / エフェクト・ラックとマクロコントロール (Ableton Live風)
+> 複数のプラグインやエフェクトを一つの「ラック」にまとめ、パラレル処理や単一のマクロノブで複数パラメータを同時制御する機能。
+- [ ] オーディオエンジンに並列処理グラフノードを追加する
+- [ ] Svelte UIにマクロノブとデバイスチェーンエディタを実装する
+
+## Phase 37: コードトラックとハーモニーの自動追従 (Studio One風)
+> 楽曲のコード進行を専用トラックで管理し、それに合わせてMIDIやオーディオのピッチが自動追従（移調）する作曲支援機能。
+- [ ] Tauriにグローバルなコード進行状態（Chord Track State）を実装する
+- [ ] MIDIクリップ再生時に、現在のコードスケールに合わせてノートをリアルタイムに移調するエンジンを実装する
+
+## Phase 38: スクラッチパッド / アレンジ実験エリア (Studio One風)
+> メインのアレンジを壊さずにアイデア（Aメロ別バージョンなど）を試せる機能。
+- [ ] プロジェクト状態に複数のタイムラインデータ（メイン、スクラッチパッドA、B…）を保持するロジックを実装する
+- [ ] タイムライン間のクリップD&D移動UIを実装する
+
+## Phase 39: リアルタイム・タイムワープとグルーヴ (Ableton Live風)
+> オーディオのタイミングをリアルタイムで伸縮・補正（ワープ）する機能と、MIDIのスウィング感を管理するグルーヴ機能。
+- [ ] `rubato` 等のRustリサンプリングクレートを用いた高品質なタイムストレッチアルゴリズムを統合する
+- [ ] ワープマーカーの描画と、BPM変更へのオーディオの動的追従を実装する
+
+## Phase 40: MCP / Max for Live ライクなエージェントAPI統合
+> DAW自体がMCPサーバーとしてAPIを公開し、外部AIや自作スクリプトで独自のAIジェネレーターやエフェクトを簡単に組み込めるようにする拡張機能。
+- [ ] TauriコマンドおよびRustのコアロジックをラップするMCPサーバ機能を実装し、外部エージェントからの操作を受け付ける
