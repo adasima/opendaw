@@ -1,4 +1,7 @@
 <script>
+  import { invoke } from "@tauri-apps/api/core";
+  let { activeTrackId = null } = $props();
+
   let plugins = $state([
     { id: 1, name: "Synth Wave", type: "VST3", vendor: "OpenDAW" },
     { id: 2, name: "Fat Bass", type: "CLAP", vendor: "OpenDAW" },
@@ -27,7 +30,21 @@
 
   <div class="plugin-list">
     {#each filteredPlugins as plugin}
-      <div class="plugin-item">
+      <div
+        class="plugin-item"
+        role="button"
+        tabindex="0"
+        onclick={() => {
+          if (activeTrackId !== null) {
+            invoke("load_plugin_to_track", { track_id: activeTrackId, plugin_id: plugin.name }).catch(console.error);
+          }
+        }}
+        onkeydown={(e) => {
+          if (e.key === "Enter" && activeTrackId !== null) {
+            invoke("load_plugin_to_track", { track_id: activeTrackId, plugin_id: plugin.name }).catch(console.error);
+          }
+        }}
+      >
         <div class="plugin-icon">
           {plugin.type === 'VST3' ? '🎹' : '🎛️'}
         </div>
@@ -108,9 +125,10 @@
     transition: all 0.2s;
   }
 
-  .plugin-item:hover {
+  .plugin-item:hover, .plugin-item:focus {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.1);
+    outline: none;
   }
 
   .plugin-icon {

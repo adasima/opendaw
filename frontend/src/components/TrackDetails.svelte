@@ -11,9 +11,19 @@
 
   let volume = $state(0.8);
   let pan = $state(0.0);
+  let plugins = $state([]);
 
   onMount(async () => {
     try {
+      let state = await invoke("get_project_state");
+      if (trackId !== null) {
+        let track = state.tracks.find(t => t.id === trackId);
+        if (track) {
+          plugins = track.plugins || [];
+          volume = track.volume;
+          pan = track.pan;
+        }
+      }
       devices = await invoke("get_midi_devices");
       if (devices.length > 0) {
         selectedDevice = devices[0];
@@ -90,6 +100,20 @@
       </select>
     </div>
   </div>
+
+  <div class="routing-section">
+    <h3>Plugins</h3>
+    {#if plugins.length > 0}
+      {#each plugins as plugin}
+        <div class="plugin-list-item">
+          <span class="plugin-name">{plugin}</span>
+          <button class="open-gui-btn">Open GUI</button>
+        </div>
+      {/each}
+    {:else}
+      <div class="no-plugins">No plugins loaded</div>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -133,5 +157,36 @@
     font-size: 12px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .plugin-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--outline-variant);
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+
+  .plugin-name {
+    font-size: 12px;
+    color: var(--on-surface);
+  }
+
+  .open-gui-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+
+  .no-plugins {
+    font-size: 11px;
+    color: var(--on-surface-variant);
   }
 </style>

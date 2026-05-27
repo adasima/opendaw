@@ -168,7 +168,7 @@
         <SessionView />
       </div>
       <div style="display: {showPluginBrowser ? 'block' : 'none'}; height: 100%;">
-        <PluginBrowser />
+        <PluginBrowser {activeTrackId} />
       </div>
       <div style="display: {(!showSessionView && !showPluginBrowser) ? 'block' : 'none'}; height: 100%;">
         <TimelineCanvas id="egui_canvas" {wasmModule} />

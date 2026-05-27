@@ -99,10 +99,10 @@
 > Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
 - [x] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: frontend/src-tauri/src/plugin/host.rs)
-- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
-- [ ] [3] frontend/src/components/PluginBrowser.svelte を更新し、プラグインをトラックにロードするためのUI連携（D&Dまたはクリック）を実装する (対象: frontend/src/components/PluginBrowser.svelte, frontend/src/components/Tracks.svelte)
-- [ ] [4] frontend/src/components/TrackDetails.svelte を更新し、選択されたトラックにロードされているプラグイン一覧を表示し、プラグインGUIを開くボタンを追加する (対象: frontend/src/components/TrackDetails.svelte)
+- [x] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
+- [x] [3] frontend/src/components/PluginBrowser.svelte を更新し、プラグインをトラックにロードするためのUI連携（D&Dまたはクリック）を実装する (対象: frontend/src/components/PluginBrowser.svelte, frontend/src/components/Tracks.svelte)
+- [x] [4] frontend/src/components/TrackDetails.svelte を更新し、選択されたトラックにロードされているプラグイン一覧を表示し、プラグインGUIを開くボタンを追加する (対象: frontend/src/components/TrackDetails.svelte)
 
 ---
 

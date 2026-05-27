@@ -48,7 +48,8 @@ pub fn run() {
             commands::clip::move_midi_clip,
             commands::clip::update_midi_clip_notes,
             commands::project::undo,
-            commands::project::redo
+            commands::project::redo,
+            commands::plugin::load_plugin_to_track
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
