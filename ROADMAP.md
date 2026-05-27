@@ -99,7 +99,7 @@
 > Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
 - [x] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: frontend/src-tauri/src/plugin/host.rs)
-- [ ] [1] frontend/src-tauri/src/state/track.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/track.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [ ] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
 - [ ] [3] frontend/src/components/PluginBrowser.svelte を更新し、プラグインをトラックにロードするためのUI連携（D&Dまたはクリック）を実装する (対象: frontend/src/components/PluginBrowser.svelte, frontend/src/components/Tracks.svelte)
 - [ ] [4] frontend/src/components/TrackDetails.svelte を更新し、選択されたトラックにロードされているプラグイン一覧を表示し、プラグインGUIを開くボタンを追加する (対象: frontend/src/components/TrackDetails.svelte)
@@ -112,7 +112,7 @@
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/track.rs, frontend/src-tauri/src/state/mod.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [ ] [2] frontend/src-tauri/src/app.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/app.rs)
 - [ ] [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
 - [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画とポイントの追加・移動（ドラッグ）のUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
@@ -121,7 +121,7 @@
 
 ## Phase 34: サブバス / センド＆リターン・ルーティング
 > 複数トラックをグループ化するサブバス、およびリバーブ等の空間系エフェクト用センドトラック。
-- [ ] [1] frontend/src-tauri/src/state/track.rs (または mod.rs の Track 構造体) を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [ ] [2] frontend/src-tauri/src/app.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/app.rs)
 - [ ] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
 - [ ] 人間: オーディオエンジンのグラフ処理順序をトポロジカルソートし、バス階層に応じたレンダリングを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
@@ -135,7 +135,7 @@
 
 ## Phase 36: インストゥルメント / エフェクト・ラックとマクロコントロール (Ableton Live風)
 > 複数のプラグインやエフェクトを一つの「ラック」にまとめ、パラレル処理や単一のマクロノブで複数パラメータを同時制御する機能。
-- [ ] [1] frontend/src-tauri/src/state/track.rs を更新し、Track内に複数のデバイスをグループ化する `DeviceRack` のデータ構造を追加する (対象: frontend/src-tauri/src/state/track.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内に複数のデバイスをグループ化する `DeviceRack` のデータ構造を追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [ ] [2] frontend/src-tauri/src/app.rs に、ラック内にデバイスを追加・削除・並べ替えるTauri Commandを追加する (対象: frontend/src-tauri/src/app.rs)
 - [ ] [3] frontend/src/components/DeviceChain.svelte (新規) を作成し、トラックの下部または別パネルでデバイスチェーン/ラックの内容を水平方向に表示するUIを実装する (対象: frontend/src/components/DeviceChain.svelte, frontend/src/App.svelte)
 - [ ] [4] frontend/src/components/DeviceChain.svelte に、複数パラメータを1つのノブで操作できる「マクロコントロール」のUIを実装する (対象: frontend/src/components/DeviceChain.svelte)
