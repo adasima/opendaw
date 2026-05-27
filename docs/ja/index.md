@@ -25,6 +25,7 @@ OpenDAW は、**Discordライクな直感性 × グラスモーフィズムUI ×
 - [エクスポート](user-guide/export.md)
 - [オーディオ録音](user-guide/recording.md)
 - [メトロノーム](user-guide/metronome.md)
+- [グリッドスナップ](user-guide/grid-snap.md)
 - [プラグインブラウザ](user-guide/browser.md)
 
 ### 📙 リファレンス

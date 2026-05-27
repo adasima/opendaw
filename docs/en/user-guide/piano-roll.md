@@ -27,6 +27,7 @@ In the current version, the piano roll interface operates based on the following
 ## Related
 - [MIDI Reference](../reference/midi-reference.md)
 - [Tracks](tracks.md)
+- [Grid Snap](grid-snap.md)
 
 ## Notes & Limitations
 > - Currently, when a note is added, its velocity (100) is set as a fixed value.
