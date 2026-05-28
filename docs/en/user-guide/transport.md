@@ -15,7 +15,7 @@ The transport control is necessary to manipulate the playback position (playhead
 7. Click the **⏸ (Pause)** button to pause playback.
 8. Click the **⏹ (Stop)** button to stop playback and return the playhead to the beginning (0.0).
 9. Click the **🔁 (Loop)** button to toggle loop playback on and off. When loop is on, playback will automatically restart from the beginning when it reaches the end of the timeline.
-10. Click the **⏱ (Metronome)** button to toggle the metronome on and off.
+10. Click the **⏱ (Metronome)** button (in the Timeline/WASM UI at the top) to toggle the metronome on and off.
 
 ## Detailed Settings
 

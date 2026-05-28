@@ -7,7 +7,7 @@ The metronome generates a periodic click sound based on the playback position an
 An accent (higher pitch) is played on the first beat of each bar, while a standard click sound is played on the other beats, making it easier to identify the beginning of a measure.
 
 ## Basic Usage
-1. Click the **⏱** (Metronome) button located in the transport panel at the top of the screen.
+1. Click the **⏱** (Metronome) button located in the transport panel at the top of the main area (Timeline/WASM screen).
 2. The button display changes to **⏱ (On)**, and the metronome is enabled.
 3. Click the play button (**▶**) in the transport panel to start playback. The click sound will play according to the set BPM.
 4. To disable the metronome, click the **⏱** button again to change it to **⏱ (Off)**.
