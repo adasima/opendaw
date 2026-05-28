@@ -10,10 +10,9 @@ frontend/src-tauri/      # Tauri バックエンド (Rust)
 │   ├── main.rs          # エントリーポイント（Tauri起動 + Tokioランタイム）
 │   ├── app.rs           # アプリケーション状態管理
 │   ├── commands/        # Tauri コマンド (プロジェクト、トラック、クリップ等の操作)
-│   ├── engine/          # オーディオエンジン（リアルタイムスレッド）
+│   ├── engine/          # オーディオエンジンへのインターフェース等
 │   │   ├── mod.rs
-│   │   ├── device.rs    # オーディオデバイス列挙・選択 (cpal)
-│   │   ├── stream.rs    # オーディオストリーム管理
+│   │   ├── midi_route.rs
 │   │   └── ...
 │   ├── midi/            # MIDI処理
 │   ├── core/            # (Sanctuary) コアデータ構造と基盤 (人間が管理)
@@ -31,6 +30,12 @@ frontend/src/            # フロントエンド UI枠組み (Svelte + TypeScrip
 opendaw-wasm/            # フロントエンド描画エンジン (Rust + egui -> WASM)
 ├── src/
 │   ├── lib.rs           # WASM エントリーポイント
+│   ├── engine/          # オーディオエンジン（リアルタイムスレッド）
+│   │   ├── mod.rs
+│   │   ├── device.rs    # オーディオデバイス列挙・選択 (cpal)
+│   │   ├── mixer.rs
+│   │   ├── stream.rs    # オーディオストリーム管理
+│   │   └── ...
 │   └── ui/              # 高速描画が必要なUI (タイムライン、ピアノロールなど)
 │       ├── timeline.rs
 │       └── piano_roll.rs
