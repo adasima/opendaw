@@ -194,187 +194,24 @@ impl OpenDawApp {
         }
     }
 
-    /// MCPサーバーからのコマンドを受信して状態を更新します。
-    /// 外部からプロジェクトのJSONを受け取り、状態を同期する
-    #[allow(clippy::collapsible_if)]
-    pub fn sync_project_state_json(&mut self, json_str: String) {
-        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&json_str) {
-            // is_playing
-            if let Some(is_playing) = parsed.get("is_playing").and_then(|v| v.as_bool()) {
-                self.state.is_playing = is_playing;
-            }
-            // bpm
-            if let Some(bpm) = parsed.get("bpm").and_then(|v| v.as_f64()) {
-                self.state.bpm = bpm as f32;
-            }
-            // master_volume
-            if let Some(vol) = parsed.get("master_volume").and_then(|v| v.as_f64()) {
-                self.state.master_volume = vol as f32;
-            }
-            // grid_settings
-            if let Some(grid_settings) = parsed.get("grid_settings") {
-                if let Some(is_enabled) = grid_settings.get("is_enabled").and_then(|v| v.as_bool()) {
-                    self.state.is_grid_enabled = is_enabled;
-                }
-                if let Some(resolution) = grid_settings.get("resolution").and_then(|v| v.as_u64()) {
-                    self.state.grid_resolution = resolution as u32;
-                }
-            }
-            // tracks
-            if let Some(tracks_array) = parsed.get("tracks").and_then(|v| v.as_array()) {
-                for track_val in tracks_array {
-                    if let Some(id) = track_val.get("id").and_then(|v| v.as_u64()) {
-                        let id = id as usize;
-                        let mut found = false;
-                        for track in self.state.tracks.iter_mut() {
-                            if track.id == id {
-                                found = true;
-                                if let Some(name) = track_val.get("name").and_then(|v| v.as_str()) {
-                                    track.name = name.to_string();
-                                }
-                                if let Some(vol) = track_val.get("volume").and_then(|v| v.as_f64()) {
-                                    track.volume = vol as f32;
-                                }
-                                if let Some(pan) = track_val.get("pan").and_then(|v| v.as_f64()) {
-                                    track.pan = pan as f32;
-                                }
-                                if let Some(muted) = track_val.get("is_muted").and_then(|v| v.as_bool()) {
-                                    track.is_muted = muted;
-                                }
-                                if let Some(solo) = track_val.get("is_solo").and_then(|v| v.as_bool()) {
-                                    track.is_solo = solo;
-                                }
-                                if let Some(armed) = track_val.get("is_record_armed").and_then(|v| v.as_bool()) {
-                                    track.is_record_armed = armed;
-                                }
-                                // clips
-                                if let Some(clips_array) = track_val.get("clips").and_then(|v| v.as_array()) {
-                                    for clip_val in clips_array {
-                                        if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::AudioClip>(clip_val.clone()) {
-                                            if let Some(existing_clip) = track.clips.iter_mut().find(|c| c.id == parsed_clip.id) {
-                                                existing_clip.name = parsed_clip.name;
-                                                if !self.is_dragging_clip {
-                                                    existing_clip.start_pos = parsed_clip.start_pos;
-                                                }
-                                                existing_clip.length = parsed_clip.length;
-                                            } else {
-                                                track.clips.push(parsed_clip);
-                                            }
-                                        }
-                                    }
-                                    let backend_clip_ids: Vec<usize> = clips_array.iter()
-                                        .filter_map(|c| c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
-                                        .collect();
-                                    track.clips.retain(|c| backend_clip_ids.contains(&c.id));
-                                }
-                                // midi_clips
-                                if let Some(midi_clips_array) = track_val.get("midi_clips").and_then(|v| v.as_array()) {
-                                    for clip_val in midi_clips_array {
-                                        if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::MidiClip>(clip_val.clone()) {
-                                            if let Some(existing_clip) = track.midi_clips.iter_mut().find(|c| c.id == parsed_clip.id) {
-                                                existing_clip.name = parsed_clip.name;
-                                                if !self.is_dragging_clip {
-                                                    existing_clip.start_beat = parsed_clip.start_beat;
-                                                }
-                                                existing_clip.length_beats = parsed_clip.length_beats;
-                                            } else {
-                                                track.midi_clips.push(parsed_clip);
-                                            }
-                                        }
-                                    }
-                                    let backend_midi_ids: Vec<usize> = midi_clips_array.iter()
-                                        .filter_map(|c| c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
-                                        .collect();
-                                    track.midi_clips.retain(|c| backend_midi_ids.contains(&c.id));
-                                }
-                                break;
-                            }
-                        }
-                        if !found {
-                            if let Ok(new_track) = serde_json::from_value::<crate::state::track::Track>(track_val.clone()) {
-                                self.state.tracks.push(new_track);
-                            }
-                        }
-                    }
-                }
-
-                // Remove tracks that are no longer in the backend
-                let backend_ids: Vec<usize> = tracks_array.iter()
-                    .filter_map(|t| t.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
-                    .collect();
-                self.state.tracks.retain(|t| backend_ids.contains(&t.id));
-            }
-        }
-    }
-
-    pub fn poll_mcp_commands(&mut self) {
-        if let Some(mcp_receiver) = &self.mcp_receiver {
-            while let Ok(cmd) = mcp_receiver.try_recv() {
-                match cmd {
-                    crate::mcp::channel::McpCommand::Play => {
-                        self.state.is_playing = true;
-                        if let Some(ui_channels) = &mut self.ui_channels {
-                            let _ = ui_channels
-                                .0
-                                .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(true));
-                        }
-                    }
-                    crate::mcp::channel::McpCommand::Stop => {
-                        self.state.stop_playback();
-                        if let Some(ui_channels) = &mut self.ui_channels {
-                            let _ = ui_channels
-                                .0
-                                .try_push(crate::engine::channel::UiToAudioMsg::SetPlaying(false));
-                        }
-                    }
-                    crate::mcp::channel::McpCommand::ToggleLoop => {
-                        self.state.toggle_loop();
-                    }
-                    crate::mcp::channel::McpCommand::AddTrack => {
-                        self.state.add_track("New Track (MCP)");
-                    }
-                    crate::mcp::channel::McpCommand::RemoveTrack(id) => {
-                        self.state.remove_track(id);
-                    }
-                    crate::mcp::channel::McpCommand::SelectTrack(id_opt) => {
-                        self.selected_track_id = id_opt;
-                        self.selected_clip_id = None;
-                    }
-                    crate::mcp::channel::McpCommand::ToggleMute(id) => {
-                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
-                            track.toggle_mute();
-                        }
-                    }
-                    crate::mcp::channel::McpCommand::ToggleSolo(id) => {
-                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
-                            track.toggle_solo();
-                        }
-                    }
-                    crate::mcp::channel::McpCommand::ToggleRecordArm(id) => {
-                        if let Some(track) = self.state.tracks.iter_mut().find(|t| t.id == id) {
-                            track.toggle_record_arm();
-                        }
-                    }
-                    crate::mcp::channel::McpCommand::ToggleGlobalRecord => {}
-                    crate::mcp::channel::McpCommand::RequestTrackJson => {}
-                }
-            }
-            #[cfg(target_arch = "wasm32")]
-            crate::request_repaint();
-        }
-    }
 }
 
 impl eframe::App for OpenDawApp {
     // Eframe 0.34
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // MCPサーバーからのメッセージを受信して状態を更新
-        self.poll_mcp_commands();
+        crate::mcp::handler::poll_mcp_commands(
+            &self.mcp_receiver,
+            &mut self.state,
+            &mut self.ui_channels,
+            &mut self.selected_track_id,
+            &mut self.selected_clip_id,
+        );
 
         #[cfg(target_arch = "wasm32")]
         {
             let json_str = crate::get_tracks_json();
-            self.sync_project_state_json(json_str);
+            crate::state::sync::sync_project_state_json(&mut self.state, self.is_dragging_clip, &json_str);
         }
 
         // 初期化時にオーディオチャンネルをエンジンに渡す
@@ -627,25 +464,25 @@ mod tests {
         app.mcp_receiver = Some(rx);
         // Play command
         tx.send(crate::mcp::channel::McpCommand::Play)?;
-        app.poll_mcp_commands();
+        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
         assert!(app.state.is_playing);
 
         // Stop command
         tx.send(crate::mcp::channel::McpCommand::Stop)?;
-        app.poll_mcp_commands();
+        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
         assert!(!app.state.is_playing);
 
         // AddTrack command
         assert_eq!(app.state.tracks.len(), 0);
         tx.send(crate::mcp::channel::McpCommand::AddTrack)?;
-        app.poll_mcp_commands();
+        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
         assert_eq!(app.state.tracks.len(), 1);
         assert_eq!(app.state.tracks[0].name, "New Track (MCP)");
 
         // RemoveTrack command
         let track_id = app.state.tracks[0].id;
         tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id))?;
-        app.poll_mcp_commands();
+        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
         assert_eq!(app.state.tracks.len(), 0);
         Ok(())
     }
