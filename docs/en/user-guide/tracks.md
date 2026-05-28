@@ -33,6 +33,11 @@ The **Track Details** panel, displayed when a track is selected, allows for the 
 | Input Device | Selects the input device to receive MIDI signals from |
 | Channel | Specifies the MIDI channel to receive (0=All, 1 to 16) |
 
+### Plugins
+Displays a list of plugins (such as VST3 / CLAP) loaded onto the track.
+You can open the dedicated UI for each plugin by clicking the **Open GUI** button next to it (functionality currently being integrated).
+Plugins can be added using the [Plugin Browser](../user-guide/browser.md).
+
 ## Keyboard Shortcuts
 In the current version, there are no keyboard shortcuts dedicated specifically to track operations, but you can make a track active by pressing the `Enter` key while it is focused.
 
