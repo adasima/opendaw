@@ -98,8 +98,8 @@
 ## Phase 32: コードのリファクタリングとプラグインホスティング（VST3 / CLAP）の完全統合
 > Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
 - [x] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
-- [ ] nova: [1-1] opendaw-wasm/src/app.rs の `sync_project_state_json` 処理などを別モジュールに分離する (対象: opendaw-wasm/src/app.rs)
-- [ ] nova: [1-2] opendaw-wasm/src/app.rs の `poll_mcp_commands` 処理などを別モジュールに分離する (対象: opendaw-wasm/src/app.rs)
+- [x] nova: [1-1] opendaw-wasm/src/app.rs の `sync_project_state_json` 処理などを別モジュールに分離する (対象: opendaw-wasm/src/app.rs)
+- [x] nova: [1-2] opendaw-wasm/src/app.rs の `poll_mcp_commands` 処理などを別モジュールに分離する (対象: opendaw-wasm/src/app.rs)
 - [ ] nova: [2-1] opendaw-wasm/src/engine/mixer.rs からルーティング処理を切り分ける (対象: opendaw-wasm/src/engine/mixer.rs)
 - [ ] nova: [2-2] opendaw-wasm/src/engine/stream.rs からバス処理を切り分ける (対象: opendaw-wasm/src/engine/stream.rs)
 - [x] nova: [3] opendaw-wasm/src/ui/piano_roll.rs を描画コンポーネント（グリッド、ノート等）ごとに整理・分割する (対象: opendaw-wasm/src/ui/piano_roll.rs)
