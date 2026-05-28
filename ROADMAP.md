@@ -78,7 +78,7 @@
 > ユーザーが現在のプロジェクト状態をファイルに保存し、後で読み込めるようにする機能。
 - [x] [1] frontend/src-tauri/src/app.rs に save_project と load_project のTauri Commandを実装する (対象: frontend/src-tauri/src/app.rs)
 - [x] [2] frontend/src/components/Transport.svelte に @tauri-apps/plugin-dialog を用いた保存・読み込みのUIを実装する (対象: frontend/src/components/Transport.svelte)
-## Phase 30: アンドゥ・リドゥ (Undo / Redo) 機能の基盤実装
+## Phase 30: アンドゥ・リドゥ (Undo / Redo) 機能の基盤実装 (完了)
 > ユーザーが誤った操作を取り消したり、取り消しをやり直したりできる履歴管理機能（Undo / Redo）をバックエンドとフロントエンドに実装する。
 - [x] [1] frontend/src-tauri/src/state/history.rs を作成し、`ProjectState` のスナップショット履歴を管理する `HistoryManager` 構造体（undo/redoスタック）を定義する (対象: frontend/src-tauri/src/state/history.rs)
 - [x] [2] frontend/src-tauri/src/state/mod.rs を更新し、`history` モジュールを公開する (対象: frontend/src-tauri/src/state/mod.rs)
@@ -112,11 +112,11 @@
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
-- [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画とポイントの追加・移動（ドラッグ）のUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [5] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
+- [ ] nova: [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [ ] nova: [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
+- [ ] nova: [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
+- [ ] nova: [4] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画とポイントの追加・移動（ドラッグ）のUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] nova: [5] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
 - [ ] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 34: サブバス / センド＆リターン・ルーティング
