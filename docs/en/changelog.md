@@ -2,6 +2,16 @@
 
 > This document records the update history of OpenDAW.
 
+## Phase 30-32: Foundation Integration for Undo/Redo, Grid Snap, and Plugins
+
+### ✨ New Features
+- **Undo / Redo Introduction**: A history management foundation for the project state has been built, allowing for the undoing and redoing of actions such as adding or moving clips.
+- **Grid Snap Feature**: A feature has been implemented to snap the placement of clips and MIDI notes on the timeline and piano roll to a specified resolution (such as beats and measures).
+- **Frontend Integration for Plugin Hosting**: The operation of loading VST3 / CLAP plugins from the plugin browser onto a track is now coordinated between the Svelte UI (browser and track details panels) and the Tauri backend.
+
+### 🚀 Improvements
+- **Backend API Refactoring**: Tauri Commands that were previously concentrated in `app.rs` have been split and organized into function-specific modules such as `project.rs`, `track.rs`, `clip.rs`, `transport.rs`, and `plugin.rs`.
+
 ## Phase 25-29: Feature Integration and Enhancement for Tauri + WASM Architecture
 
 ### ✨ New Features
