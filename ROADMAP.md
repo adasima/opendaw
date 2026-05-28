@@ -98,7 +98,11 @@
 ## Phase 32: コードのリファクタリングとプラグインホスティング（VST3 / CLAP）の完全統合
 > Svelte UIとTauriバックエンド間のAPIモジュール構成を整理し、プラグインホスティングの機能を統合する。
 - [x] nova: frontend/src-tauri/src/app.rs の Tauri Command を frontend/src-tauri/src/commands/ モジュール配下へ機能別（project.rs, track.rs, clip.rs, transport.rsなど）に分割し、lib.rsで統合する (対象: frontend/src-tauri/src/app.rs, frontend/src-tauri/src/commands/*, frontend/src-tauri/src/lib.rs)
-- [ ] nova: opendaw-wasm の大規模なファイルを機能ごとにモジュール分割する (対象: opendaw-wasm/src/app.rs, opendaw-wasm/src/engine/mixer.rs, opendaw-wasm/src/engine/stream.rs, opendaw-wasm/src/state/track.rs, opendaw-wasm/src/ui/piano_roll.rs, opendaw-wasm/src/engine/synth.rs, opendaw-wasm/src/state/mod.rs)
+- [ ] nova: [1] opendaw-wasm/src/app.rs から状態同期やIPCイベント処理を機能ごとに切り分ける (対象: opendaw-wasm/src/app.rs)
+- [ ] nova: [2] opendaw-wasm/src/engine/mixer.rs および stream.rs からルーティング・バス処理を切り分ける (対象: opendaw-wasm/src/engine/mixer.rs, opendaw-wasm/src/engine/stream.rs)
+- [ ] nova: [3] opendaw-wasm/src/ui/piano_roll.rs を描画コンポーネント（グリッド、ノート等）ごとに整理・分割する (対象: opendaw-wasm/src/ui/piano_roll.rs)
+- [ ] nova: [4] opendaw-wasm/src/state/track.rs および mod.rs を機能ドメインごとのモジュールに整理・分割する (対象: opendaw-wasm/src/state/track.rs, opendaw-wasm/src/state/mod.rs)
+- [ ] nova: [5] opendaw-wasm/src/engine/synth.rs を波形生成やボイス管理ごとにモジュール化する (対象: opendaw-wasm/src/engine/synth.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: frontend/src-tauri/src/plugin/host.rs)
 - [x] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [x] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
