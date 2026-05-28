@@ -21,4 +21,4 @@ You can filter the plugin list by name or vendor by typing text into the search 
 - [Track Management](../user-guide/tracks.md)
 
 ## Notes/Limitations
-> In the current version, the functionality to open plugin GUIs and process actual audio is currently being integrated; the main functional part is managing them in the list.
+> In the current version, the functionality to process actual audio is currently being integrated; the main functional part is managing them in the list and loading them into tracks.
