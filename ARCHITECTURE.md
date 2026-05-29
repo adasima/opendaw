@@ -40,7 +40,7 @@ opendaw-wasm/            # フロントエンド描画エンジン (Rust + egui 
 │   ├── state/           # プロジェクト状態管理
 │   └── ui/              # 高速描画が必要なUI (タイムライン、ピアノロールなど)
 │       ├── timeline.rs
-│       └── piano_roll.rs
+│       └── piano_roll/
 ```
 
 ## スレッドモデル / アーキテクチャ
