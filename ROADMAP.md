@@ -107,6 +107,8 @@
 - [ ] nova: [4-2] opendaw-wasm/src/state/mod.rs を機能ドメインごとのモジュールに整理・分割する (対象: opendaw-wasm/src/state/mod.rs)
 - [ ] nova: [5-1] opendaw-wasm/src/engine/synth.rs を波形生成モジュールに分割する (対象: opendaw-wasm/src/engine/synth.rs)
 - [ ] nova: [5-2] opendaw-wasm/src/engine/synth.rs をボイス管理モジュールに分割する (対象: opendaw-wasm/src/engine/synth.rs)
+- [ ] warden: frontend/src-tauri/src/engine/mod.rs の EngineHandle 構造体内の midi_route_tx に使用されている Mutex を、リアルタイム制約を満たすようにロックフリーなデータ構造（RingBufferなど）に変更する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] warden: opendaw-wasm/src/midi/mapping.rs の SharedMidiMappingRegistry で使用されている Mutex を、リアルタイム処理で安全に扱えるようにロックフリーまたは適切な構造に変更する (対象: opendaw-wasm/src/midi/mapping.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: frontend/src-tauri/src/plugin/host.rs)
 - [x] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [x] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
