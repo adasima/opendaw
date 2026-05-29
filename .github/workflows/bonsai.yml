@@ -16,6 +16,23 @@ jobs:
       - name: Enable Auto-merge for Jules
         # --auto はCIステータスチェック(ci.yml)が通るまでマージを待機する
         # CIが失敗した場合、マージされない（安全弁）
-        run: gh pr merge "${{ github.event.pull_request.html_url }}" --squash --auto --delete-branch
+        run: |
+          # Retry up to 5 times (every 10 seconds) to avoid "unstable status" error when PR is freshly created
+          success=false
+          for i in {1..5}; do
+            if gh pr merge "${{ github.event.pull_request.html_url }}" --squash --auto --delete-branch; then
+              echo "Auto-merge enabled successfully."
+              success=true
+              break
+            fi
+            echo "Attempt $i failed. PR might be in an unstable status. Retrying in 10 seconds..."
+            sleep 10
+          done
+
+          if [ "$success" = false ]; then
+            echo "Failed to enable auto-merge after multiple attempts."
+            # Force exit code 1 to fail the job
+            /usr/bin/false
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
