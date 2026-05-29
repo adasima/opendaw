@@ -36,6 +36,8 @@ opendaw-wasm/            # フロントエンド描画エンジン (Rust + egui 
 │   │   ├── mixer.rs
 │   │   ├── stream.rs    # オーディオストリーム管理
 │   │   └── ...
+│   ├── midi/            # MIDI処理・マッピング
+│   ├── state/           # プロジェクト状態管理
 │   └── ui/              # 高速描画が必要なUI (タイムライン、ピアノロールなど)
 │       ├── timeline.rs
 │       └── piano_roll.rs
