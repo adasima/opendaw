@@ -1,4 +1,4 @@
-use crate::engine::synth::{AdsrParams, Waveform};
+use crate::state::track_plugin::{AdsrParams, Waveform};
 use ringbuf::HeapRb;
 use ringbuf::traits::Split;
 use ringbuf::wrap::caching::CachingCons;

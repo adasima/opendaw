@@ -22,7 +22,7 @@ pub struct TrackMixData<'a> {
     /// 適用するエフェクトのチェーン
     pub effects: &'a mut [&'a mut dyn AudioEffect],
     /// オシレーター（シンセサイザー）
-    pub oscillator: Option<&'a mut crate::engine::synth::Oscillator>,
+    pub oscillator: Option<&'a mut crate::engine::synth::oscillator::Oscillator>,
     /// アクティブなノートの周波数
     pub active_notes: [f32; crate::engine::channel::MAX_ACTIVE_NOTES],
     /// アクティブなノートの数
@@ -345,7 +345,7 @@ mod tests {
         let mut out = vec![0.0; 4];
         let samples = vec![0.0, 0.0]; // 無音のサンプル
 
-        let mut osc = crate::engine::synth::Oscillator::new(44100.0);
+        let mut osc = crate::engine::synth::oscillator::Oscillator::new(44100.0);
         osc.set_frequency(1.0);
         // active_notes[0] で周波数が上書きされるため 1.0 を設定
         osc.set_active(true);

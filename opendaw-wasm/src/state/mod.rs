@@ -4,6 +4,8 @@
 //! UIスレッドとオーディオスレッドの両方から参照される共有状態。
 
 // Phase 3 で実装予定
+pub mod track_clip;
+pub mod track_plugin;
 // pub mod project;
 pub mod clip;
 pub use clip::MidiClip;

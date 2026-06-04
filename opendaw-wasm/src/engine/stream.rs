@@ -64,7 +64,7 @@ pub fn build_output_stream(
         SampleFormat::F32 => {
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
-            let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
+            let mut track_oscillator = crate::engine::synth::oscillator::Oscillator::new(config.sample_rate as f32);
             let mut track_delay = crate::engine::effects::delay::DelayEffect::new(config.sample_rate as f32);
             let mut track_gain = crate::engine::effects::gain::GainEffect::new(1.0);
             let mut track_filter = crate::engine::effects::filter::BiquadFilter::new(crate::engine::effects::filter::FilterType::LowPass, 1000.0, config.sample_rate as f32);
@@ -194,7 +194,7 @@ pub fn build_output_stream(
         SampleFormat::I16 => {
             let mut active_notes = [0.0; crate::engine::channel::MAX_ACTIVE_NOTES];
             let mut active_note_count = 0;
-            let mut track_oscillator = crate::engine::synth::Oscillator::new(config.sample_rate as f32);
+            let mut track_oscillator = crate::engine::synth::oscillator::Oscillator::new(config.sample_rate as f32);
             let mut track_delay = crate::engine::effects::delay::DelayEffect::new(config.sample_rate as f32);
             let mut track_gain = crate::engine::effects::gain::GainEffect::new(1.0);
             let mut track_filter = crate::engine::effects::filter::BiquadFilter::new(crate::engine::effects::filter::FilterType::LowPass, 1000.0, config.sample_rate as f32);
