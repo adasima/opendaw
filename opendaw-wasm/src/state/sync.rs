@@ -63,7 +63,7 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                             {
                                 for clip_val in clips_array {
                                     if let Ok(parsed_clip) =
-                                        serde_json::from_value::<crate::state::clip::AudioClip>(
+                                        serde_json::from_value::<crate::state::track_clip::AudioClip>(
                                             clip_val.clone(),
                                         )
                                     {
@@ -94,7 +94,7 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                             {
                                 for clip_val in midi_clips_array {
                                     if let Ok(parsed_clip) =
-                                        serde_json::from_value::<crate::state::clip::MidiClip>(
+                                        serde_json::from_value::<crate::state::track_clip::MidiClip>(
                                             clip_val.clone(),
                                         )
                                     {

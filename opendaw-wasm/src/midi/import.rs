@@ -9,7 +9,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::midi::sequence::Sequence;
-use crate::state::clip::MidiClip;
+use crate::state::track_clip::MidiClip;
 use crate::state::track::Track;
 
 /// MIDIファイルから抽出された単一トラックのデータ

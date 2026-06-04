@@ -5,8 +5,9 @@
 
 // Phase 3 で実装予定
 // pub mod project;
-pub mod clip;
-pub use clip::MidiClip;
+pub mod track_clip;
+pub use track_clip::MidiClip;
+pub use track_clip::AudioClip;
 pub mod project;
 pub use project::ProjectState;
 pub mod track; // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
@@ -303,5 +304,4 @@ mod tests {
 pub mod freeze;
 
 pub mod sync;
-pub mod track_clip;
 pub mod track_plugin;

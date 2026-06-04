@@ -300,7 +300,7 @@ impl eframe::App for OpenDawApp {
                     let track_idx = 0;
                     let clip_id = self.state.tracks[track_idx].clips.len() + 1;
                     let start_pos = self.state.playhead_pos;
-                    let mut new_clip = crate::state::clip::AudioClip::new(
+                    let mut new_clip = crate::state::track_clip::AudioClip::new(
                         clip_id,
                         "Recorded Clip",
                         start_pos,

@@ -33,10 +33,10 @@ pub struct Track {
     pub vocal_synth: VocalSynthSetting,
     /// トラック内のオーディオクリップ
     #[serde(default)]
-    pub clips: Vec<crate::state::clip::AudioClip>,
+    pub clips: Vec<crate::state::track_clip::AudioClip>,
     /// トラック内のMIDIクリップ
     #[serde(default)]
-    pub midi_clips: Vec<crate::state::clip::MidiClip>,
+    pub midi_clips: Vec<crate::state::track_clip::MidiClip>,
 }
 
 impl Track {
