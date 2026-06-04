@@ -38,7 +38,57 @@
   });
 </script>
 
-<div class="canvas-container glass-panel">
+<div
+  class="canvas-container glass-panel"
+  ondragover={(e) => {
+    e.preventDefault();
+    if (wasmModule && wasmModule.set_drag_hover_y) {
+      let rect = e.currentTarget.getBoundingClientRect();
+      wasmModule.set_drag_hover_y(e.clientY - rect.top);
+    } else if (window.wasmBindings && window.wasmBindings.set_drag_hover_y) {
+      let rect = e.currentTarget.getBoundingClientRect();
+      window.wasmBindings.set_drag_hover_y(e.clientY - rect.top);
+    }
+  }}
+  ondragleave={(e) => {
+    if (wasmModule && wasmModule.clear_drag_hover) {
+      wasmModule.clear_drag_hover();
+    } else if (window.wasmBindings && window.wasmBindings.clear_drag_hover) {
+      window.wasmBindings.clear_drag_hover();
+    }
+  }}
+  ondrop={async (e) => {
+    e.preventDefault();
+    if (wasmModule && wasmModule.clear_drag_hover) {
+      wasmModule.clear_drag_hover();
+    } else if (window.wasmBindings && window.wasmBindings.clear_drag_hover) {
+      window.wasmBindings.clear_drag_hover();
+    }
+
+    let pluginName = e.dataTransfer.getData("application/vnd.opendaw.plugin");
+    if (pluginName) {
+      let rect = e.currentTarget.getBoundingClientRect();
+      let y = e.clientY - rect.top;
+
+      // Calculate track index based on TRACK_HEIGHT = 80.0
+      // Also need to account for automation lanes if they are open, but assuming simple 80px tracks for now.
+      // Svelte side tracks are known via polling.
+      try {
+        let state = await invoke("get_project_state");
+        let tracks = state.tracks;
+
+        let trackIndex = Math.floor(y / 80.0);
+
+        if (trackIndex >= 0 && trackIndex < tracks.length) {
+          let trackId = tracks[trackIndex].id;
+          invoke("load_plugin_to_track", { track_id: trackId, plugin_id: pluginName }).catch(console.error);
+        }
+      } catch (err) {
+        console.error("Failed to drop plugin:", err);
+      }
+    }
+  }}
+>
   <canvas {id}></canvas>
 </div>
 

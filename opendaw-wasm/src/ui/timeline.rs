@@ -48,11 +48,21 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         );
         current_y += TRACK_HEIGHT;
 
-        let bg_color = if i % 2 == 0 {
+        let mut bg_color = if i % 2 == 0 {
             egui::Color32::from_rgba_premultiplied(30, 32, 38, 180)
         } else {
             egui::Color32::from_rgba_premultiplied(22, 24, 28, 180)
         };
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            if let Some(hover_y) = crate::get_drag_hover_y() {
+                // If hover_y falls within this track's vertical bounds, draw a highlight
+                if hover_y >= track_top && hover_y < track_top + TRACK_HEIGHT {
+                    bg_color = egui::Color32::from_rgba_premultiplied(70, 80, 100, 220); // Highlight color
+                }
+            }
+        }
         painter.rect_filled(track_rect, 0.0, bg_color);
 
         for clip in &track.clips {

@@ -42,6 +42,27 @@ thread_local! {
 #[cfg(target_arch = "wasm32")]
 lazy_static::lazy_static! {
     static ref TRACKS_JSON: Mutex<String> = Mutex::new("[]".to_string());
+    static ref DRAG_HOVER_Y: Mutex<Option<f32>> = Mutex::new(None);
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+/// WASM側にドラッグ中のY座標を通知し、ホバーハイライトを描画させます。
+pub fn set_drag_hover_y(y: f32) {
+    if let Ok(mut lock) = DRAG_HOVER_Y.lock() {
+        *lock = Some(y);
+    }
+    request_repaint();
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+/// WASM側のドラッグホバー状態を解除します。
+pub fn clear_drag_hover() {
+    if let Ok(mut lock) = DRAG_HOVER_Y.lock() {
+        *lock = None;
+    }
+    request_repaint();
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -208,6 +229,15 @@ pub fn get_tracks_json() -> String {
         lock.clone()
     } else {
         "[]".to_string()
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn get_drag_hover_y() -> Option<f32> {
+    if let Ok(lock) = DRAG_HOVER_Y.lock() {
+        *lock
+    } else {
+        None
     }
 }
 

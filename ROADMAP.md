@@ -117,13 +117,13 @@
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] opendaw-wasm/src/state/track.rs を更新し、Tauriから同期されたオートメーションデータを受け取るためのWASM側状態構造を定義する (対象: opendaw-wasm/src/state/track.rs)
-- [ ] [4] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースして状態構造に反映する処理を実装する (対象: opendaw-wasm/src/app.rs)
-- [ ] [5] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画を行うUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [6] opendaw-wasm/src/ui/timeline.rs を更新し、オートメーションポイントの追加・移動（ドラッグ）のインタラクションとTauriへのイベント通知を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [7] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
+- [x] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
+- [x] [3] opendaw-wasm/src/state/track.rs を更新し、Tauriから同期されたオートメーションデータを受け取るためのWASM側状態構造を定義する (対象: opendaw-wasm/src/state/track.rs)
+- [x] [4] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースして状態構造に反映する処理を実装する (対象: opendaw-wasm/src/app.rs)
+- [x] [5] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画を行うUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [x] [6] opendaw-wasm/src/ui/timeline.rs を更新し、オートメーションポイントの追加・移動（ドラッグ）のインタラクションとTauriへのイベント通知を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [x] [7] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
 - [ ] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ---
@@ -134,17 +134,17 @@
 
 ## Phase 34: サブバス / センド＆リターン・ルーティング
 > 複数トラックをグループ化するサブバス、およびリバーブ等の空間系エフェクト用センドトラック。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/track.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
+- [x] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [2] frontend/src-tauri/src/commands/track.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/track.rs)
+- [x] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
 - [ ] 人間: オーディオエンジンのグラフ処理順序をトポロジカルソートし、バス階層に応じたレンダリングを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 35: 究極のドラッグ＆ドロップ・ワークフロー (Studio One風)
 > プラグイン、エフェクトチェイン、オーディオファイル、MIDIパターンをキャンバスやトラックにD&Dするだけで即座にロード＆ルーティングされる仕組み。
-- [ ] [1] opendaw-wasm/src/ui/timeline.rs を更新し、外部ファイルやブラウザからのD&Dイベントを受け取る基盤（TauriからWASMへのイベント通知）を構築する (対象: opendaw-wasm/src/ui/timeline.rs, opendaw-wasm/src/app.rs)
-- [ ] [2] frontend/src/components/PluginBrowser.svelte やファイルブラウザ（新規作成）から、アイテムをドラッグ開始した際にTauri経由でWASMへドラッグ中のアイテム情報を送信する仕組みを実装する (対象: frontend/src/components/PluginBrowser.svelte)
-- [ ] [3] opendaw-wasm/src/ui/timeline.rs を更新し、ドラッグ中のアイテムがトラック上にホバーされた際のハイライト表示を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [4] D&D完了（ドロップ）時に、WASMからTauriの対象コマンド（`load_plugin_to_track`, `add_audio_clip` 等）を呼び出し、処理を完了する連携を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [x] [1] opendaw-wasm/src/ui/timeline.rs を更新し、外部ファイルやブラウザからのD&Dイベントを受け取る基盤（TauriからWASMへのイベント通知）を構築する (対象: opendaw-wasm/src/ui/timeline.rs, opendaw-wasm/src/app.rs)
+- [x] [2] frontend/src/components/PluginBrowser.svelte やファイルブラウザ（新規作成）から、アイテムをドラッグ開始した際にTauri経由でWASMへドラッグ中のアイテム情報を送信する仕組みを実装する (対象: frontend/src/components/PluginBrowser.svelte)
+- [x] [3] opendaw-wasm/src/ui/timeline.rs を更新し、ドラッグ中のアイテムがトラック上にホバーされた際のハイライト表示を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [x] [4] D&D完了（ドロップ）時に、WASMからTauriの対象コマンド（`load_plugin_to_track`, `add_audio_clip` 等）を呼び出し、処理を完了する連携を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
 
 ## Phase 36: インストゥルメント / エフェクト・ラックとマクロコントロール (Ableton Live風)
 > 複数のプラグインやエフェクトを一つの「ラック」にまとめ、パラレル処理や単一のマクロノブで複数パラメータを同時制御する機能。

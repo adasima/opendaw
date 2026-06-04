@@ -135,7 +135,7 @@
     </div>
 
     <div class="control-group sends-group">
-      <label>Sends</label>
+      <span class="sends-label" id="sends-label">Sends</span>
       {#each sends as send, index}
         <div class="send-item">
           <span>{allTracks.find(t => t.id === send.target_track_id)?.name || 'Unknown'}</span>
@@ -224,7 +224,7 @@
     margin-bottom: 8px;
   }
 
-  label {
+  label, .sends-label {
     font-size: 11px;
     color: var(--on-surface-variant);
   }
