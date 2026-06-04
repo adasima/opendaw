@@ -66,11 +66,8 @@ pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [Track
             continue;
         }
 
-        // パンの適用 (Constant Power Panning ではなく、シンプルなリニアパンニングを仮実装)
-        // -1.0(左) 〜 1.0(右) の範囲を 0.0 〜 1.0 に正規化
-        let p = (track.pan + 1.0) / 2.0;
-        let left_gain = (1.0 - p) * track.volume;
-        let right_gain = p * track.volume;
+        // ルーティング（パン、ボリューム）からステレオゲインを計算
+        let (left_gain, right_gain) = crate::engine::routing::calculate_stereo_gains(track.volume, track.pan);
 
         let frames = out_buffer.len() / 2;
         let process_frames = frames.min(track.samples.len() / track.channels as usize);
