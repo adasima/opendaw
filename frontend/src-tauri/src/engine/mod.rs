@@ -1,11 +1,9 @@
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use crossbeam_channel::{bounded, Sender, Receiver};
-use ringbuf::HeapRb;
 use ringbuf::wrap::caching::Caching;
 use ringbuf::SharedRb;
 use ringbuf::storage::Heap;
-use ringbuf::traits::{Producer, Split};
 
 pub mod midi_route;
 use crate::state::ProjectState;
@@ -13,8 +11,8 @@ use crate::state::ProjectState;
 pub type MidiEventProducer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, true, false>;
 pub type MidiEventConsumer = Caching<Arc<SharedRb<Heap<midi_route::MidiEvent>>>, false, true>;
 
-pub type MidiRouteProducer = Caching<Arc<SharedRb<Heap<midi_route::TrackMidiRoute>>>, true, false>;
-pub type MidiRouteConsumer = Caching<Arc<SharedRb<Heap<midi_route::TrackMidiRoute>>>, false, true>;
+pub type MidiRouteProducer = crossbeam_channel::Sender<midi_route::TrackMidiRoute>;
+pub type MidiRouteConsumer = crossbeam_channel::Receiver<midi_route::TrackMidiRoute>;
 
 /// イベントの種類 (メインスレッド -> オーディオスレッド)
 pub enum EngineEvent {
@@ -32,7 +30,7 @@ pub struct EngineHandle {
     bpm: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
     // The main thread needs to be able to send routing updates to the audio thread
-    midi_route_tx: Arc<std::sync::Mutex<MidiRouteProducer>>,
+    midi_route_tx: MidiRouteProducer,
     event_tx: Sender<EngineEvent>,
     pub project_state: Arc<std::sync::RwLock<ProjectState>>,
     pub history: Arc<std::sync::RwLock<crate::state::history::HistoryManager>>,
@@ -48,14 +46,13 @@ impl EngineHandle {
     /// 新しいEngineHandleとイベントレシーバーを作成する
     pub fn create_channel() -> (Self, Receiver<EngineEvent>, MidiRouteConsumer) {
         let (tx, rx) = bounded(1024);
-        let rb = HeapRb::<midi_route::TrackMidiRoute>::new(1024);
-        let (route_tx, route_rx) = rb.split();
+        let (route_tx, route_rx) = bounded(1024);
 
         let handle = Self {
             is_playing: Arc::new(AtomicBool::new(false)),
             bpm: Arc::new(AtomicU32::new(12000)), // 120.0 BPM = 12000
             master_volume: Arc::new(AtomicU32::new(800)), // 0.8 = 800
-            midi_route_tx: Arc::new(std::sync::Mutex::new(route_tx)),
+            midi_route_tx: route_tx,
             event_tx: tx,
             project_state: Arc::new(std::sync::RwLock::new(ProjectState::default())),
             history: Arc::new(std::sync::RwLock::new(crate::state::history::HistoryManager::new())),
@@ -117,9 +114,7 @@ impl EngineHandle {
 
     /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
     pub fn set_track_midi_route(&self, track_id: u32, device: String, channel: u8) {
-        if let Ok(mut tx) = self.midi_route_tx.lock() {
-            let _ = tx.try_push(midi_route::TrackMidiRoute::new(track_id, device, channel));
-        }
+        let _ = self.midi_route_tx.try_send(midi_route::TrackMidiRoute::new(track_id, device, channel));
     }
 }
 
