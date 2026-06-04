@@ -178,3 +178,16 @@
 - [ ] 人間: TauriコマンドおよびRustのコアロジックをラップするMCPサーバ機能を実装し、外部エージェントからの操作を受け付ける (対象: frontend/src-tauri/src/mcp/)
 - [ ] [1] frontend/src-tauri/src/commands/project.rs を更新し、MCPサーバーの起動・停止やポート設定を行う Tauri Command を実装する (対象: frontend/src-tauri/src/commands/project.rs)
 - [ ] [2] frontend/src/components/TrackDetails.svelte などの設定画面に、MCPサーバーのステータス表示や設定パネルを追加する (対象: frontend/src/components/TrackDetails.svelte)
+
+## Phase 41: ゼロコピー通信とバイナリ状態同期
+> TauriバックエンドとフロントエンドWASM間で、JSONシリアライズのオーバーヘッドを排除し、波形データや状態をバイナリ（ゼロコピー）で高速同期する。
+- [ ] [1] frontend/src-tauri/src/state/mod.rs と opendaw-wasm/src/state/mod.rs で、`rkyv` 等を用いたバイナリシリアライゼーションに対応するための共通データ構造を定義する (対象: frontend/src-tauri/src/state/mod.rs, opendaw-wasm/src/state/mod.rs)
+- [ ] [2] frontend/src-tauri/src/app.rs の `get_project_state` コマンドを更新し、JSONの代わりにバイナリデータ（`Vec<u8>`）をフロントエンドへ返すよう実装する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [3] opendaw-wasm/src/app.rs の状態同期処理を更新し、バイナリデータを受け取ってデシリアライズ（またはゼロコピー参照）するよう実装する (対象: opendaw-wasm/src/app.rs)
+
+## Phase 42: ロックフリーDAGオーディオグラフとマルチスレッドレンダリング
+> 複雑なルーティングとマルチコアCPUを活かすため、オーディオグラフをロックフリーなDAGとして再構築し、並行レンダリングを可能にする。
+- [ ] [1] frontend/src-tauri/src/engine/mod.rs に `GraphNode` トレイトを定義し、各トラックやエフェクトをグラフのノードとして表現する基本構造を実装する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] [2] frontend/src-tauri/src/engine/mod.rs に、ノード間の依存関係（DAG）を管理し、実行順序をトポロジカルソートする `AudioGraph` 構造体を実装する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] [3] frontend/src-tauri/src/engine/mod.rs で、DAG構築時のノード追加・変更をロックフリー（またはリアルタイムセーフなキュー経由）で行う仕組みを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] [4] 人間: `AudioGraph` をマルチスレッドで並行レンダリング（依存関係のないノードを別スレッドで処理）するディスパッチャを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
