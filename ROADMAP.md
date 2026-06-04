@@ -119,9 +119,11 @@
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
 - [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [ ] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースし、WASM側の状態に反映する (対象: opendaw-wasm/src/app.rs)
-- [ ] [4] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画とポイントの追加・移動（ドラッグ）のUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [5] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
+- [ ] [3] opendaw-wasm/src/state/track.rs を更新し、Tauriから同期されたオートメーションデータを受け取るためのWASM側状態構造を定義する (対象: opendaw-wasm/src/state/track.rs)
+- [ ] [4] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースして状態構造に反映する処理を実装する (対象: opendaw-wasm/src/app.rs)
+- [ ] [5] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画を行うUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [6] opendaw-wasm/src/ui/timeline.rs を更新し、オートメーションポイントの追加・移動（ドラッグ）のインタラクションとTauriへのイベント通知を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
+- [ ] [7] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
 - [ ] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ---
@@ -181,9 +183,10 @@
 
 ## Phase 41: ゼロコピー通信とバイナリ状態同期
 > TauriバックエンドとフロントエンドWASM間で、JSONシリアライズのオーバーヘッドを排除し、波形データや状態をバイナリ（ゼロコピー）で高速同期する。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs と opendaw-wasm/src/state/mod.rs で、`rkyv` 等を用いたバイナリシリアライゼーションに対応するための共通データ構造を定義する (対象: frontend/src-tauri/src/state/mod.rs, opendaw-wasm/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/app.rs の `get_project_state` コマンドを更新し、JSONの代わりにバイナリデータ（`Vec<u8>`）をフロントエンドへ返すよう実装する (対象: frontend/src-tauri/src/app.rs)
-- [ ] [3] opendaw-wasm/src/app.rs の状態同期処理を更新し、バイナリデータを受け取ってデシリアライズ（またはゼロコピー参照）するよう実装する (対象: opendaw-wasm/src/app.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`rkyv` を用いたバイナリシリアライゼーションに対応するためのバックエンド側データ構造とTrait実装を定義する (対象: frontend/src-tauri/src/state/mod.rs)
+- [ ] [2] opendaw-wasm/src/state/mod.rs などのWASM側状態モジュールを更新し、バイナリデシリアライズに対応するためのデータ構造とTrait実装を定義する (対象: opendaw-wasm/src/state/mod.rs)
+- [ ] [3] frontend/src-tauri/src/app.rs の `get_project_state` コマンドを更新し、JSONの代わりにバイナリデータ（`Vec<u8>`）をフロントエンドへ返すよう実装する (対象: frontend/src-tauri/src/app.rs)
+- [ ] [4] opendaw-wasm/src/app.rs の状態同期処理を更新し、バイナリデータを受け取ってデシリアライズ（またはゼロコピー参照）するよう実装する (対象: opendaw-wasm/src/app.rs)
 
 ## Phase 42: ロックフリーDAGオーディオグラフとマルチスレッドレンダリング
 > 複雑なルーティングとマルチコアCPUを活かすため、オーディオグラフをロックフリーなDAGとして再構築し、並行レンダリングを可能にする。
