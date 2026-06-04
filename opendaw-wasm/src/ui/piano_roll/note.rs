@@ -1,18 +1,30 @@
-use egui::{Color32, Pos2, Rect, Stroke, Ui};
 use super::PianoRoll;
+use egui::{Color32, Pos2, Rect, Stroke, Ui};
 
-pub fn draw_notes(ui: &mut Ui, app: &crate::app::OpenDawApp, piano_roll: &PianoRoll, grid_rect: Rect) {
+pub fn draw_notes(
+    ui: &mut Ui,
+    app: &crate::app::OpenDawApp,
+    piano_roll: &PianoRoll,
+    grid_rect: Rect,
+) {
     let grid_painter = ui.painter().with_clip_rect(grid_rect);
 
     // 3. Draw Notes and Lyrics
     for note in &app.state.active_sequence.notes {
         let note_rect = piano_roll.note_rect(note, grid_rect.min);
-        if note_rect.max.x < grid_rect.min.x || note_rect.min.x > grid_rect.max.x ||
-           note_rect.max.y < grid_rect.min.y || note_rect.min.y > grid_rect.max.y {
+        if note_rect.max.x < grid_rect.min.x
+            || note_rect.min.x > grid_rect.max.x
+            || note_rect.max.y < grid_rect.min.y
+            || note_rect.min.y > grid_rect.max.y
+        {
             continue; // Skip off-screen
         }
 
-        let is_dragged = piano_roll.dragging_note.map(|(id, _)| id == note.id).unwrap_or_default() || piano_roll.resizing_note == Some(note.id);
+        let is_dragged = piano_roll
+            .dragging_note
+            .map(|(id, _)| id == note.id)
+            .unwrap_or_default()
+            || piano_roll.resizing_note == Some(note.id);
         let fill_color = if is_dragged {
             Color32::from_rgb(150, 220, 255) // Brighter when dragged
         } else {
@@ -21,7 +33,12 @@ pub fn draw_notes(ui: &mut Ui, app: &crate::app::OpenDawApp, piano_roll: &PianoR
 
         let display_rect = note_rect.shrink(1.0);
         grid_painter.rect_filled(display_rect, 2.0, fill_color);
-        grid_painter.rect_stroke(display_rect, 2.0, Stroke::new(1.0, Color32::from_rgb(30, 100, 180)), egui::StrokeKind::Inside);
+        grid_painter.rect_stroke(
+            display_rect,
+            2.0,
+            Stroke::new(1.0, Color32::from_rgb(30, 100, 180)),
+            egui::StrokeKind::Inside,
+        );
 
         // Draw Lyrics (ARA2 / SV2 feature) - Not supported on NoteEvent yet
     }

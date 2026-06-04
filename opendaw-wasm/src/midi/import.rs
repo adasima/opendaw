@@ -3,10 +3,10 @@
 //! `.mid` ファイルをパースし、DAWの内部構造（`Track`, `Sequence`, `MidiClip` 等）に変換する。
 //! 外部クレート `midly` を使用してSMF (Standard MIDI File) を読み込む。
 
+use midly::{MetaMessage, MidiMessage, Smf, Timing, TrackEventKind};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use midly::{MetaMessage, MidiMessage, Smf, Timing, TrackEventKind};
 
 use crate::midi::sequence::Sequence;
 use crate::state::clip::MidiClip;
@@ -148,7 +148,11 @@ pub fn import_midi_as_tracks<P: AsRef<Path>>(
             .map(|n| n.start_beat + n.duration_beats)
             .fold(0.0_f64, f64::max);
         // クリップの最低長さを1拍とする
-        let length_beats = if length_beats > 0.0 { length_beats } else { 1.0 };
+        let length_beats = if length_beats > 0.0 {
+            length_beats
+        } else {
+            1.0
+        };
 
         // MidiClipの生成
         let mut clip = MidiClip::new(id, format!("{} Clip", data.name), 0.0, length_beats);

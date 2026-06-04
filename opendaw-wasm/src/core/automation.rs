@@ -25,7 +25,11 @@ impl AutomationEnvelope {
 
     /// Adds a point, keeping the points sorted by time.
     pub fn add_point(&mut self, point: AutomationPoint) {
-        match self.points.binary_search_by(|p| p.time.partial_cmp(&point.time).unwrap_or(std::cmp::Ordering::Equal)) {
+        match self.points.binary_search_by(|p| {
+            p.time
+                .partial_cmp(&point.time)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        }) {
             Ok(pos) => self.points[pos] = point,
             Err(pos) => self.points.insert(pos, point),
         }

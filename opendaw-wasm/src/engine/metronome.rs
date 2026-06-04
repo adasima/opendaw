@@ -11,7 +11,6 @@ const ACCENT_FREQUENCY: f32 = 1500.0;
 const CLICK_DURATION_SEC: f32 = 0.05;
 const BEATS_PER_BAR: f32 = 4.0;
 
-
 /// メトロノームのクリック音を生成する構造体
 pub struct Metronome {
     sample_rate: f32,
@@ -68,7 +67,14 @@ impl Metronome {
 
     /// 指定されたバッファにメトロノーム音をミックスする。
     /// current_sample_pos は再生開始からの累積サンプル数
-    pub fn process(&mut self, buffer: &mut [f32], channels: u16, current_sample_pos: usize, bpm: f32, is_enabled: bool) {
+    pub fn process(
+        &mut self,
+        buffer: &mut [f32],
+        channels: u16,
+        current_sample_pos: usize,
+        bpm: f32,
+        is_enabled: bool,
+    ) {
         if !is_enabled || channels == 0 || bpm <= 0.0 {
             return;
         }
@@ -84,7 +90,11 @@ impl Metronome {
             // (pos % samples_per_beat) が 0 になるタイミングでトリガー
             // 浮動小数点の誤差を考慮し、現在のサンプル位置が新しいビートの開始境界をまたいだかをチェックする
             let current_beat = (pos as f32 / samples_per_beat).floor();
-            let prev_beat = if pos > 0 { ((pos - 1) as f32 / samples_per_beat).floor() } else { -1.0 };
+            let prev_beat = if pos > 0 {
+                ((pos - 1) as f32 / samples_per_beat).floor()
+            } else {
+                -1.0
+            };
 
             if current_beat > prev_beat {
                 // トリガー

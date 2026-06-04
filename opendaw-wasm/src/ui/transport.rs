@@ -11,13 +11,23 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     ui.horizontal(|ui| {
         let play_icon = if app.state.is_playing { "⏸" } else { "▶" };
 
-        let record_icon = if app.state.is_recording { "⏺ (On)" } else { "⏺" };
+        let record_icon = if app.state.is_recording {
+            "⏺ (On)"
+        } else {
+            "⏺"
+        };
         let record_color = if app.state.is_recording {
             egui::Color32::RED
         } else {
             ui.visuals().text_color()
         };
-        if ui.add(egui::Button::new(egui::RichText::new(record_icon).color(record_color))).on_hover_text("Record").clicked() {
+        if ui
+            .add(egui::Button::new(
+                egui::RichText::new(record_icon).color(record_color),
+            ))
+            .on_hover_text("Record")
+            .clicked()
+        {
             app.state.toggle_recording();
         }
         if ui.button(play_icon).on_hover_text("Play/Pause").clicked() {
@@ -60,7 +70,11 @@ pub fn draw_transport(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         } else {
             "⏱ (Off)"
         };
-        if ui.button(metronome_icon).on_hover_text("Toggle Metronome").clicked() {
+        if ui
+            .button(metronome_icon)
+            .on_hover_text("Toggle Metronome")
+            .clicked()
+        {
             app.state.toggle_metronome();
         }
 

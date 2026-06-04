@@ -45,20 +45,31 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                             if let Some(pan) = track_val.get("pan").and_then(|v| v.as_f64()) {
                                 track.pan = pan as f32;
                             }
-                            if let Some(muted) = track_val.get("is_muted").and_then(|v| v.as_bool()) {
+                            if let Some(muted) = track_val.get("is_muted").and_then(|v| v.as_bool())
+                            {
                                 track.is_muted = muted;
                             }
                             if let Some(solo) = track_val.get("is_solo").and_then(|v| v.as_bool()) {
                                 track.is_solo = solo;
                             }
-                            if let Some(armed) = track_val.get("is_record_armed").and_then(|v| v.as_bool()) {
+                            if let Some(armed) =
+                                track_val.get("is_record_armed").and_then(|v| v.as_bool())
+                            {
                                 track.is_record_armed = armed;
                             }
                             // clips
-                            if let Some(clips_array) = track_val.get("clips").and_then(|v| v.as_array()) {
+                            if let Some(clips_array) =
+                                track_val.get("clips").and_then(|v| v.as_array())
+                            {
                                 for clip_val in clips_array {
-                                    if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::AudioClip>(clip_val.clone()) {
-                                        if let Some(existing_clip) = track.clips.iter_mut().find(|c| c.id == parsed_clip.id) {
+                                    if let Ok(parsed_clip) =
+                                        serde_json::from_value::<crate::state::clip::AudioClip>(
+                                            clip_val.clone(),
+                                        )
+                                    {
+                                        if let Some(existing_clip) =
+                                            track.clips.iter_mut().find(|c| c.id == parsed_clip.id)
+                                        {
                                             existing_clip.name = parsed_clip.name;
                                             if !is_dragging_clip {
                                                 existing_clip.start_pos = parsed_clip.start_pos;
@@ -69,16 +80,29 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                         }
                                     }
                                 }
-                                let backend_clip_ids: Vec<usize> = clips_array.iter()
-                                    .filter_map(|c| c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
+                                let backend_clip_ids: Vec<usize> = clips_array
+                                    .iter()
+                                    .filter_map(|c| {
+                                        c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize)
+                                    })
                                     .collect();
                                 track.clips.retain(|c| backend_clip_ids.contains(&c.id));
                             }
                             // midi_clips
-                            if let Some(midi_clips_array) = track_val.get("midi_clips").and_then(|v| v.as_array()) {
+                            if let Some(midi_clips_array) =
+                                track_val.get("midi_clips").and_then(|v| v.as_array())
+                            {
                                 for clip_val in midi_clips_array {
-                                    if let Ok(parsed_clip) = serde_json::from_value::<crate::state::clip::MidiClip>(clip_val.clone()) {
-                                        if let Some(existing_clip) = track.midi_clips.iter_mut().find(|c| c.id == parsed_clip.id) {
+                                    if let Ok(parsed_clip) =
+                                        serde_json::from_value::<crate::state::clip::MidiClip>(
+                                            clip_val.clone(),
+                                        )
+                                    {
+                                        if let Some(existing_clip) = track
+                                            .midi_clips
+                                            .iter_mut()
+                                            .find(|c| c.id == parsed_clip.id)
+                                        {
                                             existing_clip.name = parsed_clip.name;
                                             if !is_dragging_clip {
                                                 existing_clip.start_beat = parsed_clip.start_beat;
@@ -89,16 +113,23 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                         }
                                     }
                                 }
-                                let backend_midi_ids: Vec<usize> = midi_clips_array.iter()
-                                    .filter_map(|c| c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
+                                let backend_midi_ids: Vec<usize> = midi_clips_array
+                                    .iter()
+                                    .filter_map(|c| {
+                                        c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize)
+                                    })
                                     .collect();
-                                track.midi_clips.retain(|c| backend_midi_ids.contains(&c.id));
+                                track
+                                    .midi_clips
+                                    .retain(|c| backend_midi_ids.contains(&c.id));
                             }
                             break;
                         }
                     }
                     if !found {
-                        if let Ok(new_track) = serde_json::from_value::<crate::state::track::Track>(track_val.clone()) {
+                        if let Ok(new_track) =
+                            serde_json::from_value::<crate::state::track::Track>(track_val.clone())
+                        {
                             state.tracks.push(new_track);
                         }
                     }
@@ -106,7 +137,8 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
             }
 
             // Remove tracks that are no longer in the backend
-            let backend_ids: Vec<usize> = tracks_array.iter()
+            let backend_ids: Vec<usize> = tracks_array
+                .iter()
                 .filter_map(|t| t.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
                 .collect();
             state.tracks.retain(|t| backend_ids.contains(&t.id));

@@ -4,10 +4,10 @@ use std::fmt::Debug;
 pub trait Command: Debug + Send + Sync {
     /// Executes the command.
     fn execute(&mut self) -> Result<(), String>;
-    
+
     /// Undoes the command.
     fn undo(&mut self) -> Result<(), String>;
-    
+
     /// Returns the name of the command for display in the UI (e.g., "Move Clip").
     fn name(&self) -> &str;
 }
@@ -121,12 +121,18 @@ impl MoveClipCommand {
 impl Command for MoveClipCommand {
     fn execute(&mut self) -> Result<(), String> {
         // In a real implementation, you would call methods on your domain models.
-        println!("Executing MoveClipCommand: moving clip {} from {} to {}", self.clip_id, self.old_position, self.new_position);
+        println!(
+            "Executing MoveClipCommand: moving clip {} from {} to {}",
+            self.clip_id, self.old_position, self.new_position
+        );
         Ok(())
     }
 
     fn undo(&mut self) -> Result<(), String> {
-        println!("Undoing MoveClipCommand: moving clip {} back to {}", self.clip_id, self.old_position);
+        println!(
+            "Undoing MoveClipCommand: moving clip {} back to {}",
+            self.clip_id, self.old_position
+        );
         Ok(())
     }
 
@@ -148,14 +154,18 @@ mod tests {
         assert!(!history.can_undo());
         assert!(!history.can_redo());
 
-        history.execute_command(cmd1).expect("Failed to execute cmd1");
+        history
+            .execute_command(cmd1)
+            .expect("Failed to execute cmd1");
         assert!(history.can_undo());
-        
-        history.execute_command(cmd2).expect("Failed to execute cmd2");
-        
+
+        history
+            .execute_command(cmd2)
+            .expect("Failed to execute cmd2");
+
         history.undo().expect("Failed to undo cmd2"); // undo cmd2
         assert!(history.can_redo());
-        
+
         history.redo().expect("Failed to redo cmd2"); // redo cmd2
         assert!(history.can_undo());
     }

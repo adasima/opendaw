@@ -33,14 +33,14 @@ impl ModCurve {
     pub fn apply(&self, value: f32) -> f32 {
         let sign = value.signum();
         let abs_val = value.abs();
-        
+
         let shaped = match self {
             ModCurve::Linear => abs_val,
             ModCurve::Exponential => abs_val * abs_val,
             ModCurve::Logarithmic => abs_val.sqrt(),
             ModCurve::SCurve => abs_val * abs_val * (3.0 - 2.0 * abs_val), // smoothstep
         };
-        
+
         shaped * sign
     }
 }
@@ -82,7 +82,13 @@ impl ModMatrix {
     }
 
     /// Adds a new modulation routing.
-    pub fn add_routing(&mut self, source: ModSource, target: ModTarget, amount: f32, curve: ModCurve) -> u32 {
+    pub fn add_routing(
+        &mut self,
+        source: ModSource,
+        target: ModTarget,
+        amount: f32,
+        curve: ModCurve,
+    ) -> u32 {
         let id = self.next_routing_id;
         self.next_routing_id += 1;
         self.routings.push(ModRouting {
@@ -100,7 +106,7 @@ impl ModMatrix {
     pub fn remove_routing(&mut self, id: u32) {
         self.routings.retain(|r| r.id != id);
     }
-    
+
     /// Enables or disables a routing.
     pub fn set_routing_enabled(&mut self, id: u32, enabled: bool) {
         if let Some(r) = self.routings.iter_mut().find(|r| r.id == id) {
@@ -117,7 +123,10 @@ impl ModMatrix {
 
     /// Calculates the total modulation for each target given the current source values.
     /// `source_values` maps `ModSource` to a normalized value (e.g., -1.0 to 1.0).
-    pub fn calculate_modulations(&self, source_values: &HashMap<ModSource, f32>) -> HashMap<ModTarget, f32> {
+    pub fn calculate_modulations(
+        &self,
+        source_values: &HashMap<ModSource, f32>,
+    ) -> HashMap<ModTarget, f32> {
         let mut target_mods = HashMap::new();
 
         for routing in &self.routings {

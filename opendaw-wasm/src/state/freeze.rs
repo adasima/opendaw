@@ -7,10 +7,10 @@ use std::path::PathBuf;
 pub struct FreezeState {
     /// トラックが現在フリーズされているかどうか
     pub is_frozen: bool,
-    
+
     /// キャッシュされたWAVデータ（レンダリング結果）のファイルパス
     pub cached_wav_path: Option<PathBuf>,
-    
+
     /// フリーズ作成時のトラックのバージョンやハッシュ。
     /// トラックの状態が変更された際にフリーズを無効化・再レンダリングするために使用します。
     pub source_version: u64,
@@ -32,7 +32,7 @@ impl FreezeState {
     pub fn unfreeze(&mut self) {
         self.is_frozen = false;
     }
-    
+
     /// キャッシュをクリアし、フリーズ状態も解除します。
     pub fn clear_cache(&mut self) {
         self.cached_wav_path = None;

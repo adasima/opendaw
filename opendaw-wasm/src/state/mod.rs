@@ -151,7 +151,6 @@ mod tests {
         assert!(!state.is_playing);
     }
 
-
     #[test]
     fn test_toggle_recording() {
         let mut state = DawState::default();
@@ -166,7 +165,6 @@ mod tests {
 
     #[test]
     fn test_stop_playback() {
-
         let mut state = DawState::default();
         state.is_playing = true;
         state.playhead_pos = 50.0;
@@ -304,5 +302,6 @@ mod tests {
 
 pub mod freeze;
 
-
 pub mod sync;
+pub mod track_clip;
+pub mod track_plugin;

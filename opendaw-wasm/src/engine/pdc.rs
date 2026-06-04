@@ -73,7 +73,7 @@ impl PdcEngine {
     /// Calculates required delays to compensate for the latencies in the routing graph.
     pub fn calculate_compensation(&mut self, graph: &RoutingGraph) {
         let cumulative_latencies = graph.calculate_cumulative_latencies();
-        
+
         // Find the maximum latency in the graph
         self.max_latency = *cumulative_latencies.values().max().unwrap_or(&0);
 
@@ -108,7 +108,7 @@ mod tests {
     fn test_pdc_calculation() {
         let mut graph = RoutingGraph::new();
         graph.set_node_latency(1, 128); // Node 1 has 128 samples latency
-        graph.set_node_latency(2, 0);   // Node 2 has no latency
+        graph.set_node_latency(2, 0); // Node 2 has no latency
 
         let mut pdc = PdcEngine::new();
         pdc.calculate_compensation(&graph);

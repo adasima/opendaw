@@ -1,9 +1,9 @@
 //! MCPサーバーからのコマンドを受信して状態を更新します。
 
-use crate::state::DawState;
-use crate::mcp::channel::{McpCommand, McpCommandReceiver};
-use crate::engine::channel::UiToAudioMsg;
 use crate::engine::channel::UiChannels;
+use crate::engine::channel::UiToAudioMsg;
+use crate::mcp::channel::{McpCommand, McpCommandReceiver};
+use crate::state::DawState;
 use ringbuf::traits::Producer;
 
 /// MCPコマンドをポーリングして状態を更新します。
@@ -20,17 +20,13 @@ pub fn poll_mcp_commands(
                 McpCommand::Play => {
                     state.is_playing = true;
                     if let Some(ui_channels) = ui_channels {
-                        let _ = ui_channels
-                            .0
-                            .try_push(UiToAudioMsg::SetPlaying(true));
+                        let _ = ui_channels.0.try_push(UiToAudioMsg::SetPlaying(true));
                     }
                 }
                 McpCommand::Stop => {
                     state.stop_playback();
                     if let Some(ui_channels) = ui_channels {
-                        let _ = ui_channels
-                            .0
-                            .try_push(UiToAudioMsg::SetPlaying(false));
+                        let _ = ui_channels.0.try_push(UiToAudioMsg::SetPlaying(false));
                     }
                 }
                 McpCommand::ToggleLoop => {

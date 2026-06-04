@@ -48,19 +48,28 @@ impl<'a> TitleBar<'a> {
                         let button_size = egui::vec2(24.0, 24.0);
 
                         // 閉じるボタン
-                        if ui.add(egui::Button::new("❌").min_size(button_size)).clicked() {
+                        if ui
+                            .add(egui::Button::new("❌").min_size(button_size))
+                            .clicked()
+                        {
                             ctx.send_viewport_cmd(ViewportCommand::Close);
                         }
 
                         // 最大化・縮小ボタン
                         let is_maximized = ctx.input(|i| i.viewport().maximized.unwrap_or(false));
                         let maximize_icon = if is_maximized { "🗗" } else { "🗖" };
-                        if ui.add(egui::Button::new(maximize_icon).min_size(button_size)).clicked() {
+                        if ui
+                            .add(egui::Button::new(maximize_icon).min_size(button_size))
+                            .clicked()
+                        {
                             ctx.send_viewport_cmd(ViewportCommand::Maximized(!is_maximized));
                         }
 
                         // 最小化ボタン
-                        if ui.add(egui::Button::new("🗕").min_size(button_size)).clicked() {
+                        if ui
+                            .add(egui::Button::new("🗕").min_size(button_size))
+                            .clicked()
+                        {
                             ctx.send_viewport_cmd(ViewportCommand::Minimized(true));
                         }
                     });

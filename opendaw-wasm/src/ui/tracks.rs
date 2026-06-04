@@ -51,7 +51,6 @@ mod tests {
     // use super::*;
     use crate::app::OpenDawApp;
 
-
     #[test]
     fn test_add_synth_track_logic() {
         // UIスレッドを模倣して、トラック追加ロジックの動作を確認する

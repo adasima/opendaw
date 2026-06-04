@@ -1,5 +1,5 @@
-use egui::{Color32, Pos2, Rect, Stroke, Ui, Vec2};
 use super::PianoRoll;
+use egui::{Color32, Pos2, Rect, Stroke, Ui, Vec2};
 
 pub fn draw_keyboard(ui: &mut Ui, piano_roll: &PianoRoll, keyboard_rect: Rect, keys_width: f32) {
     let kb_painter = ui.painter().with_clip_rect(keyboard_rect);
@@ -12,11 +12,23 @@ pub fn draw_keyboard(ui: &mut Ui, piano_roll: &PianoRoll, keyboard_rect: Rect, k
         }
 
         let is_black = matches!(p % 12, 1 | 3 | 6 | 8 | 10);
-        let color = if is_black { Color32::from_gray(20) } else { Color32::from_gray(200) };
-        let key_rect = Rect::from_min_size(Pos2::new(keyboard_rect.min.x, y), Vec2::new(keys_width, piano_roll.key_height));
+        let color = if is_black {
+            Color32::from_gray(20)
+        } else {
+            Color32::from_gray(200)
+        };
+        let key_rect = Rect::from_min_size(
+            Pos2::new(keyboard_rect.min.x, y),
+            Vec2::new(keys_width, piano_roll.key_height),
+        );
 
         kb_painter.rect_filled(key_rect, 0.0, color);
-        kb_painter.rect_stroke(key_rect, 0.0, Stroke::new(1.0, Color32::from_gray(50)), egui::StrokeKind::Inside);
+        kb_painter.rect_stroke(
+            key_rect,
+            0.0,
+            Stroke::new(1.0, Color32::from_gray(50)),
+            egui::StrokeKind::Inside,
+        );
 
         if p % 12 == 0 {
             kb_painter.text(
@@ -28,7 +40,11 @@ pub fn draw_keyboard(ui: &mut Ui, piano_roll: &PianoRoll, keyboard_rect: Rect, k
                     format!("C{}", octave)
                 },
                 egui::FontId::proportional(12.0),
-                if is_black { Color32::WHITE } else { Color32::BLACK }
+                if is_black {
+                    Color32::WHITE
+                } else {
+                    Color32::BLACK
+                },
             );
         }
     }
