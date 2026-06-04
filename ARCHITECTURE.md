@@ -35,6 +35,10 @@ opendaw-wasm/            # フロントエンド描画エンジン (Rust + egui 
 │   │   ├── device.rs    # オーディオデバイス列挙・選択 (cpal)
 │   │   ├── mixer.rs
 │   │   ├── stream.rs    # オーディオストリーム管理
+│   │   ├── routing.rs   # オーディオルーティング管理
+│   │   ├── bus.rs       # バス処理
+│   │   ├── oscillator.rs# 波形生成モジュール
+│   │   ├── voice.rs     # ボイス管理モジュール
 │   │   └── ...
 │   ├── midi/            # MIDI処理・マッピング
 │   ├── state/           # プロジェクト状態管理

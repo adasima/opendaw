@@ -107,8 +107,8 @@
 - [x] nova: [4-2] opendaw-wasm/src/state/mod.rs を機能ドメインごとのモジュールに整理・分割し、再エクスポートを整理する (対象: opendaw-wasm/src/state/mod.rs)
 - [x] nova: [5-1] opendaw-wasm/src/engine/synth.rs を波形生成モジュールに分割し、新しく `opendaw-wasm/src/engine/oscillator.rs` を作成する (対象: opendaw-wasm/src/engine/synth.rs, opendaw-wasm/src/engine/oscillator.rs, opendaw-wasm/src/engine/mod.rs)
 - [x] nova: [5-2] opendaw-wasm/src/engine/synth.rs をボイス管理モジュールに分割し、新しく `opendaw-wasm/src/engine/voice.rs` を作成する (対象: opendaw-wasm/src/engine/synth.rs, opendaw-wasm/src/engine/voice.rs, opendaw-wasm/src/engine/mod.rs)
-- [ ] warden: frontend/src-tauri/src/engine/mod.rs の EngineHandle 構造体内の midi_route_tx に使用されている Mutex を、リアルタイム制約を満たすようにロックフリーなデータ構造（RingBufferなど）に変更する (対象: frontend/src-tauri/src/engine/mod.rs)
-- [ ] warden: opendaw-wasm/src/midi/mapping.rs の SharedMidiMappingRegistry で使用されている Mutex を、リアルタイム処理で安全に扱えるようにロックフリーまたは適切な構造に変更する (対象: opendaw-wasm/src/midi/mapping.rs)
+- [ ] warden: frontend/src-tauri/src/engine/mod.rs の EngineHandle 構造体内の midi_route_tx に使用されている crossbeam_channel を、オーディオスレッドのリアルタイム制約を満たすようにロックフリーなデータ構造（RingBufferなど）に変更する (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] warden: opendaw-wasm/src/midi/mapping.rs の SharedMidiMappingRegistry で使用されている RwLock を、リアルタイム処理で安全に扱えるようにロックフリーまたは適切な構造に変更する (対象: opendaw-wasm/src/midi/mapping.rs)
 - [ ] 人間: `vst3-sys` 等を用いたプラグインのロード、GUI表示、音声バッファのやり取り基盤を確立する (対象: frontend/src-tauri/src/plugin/host.rs)
 - [x] [1] frontend/src-tauri/src/state/mod.rs を更新し、Track内にロードされたプラグインのリストを保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
 - [x] [2] frontend/src-tauri/src/commands/plugin.rs を作成し、プラグインをトラックにロードするためのTauri Command `load_plugin_to_track` を追加する (対象: frontend/src-tauri/src/commands/plugin.rs, frontend/src-tauri/src/lib.rs)
@@ -117,14 +117,9 @@
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs を更新し、`ProjectState` の `Track` にオートメーションデータ（パラメータ名とポイントのリスト）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/track.rs に、オートメーションポイントを追加・削除・更新するTauri Commandを追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] opendaw-wasm/src/state/track.rs を更新し、Tauriから同期されたオートメーションデータを受け取るためのWASM側状態構造を定義する (対象: opendaw-wasm/src/state/track.rs)
-- [ ] [4] opendaw-wasm/src/app.rs を更新し、Tauriから同期されたJSONからオートメーションデータをパースして状態構造に反映する処理を実装する (対象: opendaw-wasm/src/app.rs)
-- [ ] [5] opendaw-wasm/src/ui/timeline.rs を更新し、各トラックの下部にオートメーションレーンを表示し、カーブの描画を行うUIを実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [6] opendaw-wasm/src/ui/timeline.rs を更新し、オートメーションポイントの追加・移動（ドラッグ）のインタラクションとTauriへのイベント通知を実装する (対象: opendaw-wasm/src/ui/timeline.rs)
-- [ ] [7] frontend/src/components/Tracks.svelte を更新し、各トラックヘッダーにオートメーションの表示/非表示を切り替えるボタンと対象パラメータを選択するドロップダウンを追加する (対象: frontend/src/components/Tracks.svelte)
-- [ ] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
+- [ ] [1] frontend/src-tauri/src/state/mod.rs、opendaw-wasm/src/state/track.rs、opendaw-wasm/src/app.rs を更新し、オートメーションデータ（パラメータ名とポイントのリスト）の保持とTauriからWASMへの同期基盤を実装し、同時に frontend/src-tauri/src/commands/track.rs にTauriコマンドを追加する
+- [ ] [2] opendaw-wasm/src/ui/timeline.rs と frontend/src/components/Tracks.svelte を連携させ、オートメーションレーンの描画、ポイントの追加・移動（ドラッグ）のインタラクション、およびUI上の表示切替/対象選択機能をエンドツーエンドで実装する
+- [ ] [3] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ---
 
