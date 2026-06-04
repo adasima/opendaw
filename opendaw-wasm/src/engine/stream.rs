@@ -74,10 +74,7 @@ pub fn build_output_stream(
                 1000.0,
                 config.sample_rate as f32,
             );
-            const MAX_CLIPS: usize = 16;
-            let mut recorded_clips: [Option<(usize, std::sync::Arc<Vec<f32>>)>; MAX_CLIPS] =
-                Default::default();
-            let mut next_clip_idx = 0;
+            let mut master_bus = crate::engine::bus::MasterBus::new();
             device
                 .build_output_stream(
                     config,
@@ -99,11 +96,7 @@ pub fn build_output_stream(
                                             track_oscillator.envelope.params = params;
                                         }
                                         UiToAudioMsg::AddRecordedClip(_id, start_pos, data) => {
-                                            if next_clip_idx < MAX_CLIPS {
-                                                recorded_clips[next_clip_idx] =
-                                                    Some((start_pos, data));
-                                                next_clip_idx += 1;
-                                            }
+                                            master_bus.add_clip(start_pos, data);
                                         }
                                         UiToAudioMsg::UpdateEffectParams(
                                             _track_id,
@@ -178,26 +171,7 @@ pub fn build_output_stream(
 
                             crate::engine::mixer::mix_tracks(data, channels, &mut [track_data]);
 
-                            for (start_pos, clip) in recorded_clips.iter().flatten() {
-                                let clip_len = clip.len() / channels as usize;
-                                if pos + samples_to_read > *start_pos && pos < *start_pos + clip_len
-                                {
-                                    let play_offset = pos.saturating_sub(*start_pos);
-                                    let buf_offset = (*start_pos).saturating_sub(pos);
-                                    let to_read =
-                                        (samples_to_read - buf_offset).min(clip_len - play_offset);
-                                    for i in 0..to_read {
-                                        for ch in 0..channels as usize {
-                                            let src_idx =
-                                                (play_offset + i) * channels as usize + ch;
-                                            let dst_idx = (buf_offset + i) * channels as usize + ch;
-                                            if src_idx < clip.len() && dst_idx < data.len() {
-                                                data[dst_idx] += clip[src_idx];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            master_bus.mix_clips(data, pos, samples_to_read, channels);
 
                             pos += samples_to_read;
                             ctx.position.store(pos, Ordering::Relaxed);
@@ -235,10 +209,7 @@ pub fn build_output_stream(
                 config.sample_rate as f32,
             );
             let mut mix_buf = vec![0.0; MIX_BUFFER_SIZE]; // 事前確保しておくミキシング用バッファ
-            const MAX_CLIPS: usize = 16;
-            let mut recorded_clips: [Option<(usize, std::sync::Arc<Vec<f32>>)>; MAX_CLIPS] =
-                Default::default();
-            let mut next_clip_idx = 0;
+            let mut master_bus = crate::engine::bus::MasterBus::new();
             device
                 .build_output_stream(
                     config,
@@ -260,11 +231,7 @@ pub fn build_output_stream(
                                             track_oscillator.envelope.params = params;
                                         }
                                         UiToAudioMsg::AddRecordedClip(_id, start_pos, data) => {
-                                            if next_clip_idx < MAX_CLIPS {
-                                                recorded_clips[next_clip_idx] =
-                                                    Some((start_pos, data));
-                                                next_clip_idx += 1;
-                                            }
+                                            master_bus.add_clip(start_pos, data);
                                         }
                                         UiToAudioMsg::UpdateEffectParams(
                                             _track_id,
@@ -349,29 +316,7 @@ pub fn build_output_stream(
                                     &mut [track_data],
                                 );
 
-                                for (start_pos, clip) in recorded_clips.iter().flatten() {
-                                    let clip_len = clip.len() / channels as usize;
-                                    if current_pos + samples_to_read > *start_pos
-                                        && current_pos < *start_pos + clip_len
-                                    {
-                                        let play_offset = current_pos.saturating_sub(*start_pos);
-                                        let buf_offset = (*start_pos).saturating_sub(current_pos);
-                                        let to_read = (samples_to_read - buf_offset)
-                                            .min(clip_len - play_offset);
-                                        for i in 0..to_read {
-                                            for ch in 0..channels as usize {
-                                                let src_idx =
-                                                    (play_offset + i) * channels as usize + ch;
-                                                let dst_idx =
-                                                    (buf_offset + i) * channels as usize + ch;
-                                                if src_idx < clip.len() && dst_idx < mix_slice.len()
-                                                {
-                                                    mix_slice[dst_idx] += clip[src_idx];
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                master_bus.mix_clips(mix_slice, current_pos, samples_to_read, channels);
 
                                 for (i, &f_sample) in mix_slice.iter().enumerate() {
                                     let sample_f32 = f_sample.clamp(-1.0, 1.0);
