@@ -27,6 +27,14 @@ The **Track Details** panel, displayed when a track is selected, allows for the 
 | Volume | The individual output volume of the track | 0.8 (80%) | 0.0 to 1.0 (0% to 100%) |
 | Pan | Panning (left-right positioning) | 0.0 (0%) | -1.0 (Left) to 1.0 (Right) |
 
+### Audio Routing
+Sets the destination for the audio signal output and sends.
+
+| Parameter | Description |
+|:---|:---|
+| Output | Selects the main audio output destination for this track (Master or another track) |
+| Sends | Branches and sends the audio to other tracks. You can add send destinations and adjust the send amount |
+
 ### MIDI Routing
 | Parameter | Description |
 |:---|:---|
