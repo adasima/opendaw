@@ -21,6 +21,7 @@ OpenDAW is a next-generation, portable DAW (Digital Audio Workstation) featuring
 - [Mixer](user-guide/mixer.md)
 - [Piano Roll Editor](user-guide/piano-roll.md)
 - [Effects](user-guide/effects.md)
+- [Automation](user-guide/automation.md)
 - [Audio File Import](user-guide/audio-import.md)
 - [Export](user-guide/export.md)
 - [Audio Recording](user-guide/recording.md)
