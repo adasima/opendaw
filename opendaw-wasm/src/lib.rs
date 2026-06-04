@@ -281,3 +281,25 @@ pub fn notify_update_midi_clip_notes(
         let _ = tauri_invoke("update_midi_clip_notes", js_value);
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+pub fn notify_update_automation_point(track_id: usize, param_name: String, time: f64, value: f32) {
+    #[derive(serde::Serialize)]
+    struct UpdateAutoPointArgs {
+        track_id: usize,
+        param_name: String,
+        time: f64,
+        value: f32,
+    }
+
+    let args = UpdateAutoPointArgs {
+        track_id,
+        param_name,
+        time,
+        value,
+    };
+
+    if let Ok(js_value) = serde_wasm_bindgen::to_value(&args) {
+        let _ = tauri_invoke("update_automation_point", js_value);
+    }
+}

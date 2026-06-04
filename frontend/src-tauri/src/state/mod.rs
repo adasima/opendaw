@@ -42,6 +42,21 @@ impl Default for ProjectState {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+/// オートメーションポイントの情報を保持する構造体
+pub struct AutomationPoint {
+    pub id: usize,
+    pub time: f64, // タイムライン上の位置(パーセンテージまたは拍)
+    pub value: f32, // パラメータの値 (0.0 ~ 1.0 など)
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+/// オートメーショントラックの情報を保持する構造体
+pub struct AutomationTrack {
+    pub parameter_name: String, // "Volume", "Pan" など
+    pub points: Vec<AutomationPoint>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 /// センドルーティングの情報を保持する構造体
 pub struct SendRouting {
     pub target_track_id: usize,
@@ -63,6 +78,9 @@ pub struct Track {
     pub plugins: Vec<String>,
     pub output_routing: Option<usize>,
     pub sends: Vec<SendRouting>,
+    pub automations: Vec<AutomationTrack>,
+    pub automation_visible: bool,
+    pub selected_automation: Option<String>,
 }
 
 impl Track {
@@ -81,6 +99,9 @@ impl Track {
             plugins: Vec::new(),
             output_routing: None,
             sends: Vec::new(),
+            automations: Vec::new(),
+            automation_visible: false,
+            selected_automation: None,
         }
     }
 }

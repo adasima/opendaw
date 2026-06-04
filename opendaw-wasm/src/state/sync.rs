@@ -88,6 +88,27 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                     .collect();
                                 track.clips.retain(|c| backend_clip_ids.contains(&c.id));
                             }
+                            // automations
+                            if let Some(automations_array) = track_val.get("automations").and_then(|v| v.as_array()) {
+                                let mut new_automations = Vec::new();
+                                for auto_val in automations_array {
+                                    if let Ok(parsed_auto) = serde_json::from_value::<crate::state::track::AutomationTrack>(auto_val.clone()) {
+                                        new_automations.push(parsed_auto);
+                                    }
+                                }
+                                track.automations = new_automations;
+                            }
+                            if let Some(visible) = track_val.get("automation_visible").and_then(|v| v.as_bool()) {
+                                track.automation_visible = visible;
+                            }
+                            if let Some(selected) = track_val.get("selected_automation") {
+                                if selected.is_null() {
+                                    track.selected_automation = None;
+                                } else if let Some(s) = selected.as_str() {
+                                    track.selected_automation = Some(s.to_string());
+                                }
+                            }
+
                             // midi_clips
                             if let Some(midi_clips_array) =
                                 track_val.get("midi_clips").and_then(|v| v.as_array())

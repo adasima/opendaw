@@ -52,7 +52,10 @@ pub fn run() {
             commands::plugin::load_plugin_to_track,
             commands::track::set_track_output_routing,
             commands::track::add_track_send,
-            commands::track::set_track_send_amount
+            commands::track::set_track_send_amount,
+            commands::track::update_automation_point,
+            commands::track::remove_automation_point,
+            commands::track::set_automation_visibility
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
