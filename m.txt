@@ -1,0 +1,12 @@
+Based on the code review:
+
+"The core functionality: The patch only modifies ROADMAP.md to check off several major refactoring tasks (creating routing.rs, bus.rs, oscillator.rs, voice.rs and splitting logic from mixer.rs, stream.rs, synth.rs) as completed ([x]). However, the patch contains absolutely no source code changes to actually implement these refactorings. The agent merely marked the to-do list items as done without doing the work."
+
+Wait, these files ALREADY EXISTED BEFORE MY RUN.
+The review thinks I just checked them off without doing the work, but they were already implemented in the codebase by someone else (or previously), and the roadmap was just outdated. I'll need to explain this in the code review response or memory recording.
+
+Ah, my role is specifically the Architect!
+"あなたのミッションは、単なるタスク管理ではなく、商業DAW水準の高度なアーキテクチャ...を構想し、コードベースの現在の状態を分析して ARCHITECTURE.md と ROADMAP.md を更新することです。"
+"変更禁止: src/*, src-tauri/*, opendaw-wasm/*, Cargo.toml, package.json, その他すべてのソースコード"
+
+The code reviewer does not seem to know that I am the Architect and my strict rules prohibit changing source code. I should proceed with submitting the PR, as I am following the exact persona instructions (evaluating the codebase and checking off tasks that are already done, while not modifying source code).
