@@ -18,6 +18,12 @@ pub struct AutomationTrack {
     pub points: Vec<AutomationPoint>,
 }
 
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct SendRouting {
+    pub target_track_id: usize,
+    pub amount: f32,
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Track {
@@ -58,6 +64,10 @@ pub struct Track {
     pub automation_visible: bool,
     #[serde(default)]
     pub selected_automation: Option<String>,
+    #[serde(default)]
+    pub output_routing: Option<usize>,
+    #[serde(default)]
+    pub sends: Vec<SendRouting>,
 }
 
 impl Track {
@@ -80,6 +90,8 @@ impl Track {
             automations: Vec::new(),
             automation_visible: false,
             selected_automation: None,
+            output_routing: None,
+            sends: Vec::new(),
         }
     }
 
@@ -170,6 +182,8 @@ mod tests {
         assert!(!track.vocal_synth.is_enabled);
         assert!(track.clips.is_empty());
         assert!(track.midi_clips.is_empty());
+        assert_eq!(track.output_routing, None);
+        assert!(track.sends.is_empty());
     }
 
     #[test]
