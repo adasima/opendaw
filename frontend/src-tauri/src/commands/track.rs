@@ -73,3 +73,58 @@ pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), S
     state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
         Ok(())
 }
+
+/// トラックの出力ルーティングを設定する
+#[tauri::command]
+pub fn set_track_output_routing(track_id: usize, target: Option<usize>, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Routing: Set track {} output to {:?}", track_id, target);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        track.output_routing = target;
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}
+
+/// トラックにセンドルーティングを追加する
+#[tauri::command]
+pub fn add_track_send(track_id: usize, target_track_id: usize, amount: f32, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Routing: Add send from track {} to {} (amount: {})", track_id, target_track_id, amount);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        // Prevent duplicate sends to the same target
+        if !track.sends.iter().any(|s| s.target_track_id == target_track_id) {
+            track.sends.push(crate::state::SendRouting {
+                target_track_id,
+                amount,
+            });
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        }
+        Ok(())
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}
+
+/// トラックのセンドルーティングの送信量を設定する
+#[tauri::command]
+pub fn set_track_send_amount(track_id: usize, target_track_id: usize, amount: f32, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Routing: Set send amount from track {} to {} (amount: {})", track_id, target_track_id, amount);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        if let Some(send) = track.sends.iter_mut().find(|s| s.target_track_id == target_track_id) {
+            send.amount = amount;
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+            Ok(())
+        } else {
+            Err(format!("Send from track {} to {} not found", track_id, target_track_id))
+        }
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}

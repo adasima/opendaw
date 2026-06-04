@@ -42,6 +42,13 @@ impl Default for ProjectState {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+/// センドルーティングの情報を保持する構造体
+pub struct SendRouting {
+    pub target_track_id: usize,
+    pub amount: f32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 /// トラックの情報を保持する構造体
 pub struct Track {
     pub id: usize,
@@ -54,6 +61,8 @@ pub struct Track {
     pub clips: Vec<clip::AudioClip>,
     pub midi_clips: Vec<clip::MidiClip>,
     pub plugins: Vec<String>,
+    pub output_routing: Option<usize>,
+    pub sends: Vec<SendRouting>,
 }
 
 impl Track {
@@ -70,6 +79,8 @@ impl Track {
             clips: Vec::new(),
             midi_clips: Vec::new(),
             plugins: Vec::new(),
+            output_routing: None,
+            sends: Vec::new(),
         }
     }
 }
