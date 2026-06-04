@@ -3,6 +3,8 @@
 //! 各トラックの名前、ボリューム、パン、ミュート、ソロ状態などを管理する構造体。
 
 pub use crate::state::track_plugin::*;
+pub use crate::state::track_clip::*;
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Track {

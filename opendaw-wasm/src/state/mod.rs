@@ -304,4 +304,6 @@ pub mod freeze;
 
 pub mod sync;
 pub mod track_clip;
+pub use track_clip::*;
 pub mod track_plugin;
+pub use track_plugin::*;
