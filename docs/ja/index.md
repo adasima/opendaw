@@ -21,6 +21,7 @@ OpenDAW は、**Discordライクな直感性 × グラスモーフィズムUI ×
 - [ミキサー](user-guide/mixer.md)
 - [ピアノロールエディタ](user-guide/piano-roll.md)
 - [エフェクト](user-guide/effects.md)
+- [オートメーション](user-guide/automation.md)
 - [オーディオファイルのインポート](user-guide/audio-import.md)
 - [エクスポート](user-guide/export.md)
 - [オーディオ録音](user-guide/recording.md)

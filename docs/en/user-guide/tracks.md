@@ -17,6 +17,7 @@ The following buttons are arranged on the track header, allowing you to quickly 
 - **M** (Mute): Mutes the audio for this track.
 - **S** (Solo): Sets this track to the solo state. Only tracks with Solo enabled will be played.
 - **R** (Record): Toggles the record standby (record arm) state for this track.
+- **A** (Automation): Toggles the visibility of automation settings for this track. When automation is visible, a dropdown menu for selecting parameters (e.g., `Volume`) appears below the track.
 
 ## Track Details (Advanced Settings)
 The **Track Details** panel, displayed when a track is selected, allows for the following settings.
