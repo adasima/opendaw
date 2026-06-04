@@ -24,8 +24,12 @@ pub mod channel;
 pub mod device;
 pub mod effects;
 pub mod export;
+pub mod bus;
 pub mod mixer;
+pub mod routing;
 pub mod stream;
+pub mod oscillator;
+pub mod voice;
 
 /// オーディオエンジンのエントリポイント
 pub struct AudioEngine {

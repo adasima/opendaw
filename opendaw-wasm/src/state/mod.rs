@@ -10,6 +10,8 @@ pub use clip::MidiClip;
 pub mod project;
 pub use project::ProjectState;
 pub mod track; // Track 構造体（名前、ボリューム、パン、ミュート、ソロ）
+pub mod track_plugin;
+pub mod track_clip;
 
 use crate::midi::sequence::Sequence;
 

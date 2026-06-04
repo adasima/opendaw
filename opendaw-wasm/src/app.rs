@@ -70,7 +70,7 @@ impl OpenDawApp {
 
                     if changed {
                         match &effect.effect_type {
-                            crate::state::track::EffectType::Delay { time_ms, feedback, mix } => {
+                            crate::state::track_plugin::EffectType::Delay { time_ms, feedback, mix } => {
                                 let params = crate::engine::channel::EffectParams::Delay {
                                     time_ms: *time_ms,
                                     feedback: *feedback,
@@ -78,8 +78,8 @@ impl OpenDawApp {
                                 };
                                 let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::UpdateEffectParams(track.id, effect.id, params));
                             }
-                            crate::state::track::EffectType::Gain => {}
-                            crate::state::track::EffectType::Filter => {}
+                            crate::state::track_plugin::EffectType::Gain => {}
+                            crate::state::track_plugin::EffectType::Filter => {}
                         }
                         effect.last_sent_type = Some(effect.effect_type.clone());
                     }
@@ -99,9 +99,9 @@ impl OpenDawApp {
                     if changed {
                         let current_params = (track.synth.waveform, track.synth.adsr);
                         let waveform = match track.synth.waveform {
-                            crate::state::track::Waveform::Sine => crate::engine::synth::Waveform::Sine,
-                            crate::state::track::Waveform::Square => crate::engine::synth::Waveform::Square,
-                            crate::state::track::Waveform::Sawtooth => crate::engine::synth::Waveform::Sawtooth,
+                            crate::engine::synth::Waveform::Sine => crate::engine::synth::Waveform::Sine,
+                            crate::engine::synth::Waveform::Square => crate::engine::synth::Waveform::Square,
+                            crate::engine::synth::Waveform::Sawtooth => crate::engine::synth::Waveform::Sawtooth,
                         };
                         let adsr = crate::engine::synth::AdsrParams {
                             attack: track.synth.adsr.attack,
@@ -498,7 +498,7 @@ mod tests_synth {
         let mut app = OpenDawApp::default();
         app.state.add_track("Synth Track");
         app.state.tracks[0].synth.is_enabled = true;
-        app.state.tracks[0].synth.waveform = crate::state::track::Waveform::Square;
+        app.state.tracks[0].synth.waveform = crate::engine::synth::Waveform::Square;
 
         app.poll_synth_params();
 
@@ -520,8 +520,8 @@ mod tests_synth {
         let mut app = OpenDawApp::default();
         app.state.add_track("Effect Track");
 
-        let delay_effect = crate::state::track::EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 };
-        app.state.tracks[0].add_effect(crate::state::track::EffectSetting::new(1, delay_effect));
+        let delay_effect = crate::state::track_plugin::EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 };
+        app.state.tracks[0].add_effect(crate::state::track_plugin::EffectSetting::new(1, delay_effect));
 
         app.poll_effect_params();
 

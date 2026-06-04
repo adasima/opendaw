@@ -72,14 +72,14 @@ pub fn draw_mixer_panel(ui: &mut egui::Ui, app: &mut crate::app::OpenDawApp) {
                                     ui.label("Waveform");
                                     egui::ComboBox::from_id_source(format!("waveform_{}", track.id))
                                         .selected_text(match track.synth.waveform {
-                                            crate::state::track::Waveform::Sine => "Sine",
-                                            crate::state::track::Waveform::Square => "Square",
-                                            crate::state::track::Waveform::Sawtooth => "Sawtooth",
+                                            crate::engine::synth::Waveform::Sine => "Sine",
+                                            crate::engine::synth::Waveform::Square => "Square",
+                                            crate::engine::synth::Waveform::Sawtooth => "Sawtooth",
                                         })
                                         .show_ui(ui, |ui| {
-                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Sine, "Sine");
-                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Square, "Square");
-                                            ui.selectable_value(&mut track.synth.waveform, crate::state::track::Waveform::Sawtooth, "Sawtooth");
+                                            ui.selectable_value(&mut track.synth.waveform, crate::engine::synth::Waveform::Sine, "Sine");
+                                            ui.selectable_value(&mut track.synth.waveform, crate::engine::synth::Waveform::Square, "Square");
+                                            ui.selectable_value(&mut track.synth.waveform, crate::engine::synth::Waveform::Sawtooth, "Sawtooth");
                                         });
 
                                     ui.label("ADSR");
