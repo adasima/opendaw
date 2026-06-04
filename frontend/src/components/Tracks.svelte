@@ -1,6 +1,24 @@
 <script>
   import { invoke } from "@tauri-apps/api/core";
   let { tracks = [], activeTrackId = null, onSelectTrack = () => {} } = $props();
+
+  function toggleAutomation(trackId, currentVisible, currentSelected) {
+    let newVisible = !currentVisible;
+    let newSelected = newVisible ? (currentSelected || "Volume") : null;
+    invoke("set_automation_visibility", {
+      trackId: trackId,
+      visible: newVisible,
+      selectedParam: newSelected
+    }).catch(console.error);
+  }
+
+  function changeAutomationParam(trackId, event) {
+    invoke("set_automation_visibility", {
+      trackId: trackId,
+      visible: true,
+      selectedParam: event.target.value
+    }).catch(console.error);
+  }
 </script>
 
 {#each tracks as track}
@@ -20,7 +38,24 @@
         <button class="ctrl-btn mute">M</button>
         <button class="ctrl-btn solo">S</button>
         <button class="ctrl-btn record">R</button>
+        <button
+          class="ctrl-btn auto {track.automation_visible ? 'active' : ''}"
+          onclick={(e) => { e.stopPropagation(); toggleAutomation(track.id, track.automation_visible, track.selected_automation); }}
+          title="Toggle Automation"
+        >A</button>
       </div>
+      {#if track.automation_visible}
+        <div class="automation-controls">
+          <select
+            value={track.selected_automation || "Volume"}
+            onclick={(e) => e.stopPropagation()}
+            onchange={(e) => changeAutomationParam(track.id, e)}
+          >
+            <option value="Volume">Volume</option>
+            <option value="Pan">Pan</option>
+          </select>
+        </div>
+      {/if}
     </div>
   </div>
 {/each}
@@ -96,6 +131,23 @@
   .ctrl-btn.record:hover {
     color: #ef4444;
     border-color: #ef4444;
+  }
+  .ctrl-btn.auto.active {
+    background: rgba(114, 137, 218, 0.3);
+    color: #7289da;
+    border-color: #7289da;
+  }
+  .automation-controls {
+    margin-top: 4px;
+  }
+  .automation-controls select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--outline-variant);
+    border-radius: 4px;
+    color: white;
+    padding: 2px 4px;
+    font-size: 10px;
+    width: 100%;
   }
 
   .track-info {

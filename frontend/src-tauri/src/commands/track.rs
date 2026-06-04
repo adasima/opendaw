@@ -89,6 +89,82 @@ pub fn set_track_output_routing(track_id: usize, target: Option<usize>, state: S
     }
 }
 
+/// オートメーションポイントを追加・更新する
+#[tauri::command]
+pub fn update_automation_point(track_id: usize, param_name: String, time: f64, value: f32, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Automation: Update point on track {} ({}) at {} = {}", track_id, param_name, time, value);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let auto_track = match track.automations.iter_mut().find(|a| a.parameter_name == param_name) {
+            Some(a) => a,
+            None => {
+                track.automations.push(crate::state::AutomationTrack {
+                    parameter_name: param_name.clone(),
+                    points: Vec::new(),
+                });
+                track.automations.last_mut().unwrap()
+            }
+        };
+
+        // Update if existing at approximately same time, else insert
+        if let Some(existing) = auto_track.points.iter_mut().find(|p| (p.time - time).abs() < 0.001) {
+            existing.value = value;
+        } else {
+            let new_id = auto_track.points.iter().map(|p| p.id).max().unwrap_or(0) + 1;
+            auto_track.points.push(crate::state::AutomationPoint {
+                id: new_id,
+                time,
+                value,
+            });
+            auto_track.points.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+        }
+
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}
+
+/// オートメーションポイントを削除する
+#[tauri::command]
+pub fn remove_automation_point(track_id: usize, param_name: String, point_id: usize, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Automation: Remove point {} on track {} ({})", point_id, track_id, param_name);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        if let Some(auto_track) = track.automations.iter_mut().find(|a| a.parameter_name == param_name) {
+            auto_track.points.retain(|p| p.id != point_id);
+            state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+            Ok(())
+        } else {
+            Err(format!("Automation track {} not found", param_name))
+        }
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}
+
+/// オートメーションの表示状態を設定する
+#[tauri::command]
+pub fn set_automation_visibility(track_id: usize, visible: bool, selected_param: Option<String>, state: State<'_, AppState>) -> Result<(), String> {
+    info!("Automation: Set visibility on track {} to {} ({:?})", track_id, visible, selected_param);
+    let mut project_state = state.engine.project_state.write().unwrap_or_else(|e| e.into_inner());
+    let project_state_snapshot = project_state.clone();
+
+    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        track.automation_visible = visible;
+        track.selected_automation = selected_param;
+        state.engine.history.write().unwrap_or_else(|e| e.into_inner()).save_snapshot(&project_state_snapshot);
+        Ok(())
+    } else {
+        Err(format!("Track {} not found", track_id))
+    }
+}
+
 /// トラックにセンドルーティングを追加する
 #[tauri::command]
 pub fn add_track_send(track_id: usize, target_track_id: usize, amount: f32, state: State<'_, AppState>) -> Result<(), String> {

@@ -5,6 +5,19 @@
 pub use crate::state::track_plugin::*;
 pub use crate::state::track_clip::*;
 
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct AutomationPoint {
+    pub id: usize,
+    pub time: f64,
+    pub value: f32,
+}
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct AutomationTrack {
+    pub parameter_name: String,
+    pub points: Vec<AutomationPoint>,
+}
+
 /// DAW内の単一トラックの状態を保持する構造体
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Track {
@@ -39,6 +52,12 @@ pub struct Track {
     /// トラック内のMIDIクリップ
     #[serde(default)]
     pub midi_clips: Vec<crate::state::clip::MidiClip>,
+    #[serde(default)]
+    pub automations: Vec<AutomationTrack>,
+    #[serde(default)]
+    pub automation_visible: bool,
+    #[serde(default)]
+    pub selected_automation: Option<String>,
 }
 
 impl Track {
@@ -58,6 +77,9 @@ impl Track {
             vocal_synth: VocalSynthSetting::default(),
             clips: Vec::new(),
             midi_clips: Vec::new(),
+            automations: Vec::new(),
+            automation_visible: false,
+            selected_automation: None,
         }
     }
 
