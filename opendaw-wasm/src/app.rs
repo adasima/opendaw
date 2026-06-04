@@ -70,13 +70,21 @@ impl OpenDawApp {
 
                     if changed {
                         match &effect.effect_type {
-                            crate::state::track::EffectType::Delay { time_ms, feedback, mix } => {
+                            crate::state::track::EffectType::Delay {
+                                time_ms,
+                                feedback,
+                                mix,
+                            } => {
                                 let params = crate::engine::channel::EffectParams::Delay {
                                     time_ms: *time_ms,
                                     feedback: *feedback,
                                     mix: *mix,
                                 };
-                                let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::UpdateEffectParams(track.id, effect.id, params));
+                                let _ = ui_channels.0.try_push(
+                                    crate::engine::channel::UiToAudioMsg::UpdateEffectParams(
+                                        track.id, effect.id, params,
+                                    ),
+                                );
                             }
                             crate::state::track::EffectType::Gain => {}
                             crate::state::track::EffectType::Filter => {}
@@ -93,15 +101,23 @@ impl OpenDawApp {
             for track in &mut self.state.tracks {
                 if track.synth.is_enabled {
                     let changed = match &track.synth.last_sent_params {
-                        Some(params) => params.0 != track.synth.waveform || params.1 != track.synth.adsr,
+                        Some(params) => {
+                            params.0 != track.synth.waveform || params.1 != track.synth.adsr
+                        }
                         None => true,
                     };
                     if changed {
                         let current_params = (track.synth.waveform, track.synth.adsr);
                         let waveform = match track.synth.waveform {
-                            crate::state::track::Waveform::Sine => crate::engine::synth::Waveform::Sine,
-                            crate::state::track::Waveform::Square => crate::engine::synth::Waveform::Square,
-                            crate::state::track::Waveform::Sawtooth => crate::engine::synth::Waveform::Sawtooth,
+                            crate::state::track::Waveform::Sine => {
+                                crate::engine::synth::Waveform::Sine
+                            }
+                            crate::state::track::Waveform::Square => {
+                                crate::engine::synth::Waveform::Square
+                            }
+                            crate::state::track::Waveform::Sawtooth => {
+                                crate::engine::synth::Waveform::Sawtooth
+                            }
                         };
                         let adsr = crate::engine::synth::AdsrParams {
                             attack: track.synth.adsr.attack,
@@ -110,9 +126,7 @@ impl OpenDawApp {
                             release: track.synth.adsr.release,
                         };
                         let msg = crate::engine::channel::UiToAudioMsg::UpdateSynthParams(
-                            track.id,
-                            waveform,
-                            adsr,
+                            track.id, waveform, adsr,
                         );
                         if ui_channels.0.try_push(msg).is_ok() {
                             track.synth.last_sent_params = Some(current_params);
@@ -139,8 +153,10 @@ impl OpenDawApp {
                 if self.state.is_playing {
                     // 1. グローバルなスクラッチパッド(active_sequence)を再生
                     for note in &self.state.active_sequence.notes {
-                        if current_pos >= note.start_beat && current_pos < note.start_beat + note.duration_beats
-                            && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
+                        if current_pos >= note.start_beat
+                            && current_pos < note.start_beat + note.duration_beats
+                            && active_count < crate::engine::channel::MAX_ACTIVE_NOTES
+                        {
                             let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
                             active_freqs[active_count] = freq;
                             active_count += 1;
@@ -153,9 +169,12 @@ impl OpenDawApp {
                         if current_pos >= clip.start_beat && current_pos < clip_end_beat {
                             let local_pos = current_pos - clip.start_beat;
                             for note in &clip.sequence.notes {
-                                if local_pos >= note.start_beat && local_pos < note.start_beat + note.duration_beats
-                                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES {
-                                    let freq = 440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
+                                if local_pos >= note.start_beat
+                                    && local_pos < note.start_beat + note.duration_beats
+                                    && active_count < crate::engine::channel::MAX_ACTIVE_NOTES
+                                {
+                                    let freq =
+                                        440.0 * 2.0_f32.powf((note.pitch as f32 - 69.0) / 12.0);
                                     active_freqs[active_count] = freq;
                                     active_count += 1;
                                 }
@@ -164,11 +183,13 @@ impl OpenDawApp {
                     }
                 }
 
-                let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
-                    track.id,
-                    active_freqs,
-                    active_count,
-                ));
+                let _ = ui_channels
+                    .0
+                    .try_push(crate::engine::channel::UiToAudioMsg::ActiveNotes(
+                        track.id,
+                        active_freqs,
+                        active_count,
+                    ));
             }
         }
     }
@@ -182,7 +203,7 @@ impl OpenDawApp {
     ) -> Self {
         // カスタムフォントやスタイルなどをここで設定
         crate::ui::setup_custom_style(&cc.egui_ctx);
-        
+
         #[cfg(target_arch = "wasm32")]
         crate::EGUI_CTX.with(|ctx| {
             *ctx.borrow_mut() = Some(cc.egui_ctx.clone());
@@ -193,7 +214,6 @@ impl OpenDawApp {
             ..Default::default()
         }
     }
-
 }
 
 impl eframe::App for OpenDawApp {
@@ -211,7 +231,11 @@ impl eframe::App for OpenDawApp {
         #[cfg(target_arch = "wasm32")]
         {
             let json_str = crate::get_tracks_json();
-            crate::state::sync::sync_project_state_json(&mut self.state, self.is_dragging_clip, &json_str);
+            crate::state::sync::sync_project_state_json(
+                &mut self.state,
+                self.is_dragging_clip,
+                &json_str,
+            );
         }
 
         // 初期化時にオーディオチャンネルをエンジンに渡す
@@ -241,13 +265,18 @@ impl eframe::App for OpenDawApp {
                 is_solo: bool,
                 is_record_armed: bool,
             }
-            let tracks_data: Vec<TrackJson> = self.state.tracks.iter().map(|t| TrackJson {
-                id: t.id,
-                name: t.name.clone(),
-                is_muted: t.is_muted,
-                is_solo: t.is_solo,
-                is_record_armed: t.is_record_armed,
-            }).collect();
+            let tracks_data: Vec<TrackJson> = self
+                .state
+                .tracks
+                .iter()
+                .map(|t| TrackJson {
+                    id: t.id,
+                    name: t.name.clone(),
+                    is_muted: t.is_muted,
+                    is_solo: t.is_solo,
+                    is_record_armed: t.is_record_armed,
+                })
+                .collect();
             if let Ok(json_str) = serde_json::to_string(&tracks_data) {
                 crate::set_tracks_json(json_str);
             }
@@ -271,14 +300,25 @@ impl eframe::App for OpenDawApp {
                     let track_idx = 0;
                     let clip_id = self.state.tracks[track_idx].clips.len() + 1;
                     let start_pos = self.state.playhead_pos;
-                    let mut new_clip = crate::state::clip::AudioClip::new(clip_id, "Recorded Clip", start_pos, clip_length);
+                    let mut new_clip = crate::state::clip::AudioClip::new(
+                        clip_id,
+                        "Recorded Clip",
+                        start_pos,
+                        clip_length,
+                    );
                     let summary: Vec<f32> = data.iter().step_by(100).copied().collect();
                     new_clip.set_waveform_summary(summary);
                     self.state.tracks[track_idx].clips.push(new_clip);
                     if let Some(ui_channels) = &mut self.ui_channels {
                         let track_id = self.state.tracks[track_idx].id;
                         let start_sample = (start_pos * 44100.0 / 120.0) as usize; // 仮の変換（秒への変換が必要だが今回はBPM120基準で処理）
-                        let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::AddRecordedClip(track_id, start_sample, arc_data));
+                        let _ = ui_channels.0.try_push(
+                            crate::engine::channel::UiToAudioMsg::AddRecordedClip(
+                                track_id,
+                                start_sample,
+                                arc_data,
+                            ),
+                        );
                     }
                 }
             }
@@ -316,9 +356,11 @@ impl eframe::App for OpenDawApp {
         crate::ui::effects::draw_effects_window(ctx, self);
 
         if self.is_plugin_browser_open {
-            egui::Window::new("Plugin Browser").open(&mut self.is_plugin_browser_open).show(ctx, |ui| {
-                crate::ui::browser::draw_browser_panel(ui);
-            });
+            egui::Window::new("Plugin Browser")
+                .open(&mut self.is_plugin_browser_open)
+                .show(ctx, |ui| {
+                    crate::ui::browser::draw_browser_panel(ui);
+                });
         }
 
         #[allow(deprecated)]
@@ -376,7 +418,6 @@ mod tests {
         assert!(!app.is_session_view);
     }
 
-
     #[test]
     fn test_browser_switching() {
         let mut app = OpenDawApp::default();
@@ -410,7 +451,6 @@ mod tests {
         // channels 自体は private なので、間接的に送信して影響を確認するなどで代用するが、
         // 今回は audio_channels_temp が None になることのみを確認する。
     }
-
 
     #[test]
     fn test_process_active_notes() {
@@ -464,25 +504,49 @@ mod tests {
         app.mcp_receiver = Some(rx);
         // Play command
         tx.send(crate::mcp::channel::McpCommand::Play)?;
-        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
+        crate::mcp::handler::poll_mcp_commands(
+            &app.mcp_receiver,
+            &mut app.state,
+            &mut app.ui_channels,
+            &mut app.selected_track_id,
+            &mut app.selected_clip_id,
+        );
         assert!(app.state.is_playing);
 
         // Stop command
         tx.send(crate::mcp::channel::McpCommand::Stop)?;
-        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
+        crate::mcp::handler::poll_mcp_commands(
+            &app.mcp_receiver,
+            &mut app.state,
+            &mut app.ui_channels,
+            &mut app.selected_track_id,
+            &mut app.selected_clip_id,
+        );
         assert!(!app.state.is_playing);
 
         // AddTrack command
         assert_eq!(app.state.tracks.len(), 0);
         tx.send(crate::mcp::channel::McpCommand::AddTrack)?;
-        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
+        crate::mcp::handler::poll_mcp_commands(
+            &app.mcp_receiver,
+            &mut app.state,
+            &mut app.ui_channels,
+            &mut app.selected_track_id,
+            &mut app.selected_clip_id,
+        );
         assert_eq!(app.state.tracks.len(), 1);
         assert_eq!(app.state.tracks[0].name, "New Track (MCP)");
 
         // RemoveTrack command
         let track_id = app.state.tracks[0].id;
         tx.send(crate::mcp::channel::McpCommand::RemoveTrack(track_id))?;
-        crate::mcp::handler::poll_mcp_commands(&app.mcp_receiver, &mut app.state, &mut app.ui_channels, &mut app.selected_track_id, &mut app.selected_clip_id);
+        crate::mcp::handler::poll_mcp_commands(
+            &app.mcp_receiver,
+            &mut app.state,
+            &mut app.ui_channels,
+            &mut app.selected_track_id,
+            &mut app.selected_clip_id,
+        );
         assert_eq!(app.state.tracks.len(), 0);
         Ok(())
     }
@@ -505,7 +569,12 @@ mod tests_synth {
         let mut received = false;
         if let Some(audio_channels) = &mut app.audio_channels_temp {
             while let Some(msg) = audio_channels.0.try_pop() {
-                if let crate::engine::channel::UiToAudioMsg::UpdateSynthParams(id, waveform, _adsr) = msg {
+                if let crate::engine::channel::UiToAudioMsg::UpdateSynthParams(
+                    id,
+                    waveform,
+                    _adsr,
+                ) = msg
+                {
                     assert_eq!(id, app.state.tracks[0].id);
                     assert_eq!(waveform, crate::engine::synth::Waveform::Square);
                     received = true;
@@ -520,7 +589,11 @@ mod tests_synth {
         let mut app = OpenDawApp::default();
         app.state.add_track("Effect Track");
 
-        let delay_effect = crate::state::track::EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 };
+        let delay_effect = crate::state::track::EffectType::Delay {
+            time_ms: 300.0,
+            feedback: 0.3,
+            mix: 0.5,
+        };
         app.state.tracks[0].add_effect(crate::state::track::EffectSetting::new(1, delay_effect));
 
         app.poll_effect_params();
@@ -528,10 +601,20 @@ mod tests_synth {
         let mut received = false;
         if let Some(audio_channels) = &mut app.audio_channels_temp {
             while let Some(msg) = audio_channels.0.try_pop() {
-                if let crate::engine::channel::UiToAudioMsg::UpdateEffectParams(track_id, effect_id, params) = msg {
+                if let crate::engine::channel::UiToAudioMsg::UpdateEffectParams(
+                    track_id,
+                    effect_id,
+                    params,
+                ) = msg
+                {
                     assert_eq!(track_id, app.state.tracks[0].id);
                     assert_eq!(effect_id, 1);
-                    if let crate::engine::channel::EffectParams::Delay { time_ms, feedback, mix } = params {
+                    if let crate::engine::channel::EffectParams::Delay {
+                        time_ms,
+                        feedback,
+                        mix,
+                    } = params
+                    {
                         assert_eq!(time_ms, 300.0);
                         assert_eq!(feedback, 0.3);
                         assert_eq!(mix, 0.5);

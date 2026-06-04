@@ -76,7 +76,10 @@ pub fn start(canvas_id: &str) {
     // WASM関数のために送信機を保持
     MCP_TX.with(|tx| *tx.borrow_mut() = Some(mcp_tx));
 
-    let document = web_sys::window().expect("no global `window` exists").document().expect("should have a document on window");
+    let document = web_sys::window()
+        .expect("no global `window` exists")
+        .document()
+        .expect("should have a document on window");
     let canvas = document
         .get_element_by_id(canvas_id)
         .expect("failed to find canvas")
@@ -256,7 +259,11 @@ pub fn notify_midi_clip_moved(track_id: usize, clip_id: usize, new_start_beat: f
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn notify_update_midi_clip_notes(track_id: usize, clip_id: usize, notes: &Vec<crate::midi::sequence::NoteEvent>) {
+pub fn notify_update_midi_clip_notes(
+    track_id: usize,
+    clip_id: usize,
+    notes: &Vec<crate::midi::sequence::NoteEvent>,
+) {
     #[derive(serde::Serialize)]
     struct UpdateMidiClipNotesArgs<'a> {
         track_id: usize,

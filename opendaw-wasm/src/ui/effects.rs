@@ -34,7 +34,14 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut OpenDawApp) {
                 }
                 if ui.button("Add Delay").clicked() {
                     let new_id = track.effects.iter().map(|e| e.id).max().unwrap_or(0) + 1;
-                    track.add_effect(EffectSetting::new(new_id, EffectType::Delay { time_ms: 300.0, feedback: 0.3, mix: 0.5 }));
+                    track.add_effect(EffectSetting::new(
+                        new_id,
+                        EffectType::Delay {
+                            time_ms: 300.0,
+                            feedback: 0.3,
+                            mix: 0.5,
+                        },
+                    ));
                 }
             });
 
@@ -62,9 +69,18 @@ pub fn draw_effects_window(ctx: &egui::Context, app: &mut OpenDawApp) {
                             EffectType::Gain => {}
                             EffectType::Filter => {}
                             _ => {
-                                if let crate::state::track::EffectType::Delay { time_ms, feedback, mix } = &mut effect.effect_type {
-                                    ui.add(egui::Slider::new(time_ms, 1.0..=2000.0).text("Time (ms)"));
-                                    ui.add(egui::Slider::new(feedback, 0.0..=0.99).text("Feedback"));
+                                if let crate::state::track::EffectType::Delay {
+                                    time_ms,
+                                    feedback,
+                                    mix,
+                                } = &mut effect.effect_type
+                                {
+                                    ui.add(
+                                        egui::Slider::new(time_ms, 1.0..=2000.0).text("Time (ms)"),
+                                    );
+                                    ui.add(
+                                        egui::Slider::new(feedback, 0.0..=0.99).text("Feedback"),
+                                    );
                                     ui.add(egui::Slider::new(mix, 0.0..=1.0).text("Mix"));
                                 }
                             }

@@ -1,15 +1,15 @@
-pub mod browser;
-pub mod session_view;
 pub mod ai_agent;
+pub mod arranger;
+pub mod browser;
 pub mod effects;
 pub mod import;
 pub mod mixer;
 pub mod piano_roll;
 pub mod project;
+pub mod session_view;
 pub mod timeline;
 pub mod tracks;
 pub mod transport;
-pub mod arranger;
 
 use eframe::egui;
 
@@ -49,6 +49,5 @@ pub fn draw_main_ui(app: &mut crate::app::OpenDawApp, ui: &mut egui::Ui) {
 
 pub mod theme;
 
-
-pub mod title_bar;
 pub mod main_layout;
+pub mod title_bar;

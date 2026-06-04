@@ -5,7 +5,7 @@
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use ringbuf::HeapRb;
-use ringbuf::traits::{Consumer, Producer, Split, Observer};
+use ringbuf::traits::{Consumer, Observer, Producer, Split};
 use ringbuf::wrap::caching::CachingCons;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -45,13 +45,11 @@ impl Recorder {
     pub fn start_recording(&mut self, device_name: Option<&str>) -> Result<(), String> {
         let host = cpal::default_host();
         let device = if let Some(name) = device_name {
-            host.input_devices()
-                .map_err(|e| e.to_string())?
-                .find(|d| {
-                    #[allow(deprecated)]
-                    let dev_name = d.name();
-                    dev_name.ok().as_deref() == Some(name)
-                })
+            host.input_devices().map_err(|e| e.to_string())?.find(|d| {
+                #[allow(deprecated)]
+                let dev_name = d.name();
+                dev_name.ok().as_deref() == Some(name)
+            })
         } else {
             host.default_input_device()
         };
@@ -97,7 +95,8 @@ impl Recorder {
                 None,
             ),
             _ => return Err("サポートされていないサンプルフォーマットです".to_string()),
-        }.map_err(|e| e.to_string())?;
+        }
+        .map_err(|e| e.to_string())?;
 
         stream.play().map_err(|e| e.to_string())?;
         self.stream = Some(stream);

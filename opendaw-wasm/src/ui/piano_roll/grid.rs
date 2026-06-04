@@ -1,7 +1,12 @@
-use egui::{Color32, Pos2, Rect, Stroke, Ui, Vec2};
 use super::PianoRoll;
+use egui::{Color32, Pos2, Rect, Stroke, Ui, Vec2};
 
-pub fn draw_grid(ui: &mut Ui, app: &crate::app::OpenDawApp, piano_roll: &PianoRoll, grid_rect: Rect) {
+pub fn draw_grid(
+    ui: &mut Ui,
+    app: &crate::app::OpenDawApp,
+    piano_roll: &PianoRoll,
+    grid_rect: Rect,
+) {
     let grid_painter = ui.painter().with_clip_rect(grid_rect);
     grid_painter.rect_filled(grid_rect, 0.0, Color32::from_gray(40));
 
@@ -14,14 +19,17 @@ pub fn draw_grid(ui: &mut Ui, app: &crate::app::OpenDawApp, piano_roll: &PianoRo
         let is_black = matches!(p % 12, 1 | 3 | 6 | 8 | 10);
         if is_black {
             grid_painter.rect_filled(
-                Rect::from_min_size(Pos2::new(grid_rect.min.x, y), Vec2::new(grid_rect.width(), piano_roll.key_height)),
+                Rect::from_min_size(
+                    Pos2::new(grid_rect.min.x, y),
+                    Vec2::new(grid_rect.width(), piano_roll.key_height),
+                ),
                 0.0,
-                Color32::from_gray(35)
+                Color32::from_gray(35),
             );
         }
         grid_painter.line_segment(
             [Pos2::new(grid_rect.min.x, y), Pos2::new(grid_rect.max.x, y)],
-            Stroke::new(1.0, Color32::from_gray(50))
+            Stroke::new(1.0, Color32::from_gray(50)),
         );
     }
 
@@ -53,7 +61,7 @@ pub fn draw_grid(ui: &mut Ui, app: &crate::app::OpenDawApp, piano_roll: &PianoRo
 
         grid_painter.line_segment(
             [Pos2::new(x, grid_rect.min.y), Pos2::new(x, grid_rect.max.y)],
-            stroke
+            stroke,
         );
         t += snap_step;
     }

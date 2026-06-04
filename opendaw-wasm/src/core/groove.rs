@@ -1,5 +1,5 @@
 //! グルーヴエンジン
-//! 
+//!
 //! シャッフルやヒューマナイズなどのタイミングの「揺らぎ」を管理し、
 //! ノートの発音位置をクオンタイズ時にオフセットさせるロジックを提供します。
 
@@ -35,11 +35,11 @@ impl GrooveEngine {
 
     /// ノートのタイミングに対してグルーヴ（シャッフル・ヒューマナイズ）を適用し、
     /// オフセットされたタイミングを返します。
-    /// 
+    ///
     /// # 引数
     /// * `original_position` - クオンタイズまたは本来のノート位置（Tickや拍単位など）
     /// * `grid_resolution` - クオンタイズのグリッド解像度
-    /// 
+    ///
     /// # 戻り値
     /// * オフセットが適用された新しいノート位置
     pub fn apply_timing_offset(&self, original_position: f64, grid_resolution: f64) -> f64 {
@@ -78,7 +78,7 @@ impl GrooveEngine {
         // ベロシティの揺らぎロジックの骨格
         // 実際の乱数生成ロジックは今後実装
         let random_velocity_change = 0; // プレースホルダー
-        
+
         let new_velocity = (original_velocity as i32 + random_velocity_change).clamp(1, 127);
         new_velocity as u8
     }

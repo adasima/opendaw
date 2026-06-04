@@ -6,7 +6,12 @@ pub fn draw_browser_panel(ui: &mut egui::Ui) {
     ui.heading("Plugin Browser");
     ui.separator();
 
-    let dummy_plugins = vec!["Serum (Dummy)", "Vital (Dummy)", "FabFilter Pro-Q 3 (Dummy)", "Valhalla VintageVerb (Dummy)"];
+    let dummy_plugins = vec![
+        "Serum (Dummy)",
+        "Vital (Dummy)",
+        "FabFilter Pro-Q 3 (Dummy)",
+        "Valhalla VintageVerb (Dummy)",
+    ];
 
     egui::ScrollArea::vertical().show(ui, |ui| {
         for plugin in dummy_plugins {

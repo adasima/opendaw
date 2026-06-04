@@ -1,7 +1,7 @@
-use egui::{Pos2, Rect, Sense, Vec2, PointerButton};
+use egui::{PointerButton, Pos2, Rect, Sense, Vec2};
 
-pub mod keyboard;
 pub mod grid;
+pub mod keyboard;
 pub mod note;
 
 pub struct PianoRoll {
@@ -12,7 +12,7 @@ pub struct PianoRoll {
     pub pixels_per_tick: f32,
     pub key_height: f32,
     pub dragging_note: Option<(usize, Vec2)>, // note_id, click offset
-    pub resizing_note: Option<usize>, // note_id for resizing duration
+    pub resizing_note: Option<usize>,         // note_id for resizing duration
     pub ticks_per_beat: u32,
 }
 
@@ -61,7 +61,8 @@ impl PianoRoll {
                 if i.modifiers.ctrl {
                     let zoom_delta = i.smooth_scroll_delta.y * 0.01;
                     if zoom_delta != 0.0 {
-                        self.pixels_per_tick = (self.pixels_per_tick * (1.0 + zoom_delta)).clamp(0.01, 10.0);
+                        self.pixels_per_tick =
+                            (self.pixels_per_tick * (1.0 + zoom_delta)).clamp(0.01, 10.0);
                     }
                 }
             }
@@ -75,8 +76,14 @@ impl PianoRoll {
                 if modified {
                     #[cfg(target_arch = "wasm32")]
                     {
-                        if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
-                            crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                        if let (Some(track_id), Some(clip_id)) =
+                            (app.selected_track_id, app.selected_clip_id)
+                        {
+                            crate::notify_update_midi_clip_notes(
+                                track_id,
+                                clip_id,
+                                &app.state.active_sequence.notes,
+                            );
                         }
                     }
                 }
@@ -88,8 +95,10 @@ impl PianoRoll {
         self.pan.y = self.pan.y.clamp(0.0, max_pan_y.max(0.0));
         self.pan.x = self.pan.x.max(0.0);
 
-        let keyboard_rect = Rect::from_min_max(rect.min, Pos2::new(rect.min.x + keys_width, rect.max.y));
-        let grid_rect = Rect::from_min_max(Pos2::new(rect.min.x + keys_width, rect.min.y), rect.max);
+        let keyboard_rect =
+            Rect::from_min_max(rect.min, Pos2::new(rect.min.x + keys_width, rect.max.y));
+        let grid_rect =
+            Rect::from_min_max(Pos2::new(rect.min.x + keys_width, rect.min.y), rect.max);
 
         let mut pointer_pos = None;
         ui.input(|i| pointer_pos = i.pointer.hover_pos());
@@ -138,8 +147,12 @@ impl PianoRoll {
                             snap_tick = (hover_tick / snap_step) * snap_step;
                         }
 
-
-                        let id = app.state.active_sequence.add_note(hover_pitch, 100, snap_tick as f64 / self.ticks_per_beat as f64, 0.25);
+                        let id = app.state.active_sequence.add_note(
+                            hover_pitch,
+                            100,
+                            snap_tick as f64 / self.ticks_per_beat as f64,
+                            0.25,
+                        );
                         if let Some(last_note) = app.state.active_sequence.get_note(id) {
                             let note_rect = self.note_rect(last_note, grid_rect.min);
                             self.dragging_note = Some((last_note.id, pos - note_rect.min));
@@ -147,8 +160,14 @@ impl PianoRoll {
 
                         #[cfg(target_arch = "wasm32")]
                         {
-                            if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
-                                crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                            if let (Some(track_id), Some(clip_id)) =
+                                (app.selected_track_id, app.selected_clip_id)
+                            {
+                                crate::notify_update_midi_clip_notes(
+                                    track_id,
+                                    clip_id,
+                                    &app.state.active_sequence.notes,
+                                );
                             }
                         }
                     }
@@ -171,8 +190,14 @@ impl PianoRoll {
                     if removed_any {
                         #[cfg(target_arch = "wasm32")]
                         {
-                            if let (Some(track_id), Some(clip_id)) = (app.selected_track_id, app.selected_clip_id) {
-                                crate::notify_update_midi_clip_notes(track_id, clip_id, &app.state.active_sequence.notes);
+                            if let (Some(track_id), Some(clip_id)) =
+                                (app.selected_track_id, app.selected_clip_id)
+                            {
+                                crate::notify_update_midi_clip_notes(
+                                    track_id,
+                                    clip_id,
+                                    &app.state.active_sequence.notes,
+                                );
                             }
                         }
                     }
@@ -212,7 +237,9 @@ impl PianoRoll {
 
                     if let Some(note) = app.state.active_sequence.get_note_mut(id) {
                         if (new_end_tick as f64 / self.ticks_per_beat as f64) > note.start_beat {
-                            note.duration_beats = (new_end_tick as f64 / self.ticks_per_beat as f64) - note.start_beat;
+                            note.duration_beats = (new_end_tick as f64
+                                / self.ticks_per_beat as f64)
+                                - note.start_beat;
                         } else {
                             note.duration_beats = 0.25; // min 16th note
                         }
@@ -232,7 +259,9 @@ impl PianoRoll {
 
     // Helper to calculate screen coordinates for a note
     pub fn note_rect(&self, note: &crate::midi::sequence::NoteEvent, grid_min: Pos2) -> Rect {
-        let x = grid_min.x + (note.start_beat * self.ticks_per_beat as f64) as f32 * self.pixels_per_tick - self.pan.x;
+        let x = grid_min.x
+            + (note.start_beat * self.ticks_per_beat as f64) as f32 * self.pixels_per_tick
+            - self.pan.x;
         let y = grid_min.y + (127 - note.pitch) as f32 * self.key_height - self.pan.y;
         let w = (note.duration_beats * self.ticks_per_beat as f64) as f32 * self.pixels_per_tick;
         let h = self.key_height;

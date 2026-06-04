@@ -36,8 +36,15 @@ impl TempoMap {
     pub fn new() -> Self {
         // デフォルトのテンポ（120 BPM）と拍子（4/4）をTick 0の初期イベントとして設定
         Self {
-            tempo_events: vec![TempoEvent { tick: 0, bpm: 120.0 }],
-            time_signature_events: vec![TimeSignatureEvent { tick: 0, numerator: 4, denominator: 4 }],
+            tempo_events: vec![TempoEvent {
+                tick: 0,
+                bpm: 120.0,
+            }],
+            time_signature_events: vec![TimeSignatureEvent {
+                tick: 0,
+                numerator: 4,
+                denominator: 4,
+            }],
         }
     }
 
@@ -50,7 +57,11 @@ impl TempoMap {
 
     /// 拍子変更イベントを追加します
     pub fn add_time_signature_event(&mut self, tick: u64, numerator: u8, denominator: u8) {
-        self.time_signature_events.push(TimeSignatureEvent { tick, numerator, denominator });
+        self.time_signature_events.push(TimeSignatureEvent {
+            tick,
+            numerator,
+            denominator,
+        });
         // イベントをTickの昇順に保つ
         self.time_signature_events.sort_by_key(|e| e.tick);
     }

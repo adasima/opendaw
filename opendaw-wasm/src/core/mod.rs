@@ -1,8 +1,8 @@
-pub mod session;
-pub mod history;
 pub mod automation;
+pub mod history;
 pub mod routing;
+pub mod session;
 
-pub mod tempo_map;
 pub mod groove;
 pub mod modulation;
+pub mod tempo_map;

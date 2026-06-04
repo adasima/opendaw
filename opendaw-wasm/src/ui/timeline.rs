@@ -11,7 +11,6 @@ const TEXT_SIZE: f32 = 12.0;
 const WAVEFORM_STROKE_WIDTH: f32 = 1.0;
 const PLAYHEAD_STROKE_WIDTH: f32 = 2.0;
 
-
 /// メインタイムライン領域（波形描画、プレイヘッドなど）を描画します。
 pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
     // 波形のプレースホルダー領域
@@ -86,11 +85,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 egui::Color32::from_rgba_premultiplied(50, 60, 90, 200)
             };
 
-            painter.rect_filled(
-                clip_rect,
-                CLIP_BG_ROUNDING,
-                bg_color,
-            );
+            painter.rect_filled(clip_rect, CLIP_BG_ROUNDING, bg_color);
 
             painter.text(
                 clip_rect.left_top() + egui::vec2(CLIP_PADDING, CLIP_PADDING),
@@ -106,17 +101,22 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 let step = clip_rect.width() / clip.waveform_summary.len() as f32;
                 for (j, &val) in clip.waveform_summary.iter().enumerate() {
                     let wx = clip_rect.left() + j as f32 * step;
-                    let val_f32: f32 = val; let h = val_f32.clamp(0.0, 1.0) * max_h;
+                    let val_f32: f32 = val;
+                    let h = val_f32.clamp(0.0, 1.0) * max_h;
                     painter.line_segment(
                         [egui::pos2(wx, center_y - h), egui::pos2(wx, center_y + h)],
-                        egui::Stroke::new(WAVEFORM_STROKE_WIDTH, egui::Color32::from_rgb(114, 137, 218)),
+                        egui::Stroke::new(
+                            WAVEFORM_STROKE_WIDTH,
+                            egui::Color32::from_rgb(114, 137, 218),
+                        ),
                     );
                 }
             }
         }
 
         for clip in &track.midi_clips {
-            let clip_x = rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * clip.start_beat as f32;
+            let clip_x =
+                rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * clip.start_beat as f32;
             let clip_w = (rect.width() / TIMELINE_PERCENT_MAX) * clip.length_beats as f32;
             let clip_rect = egui::Rect::from_min_size(
                 egui::pos2(clip_x, track_rect.top() + CLIP_MARGIN_Y),
@@ -156,11 +156,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 egui::Color32::from_rgba_premultiplied(90, 60, 110, 200)
             };
 
-            painter.rect_filled(
-                clip_rect,
-                CLIP_BG_ROUNDING,
-                bg_color,
-            );
+            painter.rect_filled(clip_rect, CLIP_BG_ROUNDING, bg_color);
 
             painter.text(
                 clip_rect.left_top() + egui::vec2(CLIP_PADDING, CLIP_PADDING),
@@ -171,7 +167,6 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
             );
         }
     }
-
 
     for (t_id, clip_id, new_pos) in all_modified_clips {
         #[allow(clippy::collapsible_if)]

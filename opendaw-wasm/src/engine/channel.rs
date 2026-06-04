@@ -37,8 +37,15 @@ pub enum UiToAudioMsg {
 #[derive(Clone, Debug, PartialEq)]
 pub enum EffectParams {
     Gain(f32),
-    Filter { cutoff_freq: f32, filter_type: crate::engine::effects::filter::FilterType },
-    Delay { time_ms: f32, feedback: f32, mix: f32 },
+    Filter {
+        cutoff_freq: f32,
+        filter_type: crate::engine::effects::filter::FilterType,
+    },
+    Delay {
+        time_ms: f32,
+        feedback: f32,
+        mix: f32,
+    },
 }
 
 /// オーディオスレッドからUIへのメッセージ
@@ -89,7 +96,11 @@ mod tests {
         // UI -> Audio (ActiveNotes)
         let mut notes = [0.0; MAX_ACTIVE_NOTES];
         notes[0] = 440.0;
-        assert!(ui_prod.try_push(UiToAudioMsg::ActiveNotes(1, notes, 1)).is_ok());
+        assert!(
+            ui_prod
+                .try_push(UiToAudioMsg::ActiveNotes(1, notes, 1))
+                .is_ok()
+        );
         if let Some(UiToAudioMsg::ActiveNotes(id, recv_notes, count)) = audio_cons.try_pop() {
             assert_eq!(id, 1);
             assert_eq!(count, 1);
@@ -112,8 +123,13 @@ mod tests {
 
         // AddRecordedClip
         let data = std::sync::Arc::new(vec![0.5, -0.5]);
-        assert!(ui_prod.try_push(UiToAudioMsg::AddRecordedClip(1, 0, data.clone())).is_ok());
-        if let Some(UiToAudioMsg::AddRecordedClip(id, start_pos, recv_data)) = audio_cons.try_pop() {
+        assert!(
+            ui_prod
+                .try_push(UiToAudioMsg::AddRecordedClip(1, 0, data.clone()))
+                .is_ok()
+        );
+        if let Some(UiToAudioMsg::AddRecordedClip(id, start_pos, recv_data)) = audio_cons.try_pop()
+        {
             assert_eq!(id, 1);
             assert_eq!(start_pos, 0);
             assert_eq!(recv_data.len(), 2);

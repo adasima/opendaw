@@ -33,10 +33,10 @@ pub struct AraNote {
 pub trait AraHostAccess: Send + Sync {
     /// 現在のテンポ情報を取得する
     fn get_tempo_info(&self) -> TempoInfo;
-    
+
     /// 現在のトランスポート状態を取得する
     fn get_transport_info(&self) -> TransportInfo;
-    
+
     /// 指定された時間範囲のノートイベントを取得する
     fn get_notes_in_range(&self, start_sec: f64, end_sec: f64) -> Vec<AraNote>;
 }
@@ -45,10 +45,10 @@ pub trait AraHostAccess: Send + Sync {
 pub trait AraPluginExtension: Send + Sync {
     /// ホストからテンポが変更された際のコールバック
     fn on_tempo_changed(&mut self, info: &TempoInfo);
-    
+
     /// ホストからトランスポート状態が変更された際のコールバック
     fn on_transport_changed(&mut self, info: &TransportInfo);
-    
+
     /// ホスト側でノートデータが編集・追加された際のコールバック
     fn on_notes_updated(&mut self, notes: &[AraNote]);
 }
@@ -67,7 +67,7 @@ impl VocalSynthAraExtension {
     pub fn new(host: Arc<dyn AraHostAccess>) -> Self {
         let initial_tempo = host.get_tempo_info();
         let initial_transport = host.get_transport_info();
-        
+
         Self {
             host,
             current_tempo: initial_tempo,
@@ -76,19 +76,19 @@ impl VocalSynthAraExtension {
             next_note_id: 0,
         }
     }
-    
+
     /// ホストとの同期状態を確認し、内部状態を更新する
     pub fn sync_with_host(&mut self) {
         let new_tempo = self.host.get_tempo_info();
         if self.current_tempo != new_tempo {
             self.on_tempo_changed(&new_tempo);
         }
-        
+
         let new_transport = self.host.get_transport_info();
         if self.current_transport != new_transport {
             self.on_transport_changed(&new_transport);
         }
-        
+
         // キャッシュ更新例: 現在位置周辺のノートを取得
         let pos = self.current_transport.position_seconds;
         let notes = self.host.get_notes_in_range(pos, pos + 10.0);
@@ -106,7 +106,10 @@ impl AraPluginExtension for VocalSynthAraExtension {
     fn on_transport_changed(&mut self, info: &TransportInfo) {
         // 再生位置や状態の変更
         self.current_transport = info.clone();
-        println!("ARA: Transport updated - Playing: {}, Pos: {:.2}s", info.is_playing, info.position_seconds);
+        println!(
+            "ARA: Transport updated - Playing: {}, Pos: {:.2}s",
+            info.is_playing, info.position_seconds
+        );
     }
 
     fn on_notes_updated(&mut self, notes: &[AraNote]) {
@@ -115,9 +118,12 @@ impl AraPluginExtension for VocalSynthAraExtension {
         for note in notes {
             self.cached_notes.insert(self.next_note_id, note.clone());
             self.next_note_id += 1;
-            
+
             if let Some(lyric) = &note.lyric {
-                println!("ARA: Note updated - Pitch: {}, Lyric: {}", note.pitch, lyric);
+                println!(
+                    "ARA: Note updated - Pitch: {}, Lyric: {}",
+                    note.pitch, lyric
+                );
             } else {
                 println!("ARA: Note updated - Pitch: {}", note.pitch);
             }
@@ -192,16 +198,34 @@ impl MockDawHost {
 
 impl AraHostAccess for MockDawHost {
     fn get_tempo_info(&self) -> TempoInfo {
-        self.tempo.read().map(|g| g.clone()).unwrap_or(TempoInfo { bpm: 120.0, time_signature_numerator: 4, time_signature_denominator: 4 })
+        self.tempo.read().map(|g| g.clone()).unwrap_or(TempoInfo {
+            bpm: 120.0,
+            time_signature_numerator: 4,
+            time_signature_denominator: 4,
+        })
     }
 
     fn get_transport_info(&self) -> TransportInfo {
-        self.transport.read().map(|g| g.clone()).unwrap_or(TransportInfo { is_playing: false, position_seconds: 0.0, position_beats: 0.0 })
+        self.transport
+            .read()
+            .map(|g| g.clone())
+            .unwrap_or(TransportInfo {
+                is_playing: false,
+                position_seconds: 0.0,
+                position_beats: 0.0,
+            })
     }
 
     fn get_notes_in_range(&self, start_sec: f64, end_sec: f64) -> Vec<AraNote> {
-        self.notes.read().map(|g| g.iter().filter(|n| n.start_seconds >= start_sec && n.start_seconds < end_sec).cloned().collect()).unwrap_or_default()
-
+        self.notes
+            .read()
+            .map(|g| {
+                g.iter()
+                    .filter(|n| n.start_seconds >= start_sec && n.start_seconds < end_sec)
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default()
     }
 }
 
@@ -220,7 +244,7 @@ mod tests {
 
         // ホスト側でテンポ変更
         host.set_tempo(140.0);
-        
+
         // ホスト側でノート追加
         host.add_note(AraNote {
             start_seconds: 1.0,
@@ -232,9 +256,12 @@ mod tests {
 
         // プラグイン側で再度同期
         plugin.sync_with_host();
-        
+
         assert_eq!(plugin.current_tempo.bpm, 140.0);
         assert_eq!(plugin.cached_notes.len(), 1);
-        assert_eq!(plugin.cached_notes.get(&0).and_then(|n| n.lyric.as_deref()), Some("あ"));
+        assert_eq!(
+            plugin.cached_notes.get(&0).and_then(|n| n.lyric.as_deref()),
+            Some("あ")
+        );
     }
 }

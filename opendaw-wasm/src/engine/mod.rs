@@ -235,5 +235,9 @@ pub mod metronome;
 pub mod recording;
 pub mod synth;
 
+pub mod bus;
+pub mod oscillator;
 pub mod pdc;
+pub mod routing;
+pub mod voice;
 pub mod warp;

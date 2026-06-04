@@ -26,7 +26,7 @@ struct TrieNode {
 }
 
 /// メディアブラウザインデックス
-/// 
+///
 /// サンプルWAVやプラグインを高速に検索・タグ付けするためのインメモリのTrie木やデータベース構造
 #[derive(Default, Debug)]
 pub struct MediaIndex {
@@ -41,9 +41,15 @@ impl MediaIndex {
     }
 
     /// メディアエントリを追加する
-    pub fn add_media(&mut self, path: PathBuf, media_type: MediaType, tags: Vec<String>, name: &str) -> usize {
+    pub fn add_media(
+        &mut self,
+        path: PathBuf,
+        media_type: MediaType,
+        tags: Vec<String>,
+        name: &str,
+    ) -> usize {
         let entry_id = self.entries.len();
-        
+
         let mut tag_set = HashSet::new();
         for tag in tags {
             tag_set.insert(tag.clone());
@@ -75,7 +81,7 @@ impl MediaIndex {
     pub fn search_by_prefix(&self, prefix: &str) -> Vec<&MediaEntry> {
         let mut current_node = &self.trie_root;
         let prefix_lower = prefix.to_lowercase();
-        
+
         for ch in prefix_lower.chars() {
             if let Some(node) = current_node.children.get(&ch) {
                 current_node = node;

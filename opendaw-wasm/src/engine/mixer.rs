@@ -89,7 +89,7 @@ pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [Track
             // オシレーターのサンプルを加算
             if let Some(osc) = track.oscillator.as_mut() {
                 if track.active_note_count > 0 {
-                    osc.set_frequency(track.active_notes[0]);
+                    osc.set_frequency(track.active_notes[0] as f32);
                     osc.set_active(true);
                 } else {
                     osc.set_active(false);

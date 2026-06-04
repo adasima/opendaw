@@ -1,6 +1,4 @@
-use egui::{
-    epaint::Shadow, style::WidgetVisuals, Color32, Margin, Stroke, Vec2, Visuals,
-};
+use egui::{Color32, Margin, Stroke, Vec2, Visuals, epaint::Shadow, style::WidgetVisuals};
 
 pub fn apply_theme(ctx: &egui::Context) {
     let mut style = (*ctx.global_style()).clone();
@@ -9,9 +7,19 @@ pub fn apply_theme(ctx: &egui::Context) {
     // 1. Spacing & Padding (洗練されたパディング)
     // ==========================================
     style.spacing.item_spacing = Vec2::new(10.0, 10.0);
-    style.spacing.window_margin = Margin { left: 16, right: 16, top: 16, bottom: 16 };
+    style.spacing.window_margin = Margin {
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: 16,
+    };
     style.spacing.button_padding = Vec2::new(14.0, 8.0);
-    style.spacing.menu_margin = Margin { left: 8, right: 8, top: 8, bottom: 8 };
+    style.spacing.menu_margin = Margin {
+        left: 8,
+        right: 8,
+        top: 8,
+        bottom: 8,
+    };
 
     // ==========================================
     // 2. Visuals (Ableton-like Dark & Glassmorphism)
@@ -49,13 +57,15 @@ pub fn apply_theme(ctx: &egui::Context) {
     // ==========================================
     visuals.window_shadow = Shadow {
         color: Color32::from_black_alpha(140),
-        #[allow(clippy::useless_conversion)] offset: [0, 4].into(),
+        #[allow(clippy::useless_conversion)]
+        offset: [0, 4].into(),
         blur: 16,
         spread: 0,
     };
     visuals.popup_shadow = Shadow {
         color: Color32::from_black_alpha(120),
-        #[allow(clippy::useless_conversion)] offset: [0, 8].into(),
+        #[allow(clippy::useless_conversion)]
+        offset: [0, 8].into(),
         blur: 24,
         spread: 0,
     };
