@@ -26,4 +26,4 @@ In the current version, there are no keyboard shortcuts dedicated to mixer opera
 - [Tracks](../user-guide/tracks.md)
 
 ## Notes and Limitations
-> In the current version, only basic volume adjustment for the master is supported. Advanced routing, such as effect chains, will be added in future updates.
+> Detailed routing between tracks (Output and Sends) can be configured in the **Track Details** panel. Complex effect chains on the master mixer are planned to be expanded in future updates.
