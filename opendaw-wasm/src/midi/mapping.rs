@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 /// DAW内のパラメータを一意に識別するID
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -64,4 +64,4 @@ impl Default for MidiMappingRegistry {
 }
 
 /// スレッドセーフなMidiMappingRegistryのラッパー
-pub type SharedMidiMappingRegistry = Arc<Mutex<MidiMappingRegistry>>;
+pub type SharedMidiMappingRegistry = Arc<std::sync::RwLock<MidiMappingRegistry>>;
