@@ -174,18 +174,11 @@ impl PianoRoll {
                 } else if response.clicked_by(PointerButton::Secondary) {
                     // Delete note on right click
 
-                    let mut to_remove = Vec::new();
-                    for n in &app.state.active_sequence.notes {
-                        if self.note_rect(n, grid_rect.min).contains(pos) {
-                            to_remove.push(n.id);
-                        }
-                    }
-
-                    let mut removed_any = false;
-                    for id in to_remove {
-                        app.state.active_sequence.remove_note(id);
-                        removed_any = true;
-                    }
+                    let initial_len = app.state.active_sequence.notes.len();
+                    app.state.active_sequence.notes.retain(|n| {
+                        !self.note_rect(n, grid_rect.min).contains(pos)
+                    });
+                    let removed_any = app.state.active_sequence.notes.len() < initial_len;
 
                     if removed_any {
                         #[cfg(target_arch = "wasm32")]
