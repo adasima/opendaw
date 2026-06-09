@@ -111,31 +111,61 @@ impl PianoRoll {
                 let hover_tick = (grid_pos.x / self.pixels_per_tick).max(0.0) as u32;
                 let hover_pitch = (127.0 - grid_pos.y / self.key_height).clamp(0.0, 127.0) as u8;
 
+                let target_pitch_raw = 127 - (grid_pos.y / self.key_height).floor() as i32;
+                let target_pitch = if (0..=127).contains(&target_pitch_raw) {
+                    Some(target_pitch_raw as u8)
+                } else {
+                    None
+                };
                 // Change cursor on hover
-                for note in app.state.active_sequence.notes.iter().rev() {
-                    let note_rect = self.note_rect(note, grid_rect.min);
-                    if note_rect.contains(pos) {
-                        if pos.x > note_rect.max.x - 10.0 {
-                            ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                if let Some(target_pitch) = target_pitch {
+                    for note in app.state.active_sequence.notes.iter().rev() {
+                        if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
+                            let note_rect = self.note_rect(note, grid_rect.min);
+                            if note_rect.contains(pos) {
+                                if pos.x > note_rect.max.x - 10.0 {
+                                    ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                                }
+                                break;
+                            }
                         }
-                        break;
                     }
                 }
 
                 if response.drag_started_by(PointerButton::Primary) {
                     // Try to pick a note (reverse order so top note is picked)
                     let mut clicked_note = None;
-                    for note in app.state.active_sequence.notes.iter().rev() {
-                        let note_rect = self.note_rect(note, grid_rect.min);
-                        if note_rect.contains(pos) {
-                            clicked_note = Some(note.id);
-                            if pos.x > note_rect.max.x - 10.0 {
-                                self.resizing_note = Some(note.id);
-                            } else {
-                                let offset = pos - note_rect.min;
-                                self.dragging_note = Some((note.id, offset));
+                    if let Some(target_pitch) = target_pitch {
+                        for note in app.state.active_sequence.notes.iter().rev() {
+                            if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
+                                let note_rect = self.note_rect(note, grid_rect.min);
+                                if note_rect.contains(pos) {
+                                    clicked_note = Some(note.id);
+                                    if pos.x > note_rect.max.x - 10.0 {
+                                        self.resizing_note = Some(note.id);
+                                    } else {
+                                        let offset = pos - note_rect.min;
+                                        self.dragging_note = Some((note.id, offset));
+                                    }
+                                    break;
+                                }
                             }
-                            break;
+                        }
+                    }
+
+                    if clicked_note.is_none() {
+                        for note in app.state.active_sequence.notes.iter().rev() {
+                            let note_rect = self.note_rect(note, grid_rect.min);
+                            if note_rect.contains(pos) {
+                                clicked_note = Some(note.id);
+                                if pos.x > note_rect.max.x - 10.0 {
+                                    self.resizing_note = Some(note.id);
+                                } else {
+                                    let offset = pos - note_rect.min;
+                                    self.dragging_note = Some((note.id, offset));
+                                }
+                                break;
+                            }
                         }
                     }
 
@@ -176,7 +206,15 @@ impl PianoRoll {
 
                     let initial_len = app.state.active_sequence.notes.len();
                     app.state.active_sequence.notes.retain(|n| {
-                        !self.note_rect(n, grid_rect.min).contains(pos)
+                        if let Some(target_pitch) = target_pitch {
+                            if (n.pitch as i32 - target_pitch as i32).abs() <= 1 {
+                                !self.note_rect(n, grid_rect.min).contains(pos)
+                            } else {
+                                true
+                            }
+                        } else {
+                            !self.note_rect(n, grid_rect.min).contains(pos)
+                        }
                     });
                     let removed_any = app.state.active_sequence.notes.len() < initial_len;
 

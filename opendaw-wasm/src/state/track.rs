@@ -2,8 +2,8 @@
 //!
 //! 各トラックの名前、ボリューム、パン、ミュート、ソロ状態などを管理する構造体。
 
-pub use crate::state::track_plugin::*;
 pub use crate::state::track_clip::*;
+pub use crate::state::track_plugin::*;
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct AutomationPoint {

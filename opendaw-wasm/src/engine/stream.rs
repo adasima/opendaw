@@ -316,7 +316,12 @@ pub fn build_output_stream(
                                     &mut [track_data],
                                 );
 
-                                master_bus.mix_clips(mix_slice, current_pos, samples_to_read, channels);
+                                master_bus.mix_clips(
+                                    mix_slice,
+                                    current_pos,
+                                    samples_to_read,
+                                    channels,
+                                );
 
                                 for (i, &f_sample) in mix_slice.iter().enumerate() {
                                     let sample_f32 = f_sample.clamp(-1.0, 1.0);
