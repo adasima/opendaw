@@ -67,7 +67,8 @@ pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [Track
         }
 
         // ルーティング（パン、ボリューム）からステレオゲインを計算
-        let (left_gain, right_gain) = crate::engine::routing::calculate_stereo_gains(track.volume, track.pan);
+        let (left_gain, right_gain) =
+            crate::engine::routing::calculate_stereo_gains(track.volume, track.pan);
 
         let frames = out_buffer.len() / 2;
         let process_frames = frames.min(track.samples.len() / track.channels as usize);

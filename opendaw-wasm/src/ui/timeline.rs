@@ -174,97 +174,136 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
 
         // Draw Automation Lane if visible
         if track.automation_visible
-            && let Some(param_name) = &track.selected_automation {
-                let auto_rect = egui::Rect::from_min_max(
-                    egui::pos2(rect.left(), current_y),
-                    egui::pos2(rect.right(), current_y + AUTOMATION_LANE_HEIGHT),
-                );
-                current_y += AUTOMATION_LANE_HEIGHT;
+            && let Some(param_name) = &track.selected_automation
+        {
+            let auto_rect = egui::Rect::from_min_max(
+                egui::pos2(rect.left(), current_y),
+                egui::pos2(rect.right(), current_y + AUTOMATION_LANE_HEIGHT),
+            );
+            current_y += AUTOMATION_LANE_HEIGHT;
 
-                let bg_color = egui::Color32::from_rgba_premultiplied(20, 25, 35, 180);
-                painter.rect_filled(auto_rect, 0.0, bg_color);
+            let bg_color = egui::Color32::from_rgba_premultiplied(20, 25, 35, 180);
+            painter.rect_filled(auto_rect, 0.0, bg_color);
 
-                // Draw lane separator
-                painter.line_segment(
-                    [egui::pos2(auto_rect.left(), auto_rect.top()), egui::pos2(auto_rect.right(), auto_rect.top())],
-                    egui::Stroke::new(1.0, egui::Color32::from_rgba_premultiplied(100, 100, 100, 100)),
-                );
+            // Draw lane separator
+            painter.line_segment(
+                [
+                    egui::pos2(auto_rect.left(), auto_rect.top()),
+                    egui::pos2(auto_rect.right(), auto_rect.top()),
+                ],
+                egui::Stroke::new(
+                    1.0,
+                    egui::Color32::from_rgba_premultiplied(100, 100, 100, 100),
+                ),
+            );
 
-                if let Some(auto_track) = track.automations.iter().find(|a| a.parameter_name == *param_name) {
-                    let mut prev_point: Option<egui::Pos2> = None;
+            if let Some(auto_track) = track
+                .automations
+                .iter()
+                .find(|a| a.parameter_name == *param_name)
+            {
+                let mut prev_point: Option<egui::Pos2> = None;
 
-                    for point in &auto_track.points {
-                        let px = rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * point.time as f32;
-                        // value is 0.0 to 1.0, map to y (bottom to top)
-                        let py = auto_rect.bottom() - (auto_rect.height() * point.value);
-                        let p_pos = egui::pos2(px, py);
+                for point in &auto_track.points {
+                    let px =
+                        rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * point.time as f32;
+                    // value is 0.0 to 1.0, map to y (bottom to top)
+                    let py = auto_rect.bottom() - (auto_rect.height() * point.value);
+                    let p_pos = egui::pos2(px, py);
 
-                        if let Some(prev) = prev_point {
-                            painter.line_segment(
-                                [prev, p_pos],
-                                egui::Stroke::new(2.0, egui::Color32::from_rgb(114, 137, 218)),
-                            );
-                        }
-                        prev_point = Some(p_pos);
-
-                        let point_rect = egui::Rect::from_center_size(p_pos, egui::vec2(8.0, 8.0));
-                        let point_id = ui.make_persistent_id(format!("auto_{}_{}_{}", track.id, param_name, point.id));
-                        let point_response = ui.interact(point_rect, point_id, egui::Sense::drag());
-
-                        if point_response.dragged() {
-                            is_dragging_any = true;
-                            let drag_delta = point_response.drag_delta();
-                            let delta_time = (drag_delta.x / rect.width()) * TIMELINE_PERCENT_MAX;
-                            let delta_val = -(drag_delta.y / auto_rect.height());
-
-                            let new_time = (point.time as f32 + delta_time).clamp(0.0, TIMELINE_PERCENT_MAX);
-                            let new_val = (point.value + delta_val).clamp(0.0, 1.0);
-
-                            all_modified_auto_points.push((track.id, param_name.clone(), point.id, new_time as f64, new_val));
-                        }
-
-                        if point_response.drag_stopped() {
-                            #[cfg(target_arch = "wasm32")]
-                            crate::notify_update_automation_point(track.id, param_name.clone(), point.time, point.value);
-                        }
-
-                        let p_color = if point_response.hovered() || point_response.dragged() {
-                            egui::Color32::WHITE
-                        } else {
-                            egui::Color32::from_rgb(114, 137, 218)
-                        };
-                        painter.circle_filled(p_pos, 4.0, p_color);
+                    if let Some(prev) = prev_point {
+                        painter.line_segment(
+                            [prev, p_pos],
+                            egui::Stroke::new(2.0, egui::Color32::from_rgb(114, 137, 218)),
+                        );
                     }
-                }
+                    prev_point = Some(p_pos);
 
-                // Add new point on click in empty space
-                let lane_id = ui.make_persistent_id(format!("auto_lane_{}_{}", track.id, param_name));
-                let lane_response = ui.interact(auto_rect, lane_id, egui::Sense::click());
-                if lane_response.clicked()
-                    && let Some(pos) = lane_response.interact_pointer_pos() {
-                        let click_time = ((pos.x - rect.left()) / rect.width()) * TIMELINE_PERCENT_MAX;
-                        let click_val = 1.0 - ((pos.y - auto_rect.top()) / auto_rect.height());
+                    let point_rect = egui::Rect::from_center_size(p_pos, egui::vec2(8.0, 8.0));
+                    let point_id = ui.make_persistent_id(format!(
+                        "auto_{}_{}_{}",
+                        track.id, param_name, point.id
+                    ));
+                    let point_response = ui.interact(point_rect, point_id, egui::Sense::drag());
 
+                    if point_response.dragged() {
+                        is_dragging_any = true;
+                        let drag_delta = point_response.drag_delta();
+                        let delta_time = (drag_delta.x / rect.width()) * TIMELINE_PERCENT_MAX;
+                        let delta_val = -(drag_delta.y / auto_rect.height());
+
+                        let new_time =
+                            (point.time as f32 + delta_time).clamp(0.0, TIMELINE_PERCENT_MAX);
+                        let new_val = (point.value + delta_val).clamp(0.0, 1.0);
+
+                        all_modified_auto_points.push((
+                            track.id,
+                            param_name.clone(),
+                            point.id,
+                            new_time as f64,
+                            new_val,
+                        ));
+                    }
+
+                    if point_response.drag_stopped() {
                         #[cfg(target_arch = "wasm32")]
-                        crate::notify_update_automation_point(track.id, param_name.clone(), click_time as f64, click_val);
-                        #[cfg(not(target_arch = "wasm32"))]
-                        {
-                            let _ = click_time;
-                            let _ = click_val;
-                        }
+                        crate::notify_update_automation_point(
+                            track.id,
+                            param_name.clone(),
+                            point.time,
+                            point.value,
+                        );
                     }
+
+                    let p_color = if point_response.hovered() || point_response.dragged() {
+                        egui::Color32::WHITE
+                    } else {
+                        egui::Color32::from_rgb(114, 137, 218)
+                    };
+                    painter.circle_filled(p_pos, 4.0, p_color);
+                }
             }
+
+            // Add new point on click in empty space
+            let lane_id = ui.make_persistent_id(format!("auto_lane_{}_{}", track.id, param_name));
+            let lane_response = ui.interact(auto_rect, lane_id, egui::Sense::click());
+            if lane_response.clicked()
+                && let Some(pos) = lane_response.interact_pointer_pos()
+            {
+                let click_time = ((pos.x - rect.left()) / rect.width()) * TIMELINE_PERCENT_MAX;
+                let click_val = 1.0 - ((pos.y - auto_rect.top()) / auto_rect.height());
+
+                #[cfg(target_arch = "wasm32")]
+                crate::notify_update_automation_point(
+                    track.id,
+                    param_name.clone(),
+                    click_time as f64,
+                    click_val,
+                );
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let _ = click_time;
+                    let _ = click_val;
+                }
+            }
+        }
     }
 
     for (t_id, param_name, point_id, new_time, new_val) in all_modified_auto_points {
         if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id)
-            && let Some(auto_track) = track.automations.iter_mut().find(|a| a.parameter_name == param_name) {
-                if let Some(point) = auto_track.points.iter_mut().find(|p| p.id == point_id) {
-                    point.time = new_time;
-                    point.value = new_val;
-                }
-                auto_track.points.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+            && let Some(auto_track) = track
+                .automations
+                .iter_mut()
+                .find(|a| a.parameter_name == param_name)
+        {
+            if let Some(point) = auto_track.points.iter_mut().find(|p| p.id == point_id) {
+                point.time = new_time;
+                point.value = new_val;
             }
+            auto_track
+                .points
+                .sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+        }
     }
 
     for (t_id, clip_id, new_pos) in all_modified_clips {
