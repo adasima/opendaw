@@ -4,5 +4,6 @@ pub mod routing;
 pub mod session;
 
 pub mod groove;
+pub mod math;
 pub mod modulation;
 pub mod tempo_map;
