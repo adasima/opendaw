@@ -117,16 +117,24 @@ impl PianoRoll {
                 } else {
                     None
                 };
+                // Optimization: Calculate beat once for X bounds checking.
+                // We add some padding (e.g. 10.0 pixels / pixels_per_tick converted to beats)
+                // so we don't miss clicks on visual borders / resize handles.
+                let beat_padding = 15.0 / self.pixels_per_tick as f64 / self.ticks_per_beat as f64;
+                let hover_beat = hover_tick as f64 / self.ticks_per_beat as f64;
+
                 // Change cursor on hover
                 if let Some(target_pitch) = target_pitch {
                     for note in app.state.active_sequence.notes.iter().rev() {
                         if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
-                            let note_rect = self.note_rect(note, grid_rect.min);
-                            if note_rect.contains(pos) {
-                                if pos.x > note_rect.max.x - 10.0 {
-                                    ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                            if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
+                                let note_rect = self.note_rect(note, grid_rect.min);
+                                if note_rect.contains(pos) {
+                                    if pos.x > note_rect.max.x - 10.0 {
+                                        ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
@@ -138,6 +146,28 @@ impl PianoRoll {
                     if let Some(target_pitch) = target_pitch {
                         for note in app.state.active_sequence.notes.iter().rev() {
                             if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
+                                if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
+                                    let note_rect = self.note_rect(note, grid_rect.min);
+                                    if note_rect.contains(pos) {
+                                        clicked_note = Some(note.id);
+                                        if pos.x > note_rect.max.x - 10.0 {
+                                            self.resizing_note = Some(note.id);
+                                        } else {
+                                            let offset = pos - note_rect.min;
+                                            self.dragging_note = Some((note.id, offset));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if clicked_note.is_none() {
+                        // The fallback still uses X bounds (beat) to avoid 100k allocations,
+                        // but removes strict pitch bounds to allow picking tall notes overlapping from other rows.
+                        for note in app.state.active_sequence.notes.iter().rev() {
+                            if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
                                 let note_rect = self.note_rect(note, grid_rect.min);
                                 if note_rect.contains(pos) {
                                     clicked_note = Some(note.id);
@@ -149,22 +179,6 @@ impl PianoRoll {
                                     }
                                     break;
                                 }
-                            }
-                        }
-                    }
-
-                    if clicked_note.is_none() {
-                        for note in app.state.active_sequence.notes.iter().rev() {
-                            let note_rect = self.note_rect(note, grid_rect.min);
-                            if note_rect.contains(pos) {
-                                clicked_note = Some(note.id);
-                                if pos.x > note_rect.max.x - 10.0 {
-                                    self.resizing_note = Some(note.id);
-                                } else {
-                                    let offset = pos - note_rect.min;
-                                    self.dragging_note = Some((note.id, offset));
-                                }
-                                break;
                             }
                         }
                     }
@@ -208,12 +222,20 @@ impl PianoRoll {
                     app.state.active_sequence.notes.retain(|n| {
                         if let Some(target_pitch) = target_pitch {
                             if (n.pitch as i32 - target_pitch as i32).abs() <= 1 {
-                                !self.note_rect(n, grid_rect.min).contains(pos)
+                                if hover_beat >= n.start_beat - beat_padding && hover_beat <= n.start_beat + n.duration_beats + beat_padding {
+                                    !self.note_rect(n, grid_rect.min).contains(pos)
+                                } else {
+                                    true
+                                }
                             } else {
                                 true
                             }
                         } else {
-                            !self.note_rect(n, grid_rect.min).contains(pos)
+                            if hover_beat >= n.start_beat - beat_padding && hover_beat <= n.start_beat + n.duration_beats + beat_padding {
+                                !self.note_rect(n, grid_rect.min).contains(pos)
+                            } else {
+                                true
+                            }
                         }
                     });
                     let removed_any = app.state.active_sequence.notes.len() < initial_len;
