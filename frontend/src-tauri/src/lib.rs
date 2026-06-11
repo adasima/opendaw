@@ -4,8 +4,8 @@ pub mod engine;
 pub mod midi;
 pub mod state;
 
-use std::sync::Arc;
 use engine::EngineHandle;
+use std::sync::Arc;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,7 +26,7 @@ pub fn run() {
             }
             Ok(())
         })
-                .invoke_handler(tauri::generate_handler![
+        .invoke_handler(tauri::generate_handler![
             commands::project::save_project,
             commands::project::load_project,
             commands::transport::play,

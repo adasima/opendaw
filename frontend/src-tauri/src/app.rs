@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use crate::engine::EngineHandle;
+use std::sync::Arc;
 
 pub struct AppState {
     pub engine: Arc<EngineHandle>,
@@ -17,7 +17,8 @@ mod tests {
         state.tracks.push(track);
 
         let json = serde_json::to_string(&state).expect("Failed to serialize state");
-        let loaded: crate::state::ProjectState = serde_json::from_str(&json).expect("Failed to deserialize state");
+        let loaded: crate::state::ProjectState =
+            serde_json::from_str(&json).expect("Failed to deserialize state");
 
         assert_eq!(loaded.bpm, 130.0);
         assert_eq!(loaded.master_volume, 0.5);

@@ -45,7 +45,7 @@ impl Default for ProjectState {
 /// オートメーションポイントの情報を保持する構造体
 pub struct AutomationPoint {
     pub id: usize,
-    pub time: f64, // タイムライン上の位置(パーセンテージまたは拍)
+    pub time: f64,  // タイムライン上の位置(パーセンテージまたは拍)
     pub value: f32, // パラメータの値 (0.0 ~ 1.0 など)
 }
 
@@ -105,7 +105,6 @@ impl Track {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

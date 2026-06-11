@@ -1,9 +1,9 @@
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
-use std::sync::Arc;
-use crossbeam_channel::{bounded, Sender, Receiver};
+use crossbeam_channel::{bounded, Receiver, Sender};
+use ringbuf::storage::Heap;
 use ringbuf::wrap::caching::Caching;
 use ringbuf::SharedRb;
-use ringbuf::storage::Heap;
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::Arc;
 
 pub mod midi_route;
 use crate::state::ProjectState;
@@ -55,7 +55,9 @@ impl EngineHandle {
             midi_route_tx: route_tx,
             event_tx: tx,
             project_state: Arc::new(std::sync::RwLock::new(ProjectState::default())),
-            history: Arc::new(std::sync::RwLock::new(crate::state::history::HistoryManager::new())),
+            history: Arc::new(std::sync::RwLock::new(
+                crate::state::history::HistoryManager::new(),
+            )),
         };
         (handle, rx, route_rx)
     }
@@ -114,7 +116,9 @@ impl EngineHandle {
 
     /// トラックに対するMIDIデバイスとチャンネルのルーティングを設定する
     pub fn set_track_midi_route(&self, track_id: u32, device: String, channel: u8) {
-        let _ = self.midi_route_tx.try_send(midi_route::TrackMidiRoute::new(track_id, device, channel));
+        let _ = self
+            .midi_route_tx
+            .try_send(midi_route::TrackMidiRoute::new(track_id, device, channel));
     }
 }
 

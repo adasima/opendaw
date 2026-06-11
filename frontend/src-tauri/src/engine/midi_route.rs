@@ -1,8 +1,8 @@
+use crossbeam_channel::{bounded, Receiver, Sender};
+use log::info;
 /// MIDI入力信号を各トラックにルーティングするロジック
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
-use crossbeam_channel::{bounded, Receiver, Sender};
-use log::info;
 
 /// MIDIイベントを表す構造体
 #[derive(Debug, Clone)]
@@ -72,7 +72,8 @@ impl MidiRouter {
             route.device = device;
             route.channel.store(channel, Ordering::Release);
         } else {
-            self.routes.push(TrackMidiRoute::new(track_id, device, channel));
+            self.routes
+                .push(TrackMidiRoute::new(track_id, device, channel));
         }
     }
 
