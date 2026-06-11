@@ -127,11 +127,15 @@ impl PianoRoll {
                 if let Some(target_pitch) = target_pitch {
                     for note in app.state.active_sequence.notes.iter().rev() {
                         if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
-                            if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
+                            if hover_beat >= note.start_beat - beat_padding
+                                && hover_beat
+                                    <= note.start_beat + note.duration_beats + beat_padding
+                            {
                                 let note_rect = self.note_rect(note, grid_rect.min);
                                 if note_rect.contains(pos) {
                                     if pos.x > note_rect.max.x - 10.0 {
-                                        ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
+                                        ui.ctx()
+                                            .set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
                                     }
                                     break;
                                 }
@@ -146,7 +150,10 @@ impl PianoRoll {
                     if let Some(target_pitch) = target_pitch {
                         for note in app.state.active_sequence.notes.iter().rev() {
                             if (note.pitch as i32 - target_pitch as i32).abs() <= 1 {
-                                if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
+                                if hover_beat >= note.start_beat - beat_padding
+                                    && hover_beat
+                                        <= note.start_beat + note.duration_beats + beat_padding
+                                {
                                     let note_rect = self.note_rect(note, grid_rect.min);
                                     if note_rect.contains(pos) {
                                         clicked_note = Some(note.id);
@@ -167,7 +174,10 @@ impl PianoRoll {
                         // The fallback still uses X bounds (beat) to avoid 100k allocations,
                         // but removes strict pitch bounds to allow picking tall notes overlapping from other rows.
                         for note in app.state.active_sequence.notes.iter().rev() {
-                            if hover_beat >= note.start_beat - beat_padding && hover_beat <= note.start_beat + note.duration_beats + beat_padding {
+                            if hover_beat >= note.start_beat - beat_padding
+                                && hover_beat
+                                    <= note.start_beat + note.duration_beats + beat_padding
+                            {
                                 let note_rect = self.note_rect(note, grid_rect.min);
                                 if note_rect.contains(pos) {
                                     clicked_note = Some(note.id);
@@ -222,7 +232,9 @@ impl PianoRoll {
                     app.state.active_sequence.notes.retain(|n| {
                         if let Some(target_pitch) = target_pitch {
                             if (n.pitch as i32 - target_pitch as i32).abs() <= 1 {
-                                if hover_beat >= n.start_beat - beat_padding && hover_beat <= n.start_beat + n.duration_beats + beat_padding {
+                                if hover_beat >= n.start_beat - beat_padding
+                                    && hover_beat <= n.start_beat + n.duration_beats + beat_padding
+                                {
                                     !self.note_rect(n, grid_rect.min).contains(pos)
                                 } else {
                                     true
@@ -231,7 +243,9 @@ impl PianoRoll {
                                 true
                             }
                         } else {
-                            if hover_beat >= n.start_beat - beat_padding && hover_beat <= n.start_beat + n.duration_beats + beat_padding {
+                            if hover_beat >= n.start_beat - beat_padding
+                                && hover_beat <= n.start_beat + n.duration_beats + beat_padding
+                            {
                                 !self.note_rect(n, grid_rect.min).contains(pos)
                             } else {
                                 true

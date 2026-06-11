@@ -39,11 +39,52 @@ impl RoutingGraph {
     /// Returns a map of NodeId to its total delay path.
     pub fn calculate_cumulative_latencies(&self) -> HashMap<NodeId, usize> {
         let mut cumulative_latencies = HashMap::new();
-        // TODO: Implement graph traversal to calculate cumulative latency for each path.
-        // For now, this is a skeleton implementation.
-        for (&node, &latency) in &self.node_latencies {
-            cumulative_latencies.insert(node, latency);
+        let mut adj: HashMap<NodeId, Vec<NodeId>> = HashMap::new();
+
+        for &(from, to) in &self.connections {
+            adj.entry(from).or_default().push(to);
         }
+
+        fn dfs(
+            node: NodeId,
+            adj: &HashMap<NodeId, Vec<NodeId>>,
+            node_latencies: &HashMap<NodeId, usize>,
+            memo: &mut HashMap<NodeId, usize>,
+        ) -> usize {
+            if let Some(&lat) = memo.get(&node) {
+                return lat;
+            }
+
+            let self_latency = *node_latencies.get(&node).unwrap_or(&0);
+            let mut max_child_latency = 0;
+
+            if let Some(children) = adj.get(&node) {
+                for &child in children {
+                    let child_latency = dfs(child, adj, node_latencies, memo);
+                    if child_latency > max_child_latency {
+                        max_child_latency = child_latency;
+                    }
+                }
+            }
+
+            let total_latency = self_latency + max_child_latency;
+            memo.insert(node, total_latency);
+            total_latency
+        }
+
+        let mut all_nodes = std::collections::HashSet::new();
+        for &node in self.node_latencies.keys() {
+            all_nodes.insert(node);
+        }
+        for &(from, to) in &self.connections {
+            all_nodes.insert(from);
+            all_nodes.insert(to);
+        }
+
+        for &node in &all_nodes {
+            dfs(node, &adj, &self.node_latencies, &mut cumulative_latencies);
+        }
+
         cumulative_latencies
     }
 }
@@ -132,5 +173,48 @@ mod tests {
         assert_eq!(buffer.data.len(), 13);
         assert_eq!(buffer.data[0], 0.0); // Silence added
         assert_eq!(buffer.data[10], 1.0); // Original signal starts
+    }
+
+    #[test]
+    fn test_pdc_complex_routing() {
+        let mut graph = RoutingGraph::new();
+        // Setup nodes
+        graph.set_node_latency(1, 10);
+        graph.set_node_latency(2, 20);
+        graph.set_node_latency(3, 5);
+        graph.set_node_latency(4, 0);
+
+        // Setup connections
+        // 1 -> 2 -> 4
+        // 1 -> 3 -> 4
+        graph.connections.push((1, 2));
+        graph.connections.push((2, 4));
+        graph.connections.push((1, 3));
+        graph.connections.push((3, 4));
+
+        let mut pdc = PdcEngine::new();
+        pdc.calculate_compensation(&graph);
+
+        // Path 1 -> 2 -> 4 has latency: 10 + 20 + 0 = 30
+        // Path 1 -> 3 -> 4 has latency: 10 + 5 + 0 = 15
+        // Max cumulative latency overall is 30.
+        assert_eq!(pdc.max_latency, 30);
+
+        // Cumulative latencies:
+        // Node 4: 0
+        // Node 2: 20
+        // Node 3: 5
+        // Node 1: max(20, 5) + 10 = 30
+
+        // Compensations (max_latency - cumulative):
+        // Node 4: 30 - 0 = 30
+        // Node 2: 30 - 20 = 10
+        // Node 3: 30 - 5 = 25
+        // Node 1: 30 - 30 = 0
+
+        assert_eq!(pdc.compensation_delays.get(&1), Some(&0));
+        assert_eq!(pdc.compensation_delays.get(&2), Some(&10));
+        assert_eq!(pdc.compensation_delays.get(&3), Some(&25));
+        assert_eq!(pdc.compensation_delays.get(&4), Some(&30));
     }
 }

@@ -27,16 +27,16 @@ impl HistoryManager {
 
     /// 現在の状態をスナップショットとして保存する
     pub fn save_snapshot(&mut self, state: &ProjectState) {
-
         if let Some(last) = self.undo_stack.back() {
             // Compare the JSON representations to check for equality since ProjectState does not derive PartialEq
-            if let (Ok(last_json), Ok(new_json)) = (serde_json::to_string(last), serde_json::to_string(state)) {
+            if let (Ok(last_json), Ok(new_json)) =
+                (serde_json::to_string(last), serde_json::to_string(state))
+            {
                 if last_json == new_json {
                     return;
                 }
             }
         }
-
 
         // 履歴が上限に達している場合は古いものから削除
         if self.undo_stack.len() >= self.max_history {
