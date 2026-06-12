@@ -35,7 +35,7 @@ pub fn add_audio_clip(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(new_id)
     } else {
         Err(format!("Track {} not found", track_id))
@@ -66,7 +66,7 @@ pub fn remove_audio_clip(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -99,7 +99,7 @@ pub fn move_audio_clip(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))
@@ -140,7 +140,7 @@ pub fn add_midi_clip(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(new_id)
     } else {
         Err(format!("Track {} not found", track_id))
@@ -171,7 +171,7 @@ pub fn remove_midi_clip(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -204,7 +204,7 @@ pub fn move_midi_clip(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))
@@ -253,7 +253,7 @@ pub fn update_midi_clip_notes(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
             Err(format!("Clip {} not found in track {}", clip_id, track_id))

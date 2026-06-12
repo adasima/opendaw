@@ -26,15 +26,10 @@ impl HistoryManager {
     }
 
     /// 現在の状態をスナップショットとして保存する
-    pub fn save_snapshot(&mut self, state: &ProjectState) {
+    pub fn save_snapshot(&mut self, state: ProjectState) {
         if let Some(last) = self.undo_stack.back() {
-            // Compare the JSON representations to check for equality since ProjectState does not derive PartialEq
-            if let (Ok(last_json), Ok(new_json)) =
-                (serde_json::to_string(last), serde_json::to_string(state))
-            {
-                if last_json == new_json {
-                    return;
-                }
+            if *last == state {
+                return;
             }
         }
 
@@ -43,8 +38,7 @@ impl HistoryManager {
             self.undo_stack.pop_front();
         }
 
-        // ProjectStateをCloneして保存
-        self.undo_stack.push_back(state.clone());
+        self.undo_stack.push_back(state);
 
         // 新しい操作が行われたらRedoスタックはクリアする
         self.redo_stack.clear();
@@ -94,8 +88,8 @@ mod tests {
         let mut state2 = ProjectState::default();
         state2.bpm = 140.0;
 
-        history.save_snapshot(&initial_state);
-        history.save_snapshot(&state1);
+        history.save_snapshot(initial_state);
+        history.save_snapshot(state1);
 
         // Undo 1
         if let Some(prev_state) = history.undo(&state2) {

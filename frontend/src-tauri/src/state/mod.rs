@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// グリッドスナップの設定を保持する構造体
+#[derive(PartialEq)]
 pub struct GridSettings {
     pub is_enabled: bool,
     pub resolution: u32,
@@ -21,6 +22,7 @@ impl Default for GridSettings {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// プロジェクトの全体状態を保持する構造体
+#[derive(PartialEq)]
 pub struct ProjectState {
     pub is_playing: bool,
     pub bpm: f64,
@@ -43,6 +45,7 @@ impl Default for ProjectState {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// オートメーションポイントの情報を保持する構造体
+#[derive(PartialEq)]
 pub struct AutomationPoint {
     pub id: usize,
     pub time: f64,  // タイムライン上の位置(パーセンテージまたは拍)
@@ -51,6 +54,7 @@ pub struct AutomationPoint {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// オートメーショントラックの情報を保持する構造体
+#[derive(PartialEq)]
 pub struct AutomationTrack {
     pub parameter_name: String, // "Volume", "Pan" など
     pub points: Vec<AutomationPoint>,
@@ -58,6 +62,7 @@ pub struct AutomationTrack {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// センドルーティングの情報を保持する構造体
+#[derive(PartialEq)]
 pub struct SendRouting {
     pub target_track_id: usize,
     pub amount: f32,
@@ -65,6 +70,7 @@ pub struct SendRouting {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 /// トラックの情報を保持する構造体
+#[derive(PartialEq)]
 pub struct Track {
     pub id: usize,
     pub name: String,
