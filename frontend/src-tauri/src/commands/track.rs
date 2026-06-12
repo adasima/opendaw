@@ -92,7 +92,7 @@ pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String
         .history
         .write()
         .unwrap_or_else(|e| e.into_inner())
-        .save_snapshot(&project_state_snapshot);
+        .save_snapshot(project_state_snapshot);
     Ok(new_id as u32)
 }
 
@@ -112,7 +112,7 @@ pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), S
         .history
         .write()
         .unwrap_or_else(|e| e.into_inner())
-        .save_snapshot(&project_state_snapshot);
+        .save_snapshot(project_state_snapshot);
     Ok(())
 }
 
@@ -137,7 +137,7 @@ pub fn set_track_output_routing(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -204,7 +204,7 @@ pub fn update_automation_point(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -242,7 +242,7 @@ pub fn remove_automation_point(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
             Err(format!("Automation track {} not found", param_name))
@@ -279,7 +279,7 @@ pub fn set_automation_visibility(
             .history
             .write()
             .unwrap_or_else(|e| e.into_inner())
-            .save_snapshot(&project_state_snapshot);
+            .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
         Err(format!("Track {} not found", track_id))
@@ -320,7 +320,7 @@ pub fn add_track_send(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
         }
         Ok(())
     } else {
@@ -358,7 +358,7 @@ pub fn set_track_send_amount(
                 .history
                 .write()
                 .unwrap_or_else(|e| e.into_inner())
-                .save_snapshot(&project_state_snapshot);
+                .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
             Err(format!(
