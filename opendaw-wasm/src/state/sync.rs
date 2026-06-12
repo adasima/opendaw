@@ -1,6 +1,7 @@
 //! プロジェクト状態の同期を行うモジュール
 
 use crate::state::DawState;
+use std::collections::{HashMap, HashSet};
 
 /// 外部からプロジェクトのJSONを受け取り、状態を同期する
 #[allow(clippy::collapsible_if)]
@@ -29,13 +30,16 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
         }
         // tracks
         if let Some(tracks_array) = parsed.get("tracks").and_then(|v| v.as_array()) {
+            let mut track_map: HashMap<usize, usize> = HashMap::new();
+            for (idx, track) in state.tracks.iter().enumerate() {
+                track_map.insert(track.id, idx);
+            }
+
             for track_val in tracks_array {
                 if let Some(id) = track_val.get("id").and_then(|v| v.as_u64()) {
                     let id = id as usize;
-                    let mut found = false;
-                    for track in state.tracks.iter_mut() {
-                        if track.id == id {
-                            found = true;
+                    if let Some(&track_idx) = track_map.get(&id) {
+                        if let Some(track) = state.tracks.get_mut(track_idx) {
                             if let Some(name) = track_val.get("name").and_then(|v| v.as_str()) {
                                 track.name = name.to_string();
                             }
@@ -80,7 +84,7 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                         }
                                     }
                                 }
-                                let backend_clip_ids: Vec<usize> = clips_array
+                                let backend_clip_ids: HashSet<usize> = clips_array
                                     .iter()
                                     .filter_map(|c| {
                                         c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize)
@@ -143,7 +147,7 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                         }
                                     }
                                 }
-                                let backend_midi_ids: Vec<usize> = midi_clips_array
+                                let backend_midi_ids: HashSet<usize> = midi_clips_array
                                     .iter()
                                     .filter_map(|c| {
                                         c.get("id").and_then(|v| v.as_u64()).map(|id| id as usize)
@@ -153,10 +157,8 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
                                     .midi_clips
                                     .retain(|c| backend_midi_ids.contains(&c.id));
                             }
-                            break;
                         }
-                    }
-                    if !found {
+                    } else {
                         if let Ok(new_track) =
                             serde_json::from_value::<crate::state::track::Track>(track_val.clone())
                         {
@@ -167,7 +169,7 @@ pub fn sync_project_state_json(state: &mut DawState, is_dragging_clip: bool, jso
             }
 
             // Remove tracks that are no longer in the backend
-            let backend_ids: Vec<usize> = tracks_array
+            let backend_ids: HashSet<usize> = tracks_array
                 .iter()
                 .filter_map(|t| t.get("id").and_then(|v| v.as_u64()).map(|id| id as usize))
                 .collect();
