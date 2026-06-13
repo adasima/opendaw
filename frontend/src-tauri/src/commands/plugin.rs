@@ -14,7 +14,8 @@ pub fn load_plugin_to_track(
         .write()
         .map_err(|_| "Failed to lock project state")?;
 
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.plugins.push(plugin_id);
     }
 

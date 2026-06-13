@@ -14,7 +14,7 @@ mod tests {
         state.master_volume = 0.5;
 
         let track = crate::state::Track::new(1, "Test Track");
-        state.tracks.push(track);
+        state.tracks.push(std::sync::Arc::new(track));
 
         let json = serde_json::to_string(&state).expect("Failed to serialize state");
         let loaded: crate::state::ProjectState =
