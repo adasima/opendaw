@@ -20,7 +20,8 @@ pub fn add_audio_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         let new_id = track.clips.iter().map(|c| c.id).max().unwrap_or(0) + 1;
         let clip = crate::state::clip::AudioClip {
             id: new_id,
@@ -59,7 +60,8 @@ pub fn remove_audio_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.clips.retain(|c| c.id != clip_id);
         state
             .engine
@@ -91,7 +93,8 @@ pub fn move_audio_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start_pos = new_start_pos;
             state
@@ -125,7 +128,8 @@ pub fn add_midi_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         let new_id = track.midi_clips.iter().map(|c| c.id).max().unwrap_or(0) + 1;
         let clip = crate::state::clip::MidiClip {
             id: new_id,
@@ -164,7 +168,8 @@ pub fn remove_midi_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.midi_clips.retain(|c| c.id != clip_id);
         state
             .engine
@@ -196,7 +201,8 @@ pub fn move_midi_clip(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
             clip.start_beat = new_start_beat;
             state
@@ -232,7 +238,8 @@ pub fn update_midi_clip_notes(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
             clip.sequence.notes = notes;
 

@@ -53,7 +53,8 @@ pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>)
         .project_state
         .write()
         .unwrap_or_else(|e| e.into_inner());
-    if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+    if let Some(track_arc) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.volume = volume as f32;
     }
     // _state.engine.set_track_volume(track_id, volume);
@@ -68,7 +69,8 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
         .project_state
         .write()
         .unwrap_or_else(|e| e.into_inner());
-    if let Some(track) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+    if let Some(track_arc) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.pan = pan as f32;
     }
     // _state.engine.set_track_pan(track_id, pan);
@@ -86,7 +88,7 @@ pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String
     let project_state_snapshot = project_state.clone();
     let new_id = project_state.tracks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
     let track = crate::state::Track::new(new_id, name);
-    project_state.tracks.push(track);
+    project_state.tracks.push(std::sync::Arc::new(track));
     state
         .engine
         .history
@@ -130,7 +132,8 @@ pub fn set_track_output_routing(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.output_routing = target;
         state
             .engine
@@ -164,7 +167,8 @@ pub fn update_automation_point(
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
 
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         let auto_track = match track
             .automations
             .iter_mut()
@@ -230,7 +234,8 @@ pub fn remove_automation_point(
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
 
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         if let Some(auto_track) = track
             .automations
             .iter_mut()
@@ -271,7 +276,8 @@ pub fn set_automation_visibility(
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
 
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         track.automation_visible = visible;
         track.selected_automation = selected_param;
         state
@@ -304,7 +310,8 @@ pub fn add_track_send(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         // Prevent duplicate sends to the same target
         if !track
             .sends
@@ -346,7 +353,8 @@ pub fn set_track_send_amount(
         .write()
         .unwrap_or_else(|e| e.into_inner());
     let project_state_snapshot = project_state.clone();
-    if let Some(track) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+    if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
+        let track = std::sync::Arc::make_mut(track_arc);
         if let Some(send) = track
             .sends
             .iter_mut()

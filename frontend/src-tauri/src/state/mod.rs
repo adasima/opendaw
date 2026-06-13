@@ -1,3 +1,4 @@
+use std::sync::Arc;
 pub mod clip;
 pub mod history;
 
@@ -28,7 +29,7 @@ pub struct ProjectState {
     pub bpm: f64,
     pub master_volume: f64,
     pub grid_settings: GridSettings,
-    pub tracks: Vec<Track>,
+    pub tracks: Vec<Arc<Track>>,
 }
 
 impl Default for ProjectState {
