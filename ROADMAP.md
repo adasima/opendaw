@@ -117,8 +117,8 @@
 
 ## Phase 33: オートメーション（Automation）編集・再生基盤
 > ボリュームやパン、プラグインパラメータなどを時間経過で滑らかに変化させる機能。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs、opendaw-wasm/src/state/track.rs、opendaw-wasm/src/app.rs を更新し、オートメーションデータ（パラメータ名とポイントのリスト）の保持とTauriからWASMへの同期基盤を実装し、同時に frontend/src-tauri/src/commands/track.rs にTauriコマンドを追加する
-- [ ] [2] opendaw-wasm/src/ui/timeline.rs と frontend/src/components/Tracks.svelte を連携させ、オートメーションレーンの描画、ポイントの追加・移動（ドラッグ）のインタラクション、およびUI上の表示切替/対象選択機能をエンドツーエンドで実装する
+- [x] [1] frontend/src-tauri/src/state/mod.rs、opendaw-wasm/src/state/track.rs、opendaw-wasm/src/app.rs を更新し、オートメーションデータ（パラメータ名とポイントのリスト）の保持とTauriからWASMへの同期基盤を実装し、同時に frontend/src-tauri/src/commands/track.rs にTauriコマンドを追加する
+- [x] [2] opendaw-wasm/src/ui/timeline.rs と frontend/src/components/Tracks.svelte を連携させ、オートメーションレーンの描画、ポイントの追加・移動（ドラッグ）のインタラクション、およびUI上の表示切替/対象選択機能をエンドツーエンドで実装する
 - [ ] [3] 人間: オーディオエンジン側に、再生時間に応じたパラメータ補間ロジックを実装し、実際のオーディオ処理に反映させる (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ---
@@ -129,9 +129,9 @@
 
 ## Phase 34: サブバス / センド＆リターン・ルーティング
 > 複数トラックをグループ化するサブバス、およびリバーブ等の空間系エフェクト用センドトラック。
-- [ ] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
-- [ ] [2] frontend/src-tauri/src/commands/track.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/track.rs)
-- [ ] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
+- [x] [1] frontend/src-tauri/src/state/mod.rs の Track 構造体を更新し、ルーティング先（`output_routing`）やセンドのリスト（`sends`）を保持するフィールドを追加する (対象: frontend/src-tauri/src/state/mod.rs)
+- [x] [2] frontend/src-tauri/src/commands/track.rs に、トラックのルーティングやセンド量を変更する Tauri Command を追加する (対象: frontend/src-tauri/src/commands/track.rs)
+- [x] [3] frontend/src/components/TrackDetails.svelte を更新し、トラックの出力先バスの選択や、センド量（Sends）を調整するUIを実装する (対象: frontend/src/components/TrackDetails.svelte)
 - [ ] 人間: オーディオエンジンのグラフ処理順序をトポロジカルソートし、バス階層に応じたレンダリングを実装する (対象: frontend/src-tauri/src/engine/mod.rs)
 
 ## Phase 35: 究極のドラッグ＆ドロップ・ワークフロー (Studio One風)

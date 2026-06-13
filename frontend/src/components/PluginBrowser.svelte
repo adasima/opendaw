@@ -34,6 +34,11 @@
         class="plugin-item"
         role="button"
         tabindex="0"
+        draggable="true"
+        ondragstart={(e) => {
+          e.dataTransfer.setData('application/json', JSON.stringify({ type: 'plugin', id: plugin.name }));
+          e.dataTransfer.effectAllowed = 'copy';
+        }}
         onclick={() => {
           if (activeTrackId !== null) {
             invoke("load_plugin_to_track", { track_id: activeTrackId, plugin_id: plugin.name }).catch(console.error);
