@@ -303,3 +303,33 @@ pub fn notify_update_automation_point(track_id: usize, param_name: String, time:
         let _ = tauri_invoke("update_automation_point", js_value);
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn get_track_id_at_y(y: f32) -> i32 {
+    let json_str = get_tracks_json();
+    if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&json_str) {
+        if let Some(tracks_array) = parsed.as_array() {
+            let mut current_y = 0.0;
+            for track_val in tracks_array {
+                let track_height = 80.0;
+                let mut automation_height = 0.0;
+
+                if let Some(visible) = track_val.get("automation_visible").and_then(|v| v.as_bool()) {
+                    if visible && track_val.get("selected_automation").map_or(false, |v| !v.is_null()) {
+                        automation_height = 60.0;
+                    }
+                }
+
+                let total_height = track_height + automation_height;
+                if y >= current_y && y < current_y + total_height {
+                    if let Some(id) = track_val.get("id").and_then(|v| v.as_i64()) {
+                        return id as i32;
+                    }
+                }
+                current_y += total_height;
+            }
+        }
+    }
+    -1
+}

@@ -36,9 +36,39 @@
       clearInterval(pollInterval);
     }
   });
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    try {
+      const dataStr = e.dataTransfer.getData("application/json");
+      if (!dataStr) return;
+      const data = JSON.parse(dataStr);
+
+      const rect = e.target.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+
+      let trackId = -1;
+      if (wasmModule && wasmModule.get_track_id_at_y) {
+        trackId = wasmModule.get_track_id_at_y(y);
+      } else if (window.wasmBindings && window.wasmBindings.get_track_id_at_y) {
+        trackId = window.wasmBindings.get_track_id_at_y(y);
+      }
+
+      if (trackId >= 0 && data.type === "plugin") {
+        invoke("load_plugin_to_track", { track_id: trackId, plugin_id: data.id }).catch(console.error);
+      }
+    } catch (err) {
+      console.error("Drop handling failed:", err);
+    }
+  }
 </script>
 
-<div class="canvas-container glass-panel">
+<div class="canvas-container glass-panel" role="region" ondragover={handleDragOver} ondrop={handleDrop}>
   <canvas {id}></canvas>
 </div>
 
