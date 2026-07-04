@@ -141,3 +141,97 @@ impl RoutingGraph {
         false
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_has_cycle_empty_graph() {
+        let graph = RoutingGraph::new();
+        assert!(!graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_disconnected_nodes() {
+        let mut graph = RoutingGraph::new();
+        graph.add_node("Track 1".to_string(), NodeType::Track);
+        graph.add_node("Track 2".to_string(), NodeType::Track);
+        assert!(!graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_linear_connections() {
+        let mut graph = RoutingGraph::new();
+        let node1 = graph.add_node("Track 1".to_string(), NodeType::Track);
+        let node2 = graph.add_node("Track 2".to_string(), NodeType::Track);
+        let node3 = graph.add_node("Master".to_string(), NodeType::Master);
+
+        graph.connect(node1, node2).unwrap();
+        graph.connect(node2, node3).unwrap();
+
+        assert!(!graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_self_referential() {
+        let mut graph = RoutingGraph::new();
+        let node1 = graph.add_node("Track 1".to_string(), NodeType::Track);
+
+        // We have to bypass `connect` as it checks for cycles and prevents adding them.
+        graph.edges.get_mut(&node1).unwrap().insert(node1);
+
+        assert!(graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_simple_cycle() {
+        let mut graph = RoutingGraph::new();
+        let node1 = graph.add_node("Track 1".to_string(), NodeType::Track);
+        let node2 = graph.add_node("Track 2".to_string(), NodeType::Track);
+
+        graph.connect(node1, node2).unwrap();
+
+        // Bypass `connect` to force the cycle
+        graph.edges.get_mut(&node2).unwrap().insert(node1);
+
+        assert!(graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_complex_cycle() {
+        let mut graph = RoutingGraph::new();
+        let node1 = graph.add_node("Track 1".to_string(), NodeType::Track);
+        let node2 = graph.add_node("Track 2".to_string(), NodeType::Track);
+        let node3 = graph.add_node("Track 3".to_string(), NodeType::Track);
+        let node4 = graph.add_node("Track 4".to_string(), NodeType::Track);
+
+        graph.connect(node1, node2).unwrap();
+        graph.connect(node2, node3).unwrap();
+        graph.connect(node3, node4).unwrap();
+
+        // Bypass `connect` to force the cycle A -> B -> C -> D -> B
+        graph.edges.get_mut(&node4).unwrap().insert(node2);
+
+        assert!(graph.has_cycle());
+    }
+
+    #[test]
+    fn test_has_cycle_multiple_components() {
+        let mut graph = RoutingGraph::new();
+
+        // Component 1: Linear
+        let node1 = graph.add_node("Track 1".to_string(), NodeType::Track);
+        let node2 = graph.add_node("Track 2".to_string(), NodeType::Track);
+        graph.connect(node1, node2).unwrap();
+
+        // Component 2: Cycle
+        let node3 = graph.add_node("Track 3".to_string(), NodeType::Track);
+        let node4 = graph.add_node("Track 4".to_string(), NodeType::Track);
+        graph.connect(node3, node4).unwrap();
+        // Bypass `connect` to force the cycle
+        graph.edges.get_mut(&node4).unwrap().insert(node3);
+
+        assert!(graph.has_cycle());
+    }
+}
