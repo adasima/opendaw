@@ -197,10 +197,11 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                 ),
             );
 
-            if let Some(auto_track) = track
+            if let Some((auto_track_idx, auto_track)) = track
                 .automations
                 .iter()
-                .find(|a| a.parameter_name == *param_name)
+                .enumerate()
+                .find(|(_, a)| a.parameter_name == *param_name)
             {
                 let mut prev_point: Option<egui::Pos2> = None;
 
@@ -238,7 +239,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
 
                         all_modified_auto_points.push((
                             track.id,
-                            param_name.clone(),
+                            auto_track_idx,
                             point.id,
                             new_time as f64,
                             new_val,
@@ -289,12 +290,9 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         }
     }
 
-    for (t_id, param_name, point_id, new_time, new_val) in all_modified_auto_points {
+    for (t_id, auto_track_idx, point_id, new_time, new_val) in all_modified_auto_points {
         if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id)
-            && let Some(auto_track) = track
-                .automations
-                .iter_mut()
-                .find(|a| a.parameter_name == param_name)
+            && let Some(auto_track) = track.automations.get_mut(auto_track_idx)
         {
             if let Some(point) = auto_track.points.iter_mut().find(|p| p.id == point_id) {
                 point.time = new_time;
