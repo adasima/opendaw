@@ -62,9 +62,13 @@ impl TimeStretcher {
 
     /// サンプルレートやチャンネル数が変更された場合にフォーマットを更新します。
     pub fn update_format(&mut self, sample_rate: u32, channels: usize) {
-        self.sample_rate = sample_rate;
-        self.channels = channels;
-        // TODO: 内部エンジンの再初期化など
+        if self.sample_rate != sample_rate || self.channels != channels {
+            let time_ratio = self._time_ratio;
+            let pitch_scale = self._pitch_scale;
+            *self = Self::new(sample_rate, channels);
+            self.set_time_ratio(time_ratio);
+            self.set_pitch_scale(pitch_scale);
+        }
     }
 }
 
@@ -115,6 +119,20 @@ mod tests {
         assert_eq!(output.len(), 2);
         assert!(output[0].is_empty());
         assert!(output[1].is_empty());
+    }
+
+    #[test]
+    fn test_time_stretcher_update_format_preserves_state() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        stretcher.set_time_ratio(1.5);
+        stretcher.set_pitch_scale(0.8);
+
+        stretcher.update_format(48000, 4);
+
+        assert_eq!(stretcher.sample_rate, 48000);
+        assert_eq!(stretcher.channels, 4);
+        assert_eq!(stretcher._time_ratio, 1.5);
+        assert_eq!(stretcher._pitch_scale, 0.8);
     }
 
     #[test]
