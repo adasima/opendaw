@@ -33,20 +33,20 @@ struct SendStream(cpal::Stream);
 unsafe impl Send for SendStream {}
 unsafe impl Sync for SendStream {}
 
- 
+
 pub struct AudioEngine {
     // External Interface
     pub command_sender: Sender<AudioCommand>,
     pub meter_receiver: Receiver<MeterData>,
     pub playhead_receiver: Receiver<f64>,
-    
+
     // Internal State for Restarting
     cmd_receiver_internal: Receiver<AudioCommand>,
     meter_sender_internal: Sender<MeterData>,
     playhead_sender_internal: Sender<f64>,
     shared_state: SharedAudioState,
 
-    stream: Option<SendStream>, 
+    stream: Option<SendStream>,
     input_stream: Option<SendStream>,
 
     // Recording (Shared with callback)
@@ -60,7 +60,7 @@ impl AudioEngine {
         let (cmd_sender, cmd_receiver) = unbounded();
         let (meter_sender, meter_receiver) = unbounded();
         let (playhead_sender, playhead_receiver) = unbounded();
-        
+
         // Recording shared state
         let recording_dest = std::sync::Arc::new(std::sync::Mutex::new(None));
 
@@ -68,30 +68,30 @@ impl AudioEngine {
             command_sender: cmd_sender,
             meter_receiver,
             playhead_receiver,
-            
+
             cmd_receiver_internal: cmd_receiver,
             meter_sender_internal: meter_sender,
             playhead_sender_internal: playhead_sender,
             shared_state,
-            
+
             stream: None,
             input_stream: None,
-            
+
             recording_dest,
             input_sample_rate: 44100,
             input_channels: 2,
         };
-        
+
         engine.start(None)?;
         // Auto-start monitor
         let _ = engine.start_input(None);
 
         Ok(engine)
     }
-    
-    // ... start() implementation is assumed unchanged or included if needed. 
+
+    // ... start() implementation is assumed unchanged or included if needed.
     // Since replacment covers start(), I must include it.
-    
+
     pub fn start(&mut self, device_name: Option<String>) -> Result<()> {
         let host = cpal::default_host();
         let device = if let Some(name) = device_name {
@@ -133,9 +133,9 @@ impl AudioEngine {
          let config = device.default_input_config()?;
          self.input_sample_rate = config.sample_rate().0;
          self.input_channels = config.channels();
-         
+
          let dest = self.recording_dest.clone();
-         
+
          self.input_stream = None;
 
          let stream = match config.sample_format() {
@@ -144,7 +144,7 @@ impl AudioEngine {
             cpal::SampleFormat::U16 => run_input::<u16>(&device, &config.into(), dest),
             _ => anyhow::bail!("Unsupported input sample format"),
          };
-         
+
          if let Ok(s) = stream {
              s.play()?;
              self.input_stream = Some(SendStream(s));
@@ -152,19 +152,19 @@ impl AudioEngine {
 
          Ok(())
     }
-    
+
     pub fn start_recording(&mut self, path: String) -> Result<()> {
         let (tx, rx) = unbounded();
-        
+
         // Update shared state to point to new channel
         {
             let mut dest = self.recording_dest.lock().unwrap();
             *dest = Some(tx);
         }
-        
+
         let sample_rate = self.input_sample_rate;
         let channels = self.input_channels;
-        
+
         // Spawn writer thread
         std::thread::spawn(move || {
             let spec = hound::WavSpec {
@@ -173,7 +173,7 @@ impl AudioEngine {
                 bits_per_sample: 32,
                 sample_format: hound::SampleFormat::Float,
             };
-            
+
             match hound::WavWriter::create(&path, spec) {
                 Ok(mut writer) => {
                     while let Ok(buffer) = rx.recv() {
@@ -189,10 +189,10 @@ impl AudioEngine {
                 Err(e) => eprintln!("Failed to create wav writer: {}", e)
             }
         });
-        
+
         Ok(())
     }
-    
+
     pub fn stop_recording(&mut self) -> Result<()> {
         let mut dest = self.recording_dest.lock().unwrap();
         if let Some(tx) = dest.take() {
@@ -200,7 +200,7 @@ impl AudioEngine {
         }
         Ok(())
     }
-    
+
 
 
     pub fn send_command(&self, command: AudioCommand) -> Result<()> {
@@ -241,7 +241,7 @@ where
     let mut current_pos_sec = 0.0;
     let mut playing = false;
     let mut track_runtimes: HashMap<usize, TrackRuntime> = HashMap::new();
-    
+
     // Meter Timing & Accumulators
     let mut last_meter_time = Instant::now();
     let meter_interval = Duration::from_millis(constants::METER_UPDATE_INTERVAL_MS);
@@ -271,7 +271,7 @@ where
                         acc_master_peak = [0.0, 0.0];
                         acc_track_peaks.clear();
                     },
-                    AudioCommand::SetVolume(_vol) => { }, 
+                    AudioCommand::SetVolume(_vol) => { },
                     AudioCommand::SetLooping(_enabled) => { },
                     AudioCommand::SetLoopRegion(_start, _end) => { },
                     AudioCommand::Seek(pos) => {
@@ -306,7 +306,7 @@ where
                 for track in tracks_guard.iter() {
                      let soloed = track.soloed.load(Ordering::Relaxed);
                      let muted = track.muted.load(Ordering::Relaxed);
-                     
+
                      let runtime = track_runtimes.entry(track.id).or_insert(TrackRuntime {
                          next_note_idx: 0,
                          active_voices: Vec::with_capacity(constants::VOICE_INITIAL_CAPACITY),
@@ -339,7 +339,7 @@ where
                                      runtime.next_note_idx += 1;
                                  }
                              },
-                             _ => {} 
+                             _ => {}
                          }
                      }
                      runtime.active_voices.retain(|v| v.release_end_time > current_pos_sec);
@@ -354,21 +354,21 @@ where
                      pan_l: f32,
                      pan_r: f32,
                 }
-                 
+
                 let mut active_renderers = Vec::with_capacity(tracks_guard.len());
-                 
+
                 for track in tracks_guard.iter() {
                      let soloed = track.soloed.load(Ordering::Relaxed);
                      let muted = track.muted.load(Ordering::Relaxed);
                      if (any_solo && !soloed) || (!any_solo && muted) { continue; }
-                     
+
                      if let Some(runtime) = track_runtimes.get(&track.id) {
                          if let Ok(content) = track.content.try_read() {
                              let vol = f64::from_bits(track.volume.load(Ordering::Relaxed)) as f32;
                              let pan = f64::from_bits(track.pan.load(Ordering::Relaxed)) as f32;
                              let pan_l = (1.0 - pan).min(1.0).max(0.0);
                              let pan_r = (1.0 + pan).min(1.0).max(0.0);
-                             
+
                              active_renderers.push(ActiveRenderer {
                                  id: track.id,
                                  content,
@@ -385,7 +385,7 @@ where
                 for frame in data.chunks_mut(channels) {
                      let mut mix_left = 0.0;
                      let mut mix_right = 0.0;
-                     
+
                      if playing {
                          if is_looping && loop_end > loop_start {
                              if current_pos_sec >= loop_end {
@@ -395,48 +395,19 @@ where
 
                          for renderer in &active_renderers {
                              let mut track_sample = 0.0;
-                             
+
                              // Midi
                              if let crate::state::TrackContent::Midi(_) = &**renderer.content {
                                   for voice in renderer.voices {
                                       if current_pos_sec >= voice.start_time && current_pos_sec < voice.release_end_time {
-                                          let t = current_pos_sec - voice.start_time;
-                                          let envelope = if t < synth_params.attack {
-                                              t / synth_params.attack
-                                          } else if t < synth_params.attack + synth_params.decay {
-                                              1.0 - (1.0 - synth_params.sustain) * ((t - synth_params.attack) / synth_params.decay)
-                                          } else if t < voice.end_time - voice.start_time {
-                                              synth_params.sustain
-                                          } else {
-                                              let release_t = current_pos_sec - voice.end_time;
-                                              if release_t < synth_params.release {
-                                                  synth_params.sustain * (1.0 - (release_t / synth_params.release))
-                                              } else { 0.0 }
-                                          };
-                                          let phase = current_pos_sec as f32 * voice.frequency * 2.0 * std::f32::consts::PI;
-                                          let osc_val = match synth_params.oscillator_type {
-                                              crate::state::OscillatorType::Sine => phase.sin(),
-                                              crate::state::OscillatorType::Square => if phase.sin() > 0.0 { 1.0 } else { -1.0 },
-                                              crate::state::OscillatorType::Sawtooth => {
-                                                  // Simple Sawtooth: 2 * (t * f - floor(t*f + 0.5))
-                                                  // t * f is phase / 2PI.
-                                                  let period_pos = (phase / (2.0 * std::f32::consts::PI)) % 1.0;
-                                                  2.0 * (period_pos - 0.5)
-                                              },
-                                              crate::state::OscillatorType::Triangle => {
-                                                  // Triangle from Sine or Saw
-                                                  // 2/PI * asin(sin(phase)) is exact but slow.
-                                                  // |Saw| is easier? 
-                                                  // 4 * abs(period_pos - 0.5) - 1.0
-                                                  let period_pos = (phase / (2.0 * std::f32::consts::PI)).fract(); // 0..1
-                                                  if period_pos < 0.5 {
-                                                      4.0 * period_pos - 1.0
-                                                  } else {
-                                                      3.0 - 4.0 * period_pos
-                                                  }
-                                              }
-                                          };
-                                          track_sample += osc_val * constants::SYNTH_OUTPUT_GAIN * envelope as f32 * voice.velocity;
+                                          track_sample += crate::synth::calculate_voice_sample(
+                                              current_pos_sec,
+                                              voice.start_time,
+                                              voice.end_time - voice.start_time,
+                                              voice.frequency,
+                                              voice.velocity,
+                                              &synth_params,
+                                          );
                                       }
                                   }
                              } else if let crate::state::TrackContent::Audio(clip) = &**renderer.content {
@@ -452,10 +423,10 @@ where
                                       }
                                   }
                              }
-                             
+
                              let track_l = track_sample * renderer.vol * renderer.pan_l;
                              let track_r = track_sample * renderer.vol * renderer.pan_r;
-                             
+
                              // Metering Track accumulation
                              let peaks = acc_track_peaks.entry(renderer.id).or_insert([0.0, 0.0]);
                              if track_l.abs() > peaks[0] { peaks[0] = track_l.abs(); }
@@ -464,15 +435,15 @@ where
                              mix_left += track_l;
                              mix_right += track_r;
                          }
-                         
+
                          current_pos_sec += 1.0 / sample_rate as f64;
                      } // end if playing
-                     
+
                      // Apply Master Volume
                      let master_vol = f64::from_bits(shared_state.master_volume.load(Ordering::Relaxed)) as f32;
                      mix_left *= master_vol;
                      mix_right *= master_vol;
-                     
+
                      // Metering Master accumulation
                      if mix_left.abs() > acc_master_peak[0] { acc_master_peak[0] = mix_left.abs(); }
                      if mix_right.abs() > acc_master_peak[1] { acc_master_peak[1] = mix_right.abs(); }
@@ -484,7 +455,7 @@ where
                          *s = cpal::Sample::from_sample((mix_left + mix_right) * 0.5);
                      }
                 } // end frame loop
-            
+
             } else {
                 // FAILED TO ACQUIRE LOCK or EMPTY TRACKS
                 // Output silence safely
@@ -510,7 +481,7 @@ where
                         master_peak: acc_master_peak,
                         track_peaks: acc_track_peaks.clone()
                     });
-                    
+
                     // Reset accumulators
                     acc_master_peak = [0.0, 0.0];
                     acc_track_peaks.clear();
@@ -551,9 +522,9 @@ fn run_input<T>(
 ) -> Result<cpal::Stream>
 where
     T: cpal::Sample + SizedSample,
-    f32: cpal::FromSample<T>, 
+    f32: cpal::FromSample<T>,
 {
-    // T must implement Sample. 
+    // T must implement Sample.
     // to_sample() comes from cpal::Sample trait.
 
     let err_fn = |err| eprintln!("an error occurred on input stream: {}", err);

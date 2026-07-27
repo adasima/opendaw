@@ -37,3 +37,5 @@ ts-rs = "10"
 thiserror = "2"
 ringbuf = "0.4.8"
 
+
+[workspace]

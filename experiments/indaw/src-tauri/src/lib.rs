@@ -5,6 +5,7 @@ pub mod sequence;
 pub mod midi_parser;
 pub mod audio_engine;
 pub mod commands;
+pub mod synth;
 pub mod state;
 pub mod error;
 pub mod constants;
