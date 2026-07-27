@@ -7,6 +7,7 @@ pub struct TimeStretcher {
     channels: usize,
     _time_ratio: f64,
     _pitch_scale: f64,
+    internal_buffer: Vec<Vec<f32>>,
     // TODO: Rubberband等の内部状態やハンドルを保持するフィールドを追加
 }
 
@@ -18,6 +19,7 @@ impl TimeStretcher {
             channels,
             _time_ratio: 1.0,
             _pitch_scale: 1.0,
+            internal_buffer: vec![Vec::new(); channels],
         }
     }
 
@@ -52,18 +54,14 @@ impl TimeStretcher {
     /// 内部バッファに残っている未処理のオーディオデータをフラッシュして取得します。
     /// クリップの終端などで呼び出します。
     pub fn flush(&mut self) -> Vec<Vec<f32>> {
-        // TODO: 内部状態に残っているデータをフラッシュする処理を実装
-        let mut output = Vec::with_capacity(self.channels);
-        for _ in 0..self.channels {
-            output.push(Vec::new());
-        }
-        output
+        std::mem::replace(&mut self.internal_buffer, vec![Vec::new(); self.channels])
     }
 
     /// サンプルレートやチャンネル数が変更された場合にフォーマットを更新します。
     pub fn update_format(&mut self, sample_rate: u32, channels: usize) {
         self.sample_rate = sample_rate;
         self.channels = channels;
+        self.internal_buffer = vec![Vec::new(); channels];
         // TODO: 内部エンジンの再初期化など
     }
 }
@@ -115,6 +113,18 @@ mod tests {
         assert_eq!(output.len(), 2);
         assert!(output[0].is_empty());
         assert!(output[1].is_empty());
+    }
+
+    #[test]
+    fn test_time_stretcher_flush_with_data() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        stretcher.internal_buffer = vec![vec![0.1, 0.2], vec![0.3, 0.4]];
+        let output = stretcher.flush();
+        assert_eq!(output, vec![vec![0.1, 0.2], vec![0.3, 0.4]]);
+
+        let next_output = stretcher.flush();
+        assert!(next_output[0].is_empty());
+        assert!(next_output[1].is_empty());
     }
 
     #[test]
