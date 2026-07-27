@@ -1,3 +1,4 @@
+pub mod synth;
 pub mod importer;
 pub mod exporter;
 pub mod midi_exporter;
