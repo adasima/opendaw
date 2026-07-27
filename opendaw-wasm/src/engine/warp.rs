@@ -63,10 +63,12 @@ impl TimeStretcher {
     /// サンプルレートやチャンネル数が変更された場合にフォーマットを更新します。
     pub fn update_format(&mut self, sample_rate: u32, channels: usize) {
         if self.sample_rate != sample_rate || self.channels != channels {
-            self.sample_rate = sample_rate;
-            self.channels = channels;
             // TODO: 内部エンジンの再初期化など
-            // TODO: 内部エンジン実装後、再初期化時に _time_ratio と _pitch_scale を再適用すること
+            let ratio = self._time_ratio;
+            let scale = self._pitch_scale;
+            *self = TimeStretcher::new(sample_rate, channels);
+            self.set_time_ratio(ratio);
+            self.set_pitch_scale(scale);
         }
     }
 }
