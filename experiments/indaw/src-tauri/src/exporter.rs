@@ -8,7 +8,7 @@ pub fn export_mixdown(state: SharedAudioState, output_path: String) -> Result<()
     // Scan all tracks to find the end time (last note or audio end)
     let tracks = state.tracks.read().unwrap();
     let mut duration_sec = 0.0;
-    
+
     // Also grab synth params once
     let synth_params = state.synth.snapshot();
 
@@ -29,10 +29,10 @@ pub fn export_mixdown(state: SharedAudioState, output_path: String) -> Result<()
             }
         }
     }
-    
+
     // Add 1 second tail
-    duration_sec += 1.0; 
-    
+    duration_sec += 1.0;
+
     // 2. Setup Writer (WAV 32-bit Float, 44.1kHz Stereo)
     let sample_rate = 44100;
     let spec = hound::WavSpec {
@@ -41,16 +41,16 @@ pub fn export_mixdown(state: SharedAudioState, output_path: String) -> Result<()
         bits_per_sample: 32,
         sample_format: hound::SampleFormat::Float,
     };
-    
+
     let mut writer = hound::WavWriter::create(&output_path, spec).context("Failed to create WAV writer")?;
-    
+
     // 3. Render Loop
     // Render time step: 1.0 / 44100.0
     let total_frames = (duration_sec * sample_rate as f64).ceil() as usize;
     let dt = 1.0 / sample_rate as f64;
-    
+
     let mut current_time = 0.0;
-    
+
     // Pre-calculate solo state
     let any_solo = tracks.iter().any(|t| t.soloed.load(Ordering::Relaxed));
 
@@ -81,24 +81,17 @@ pub fn export_mixdown(state: SharedAudioState, output_path: String) -> Result<()
                          for note in &seq.notes {
                               let note_end = note.start_time + note.duration;
                               let release_end = note_end + synth_params.release;
-                              
+
                               if current_time >= note.start_time && current_time < release_end {
-                                  let t = current_time - note.start_time;
-                                  let envelope = if t < synth_params.attack {
-                                      t / synth_params.attack
-                                  } else if t < synth_params.attack + synth_params.decay {
-                                      1.0 - (1.0 - synth_params.sustain) * ((t - synth_params.attack) / synth_params.decay)
-                                  } else if t < note.duration {
-                                      synth_params.sustain
-                                  } else {
-                                      let release_t = t - note.duration;
-                                      if release_t < synth_params.release {
-                                          synth_params.sustain * (1.0 - (release_t / synth_params.release))
-                                      } else { 0.0 }
-                                  };
-                                  
-                                  let freq = 440.0 * 2.0_f32.powf((note.note as f32 - 69.0) / 12.0);
-                                  track_sample += (current_time as f32 * freq * 2.0 * std::f32::consts::PI).sin() * 0.1 * envelope as f32 * (note.velocity as f32 / 127.0);
+                                  let freq = crate::constants::MIDI_A4_FREQUENCY * 2.0_f32.powf((note.note as f32 - crate::constants::MIDI_A4_NOTE as f32) / 12.0);
+                                  track_sample += crate::synth::calculate_voice_sample(
+                                      current_time,
+                                      note.start_time,
+                                      note.duration,
+                                      freq,
+                                      note.velocity as f32 / crate::constants::MIDI_VELOCITY_MAX,
+                                      &synth_params,
+                                  );
                               }
                          }
                      },
@@ -117,17 +110,17 @@ pub fn export_mixdown(state: SharedAudioState, output_path: String) -> Result<()
                      }
                  }
              }
-             
+
              mix_l += track_sample * vol * pan_l;
              mix_r += track_sample * vol * pan_r;
         }
 
         writer.write_sample(mix_l).unwrap();
         writer.write_sample(mix_r).unwrap();
-        
+
         current_time += dt;
     }
-    
+
     writer.finalize().context("Failed to finalize WAV file")?;
     Ok(())
 }
