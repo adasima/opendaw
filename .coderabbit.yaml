@@ -1,0 +1,4 @@
+# .coderabbit.yaml の例
+review:
+  bot_allowlist:
+    - "google-labs-jules"
