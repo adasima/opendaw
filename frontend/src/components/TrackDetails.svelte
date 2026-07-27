@@ -14,6 +14,8 @@
   let plugins = $state([]);
 
   let allTracks = $state([]);
+  let trackMap = $derived(new Map(allTracks.map(t => [t.id, t])));
+  let sendTargetIds = $derived(new Set(sends.map(s => s.target_track_id)));
   let outputRouting = $state("master"); // "master" or track id
   let sends = $state([]);
   let newSendTarget = $state("");
@@ -138,7 +140,7 @@
       <label>Sends</label>
       {#each sends as send, index}
         <div class="send-item">
-          <span>{allTracks.find(t => t.id === send.target_track_id)?.name || 'Unknown'}</span>
+          <span>{trackMap.get(send.target_track_id)?.name || 'Unknown'}</span>
           <input type="range" min="0" max="1" step="0.01" bind:value={sends[index].amount} onchange={() => applySendAmount(send.target_track_id, sends[index].amount)} />
         </div>
       {/each}
@@ -146,7 +148,7 @@
         <select bind:value={newSendTarget}>
           <option value="" disabled>Select track...</option>
           {#each allTracks as track}
-            {#if track.id !== trackId && !sends.some(s => s.target_track_id === track.id)}
+            {#if track.id !== trackId && !sendTargetIds.has(track.id)}
               <option value={track.id.toString()}>{track.name}</option>
             {/if}
           {/each}
