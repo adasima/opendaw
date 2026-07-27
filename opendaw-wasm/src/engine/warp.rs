@@ -2,12 +2,34 @@
 /// オーディオクリップがBPMの変更に追従するための基盤として機能します。
 /// 将来的にはRubberbandなどのタイムストレッチライブラリのラッパーとして実装される想定です。
 ///
+/// 内部のストレッチエンジンのスタブ実装
+pub struct StubEngine {
+    pub time_ratio: f64,
+    pub pitch_scale: f64,
+}
+
+impl StubEngine {
+    pub fn new() -> Self {
+        Self {
+            time_ratio: 1.0,
+            pitch_scale: 1.0,
+        }
+    }
+
+    pub fn set_time_ratio(&mut self, ratio: f64) {
+        self.time_ratio = ratio;
+    }
+
+    pub fn set_pitch_scale(&mut self, scale: f64) {
+        self.pitch_scale = scale;
+    }
+}
+
 pub struct TimeStretcher {
-    sample_rate: u32,
-    channels: usize,
-    _time_ratio: f64,
-    _pitch_scale: f64,
-    // TODO: Rubberband等の内部状態やハンドルを保持するフィールドを追加
+    pub sample_rate: u32,
+    pub channels: usize,
+    pub engine: StubEngine,
+    // TODO: 実際のRubberband等の状態を保持するフィールドに変更
 }
 
 impl TimeStretcher {
@@ -16,8 +38,7 @@ impl TimeStretcher {
         Self {
             sample_rate,
             channels,
-            _time_ratio: 1.0,
-            _pitch_scale: 1.0,
+            engine: StubEngine::new(),
         }
     }
 
@@ -25,16 +46,14 @@ impl TimeStretcher {
     /// ratio = 1.0 は等倍。
     /// ratio > 1.0 は遅く（長く）なり、ratio < 1.0 は速く（短く）なります。
     pub fn set_time_ratio(&mut self, ratio: f64) {
-        // TODO: 内部のストレッチエンジンに比率を適用する
-        self._time_ratio = ratio;
+        self.engine.set_time_ratio(ratio);
     }
 
     /// ピッチスケールを設定します。
     /// scale = 1.0 は変更なし。
     /// scale > 1.0 はピッチが上がり、scale < 1.0 はピッチが下がります。
     pub fn set_pitch_scale(&mut self, scale: f64) {
-        // TODO: 内部のストレッチエンジンにピッチスケールを適用する
-        self._pitch_scale = scale;
+        self.engine.set_pitch_scale(scale);
     }
 
     /// 入力オーディオバッファを処理し、タイムストレッチ/ピッチシフトされた結果を返します。
