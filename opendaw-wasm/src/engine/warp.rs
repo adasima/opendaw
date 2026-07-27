@@ -26,7 +26,7 @@ impl TimeStretcher {
     /// ratio > 1.0 は遅く（長く）なり、ratio < 1.0 は速く（短く）なります。
     pub fn set_time_ratio(&mut self, ratio: f64) {
         // TODO: 内部のストレッチエンジンに比率を適用する
-        self._time_ratio = ratio;
+        self._time_ratio = ratio; // スタブ実装として値を保持する
     }
 
     /// ピッチスケールを設定します。
@@ -34,7 +34,7 @@ impl TimeStretcher {
     /// scale > 1.0 はピッチが上がり、scale < 1.0 はピッチが下がります。
     pub fn set_pitch_scale(&mut self, scale: f64) {
         // TODO: 内部のストレッチエンジンにピッチスケールを適用する
-        self._pitch_scale = scale;
+        self._pitch_scale = scale; // スタブ実装として値を保持する
     }
 
     /// 入力オーディオバッファを処理し、タイムストレッチ/ピッチシフトされた結果を返します。
@@ -82,15 +82,17 @@ mod tests {
     #[test]
     fn test_time_stretcher_set_time_ratio() {
         let mut stretcher = TimeStretcher::new(44100, 2);
-        // 現在はノーオぺレーション。パニックしないことだけを確認
+        // 値が設定されることを確認
         stretcher.set_time_ratio(1.5);
+        assert_eq!(stretcher._time_ratio, 1.5);
     }
 
     #[test]
     fn test_time_stretcher_set_pitch_scale() {
         let mut stretcher = TimeStretcher::new(44100, 2);
-        // 現在はノーオぺレーション。パニックしないことだけを確認
+        // 値が設定されることを確認
         stretcher.set_pitch_scale(1.5);
+        assert_eq!(stretcher._pitch_scale, 1.5);
     }
 
     #[test]
