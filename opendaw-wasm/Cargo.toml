@@ -46,3 +46,6 @@ criterion = "0.8.2"
 [[bench]]
 name = "math_benches"
 harness = false
+[[bench]]
+name = "ui_timeline_benches"
+harness = false

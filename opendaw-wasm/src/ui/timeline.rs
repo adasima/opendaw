@@ -76,7 +76,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                     let snap_step = 100.0 / (app.state.grid_resolution as f32 * 4.0);
                     new_pos = (new_pos / snap_step).round() * snap_step;
                 }
-                all_modified_clips.push((track.id, clip.id, new_pos));
+                all_modified_clips.push((i, clip.id, new_pos));
             }
 
             if clip_response.drag_stopped() {
@@ -147,7 +147,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                     let snap_step = 100.0 / (app.state.grid_resolution as f64 * 4.0);
                     new_pos = (new_pos / snap_step).round() * snap_step;
                 }
-                all_modified_midi_clips.push((track.id, clip.id, new_pos));
+                all_modified_midi_clips.push((i, clip.id, new_pos));
             }
 
             if clip_response.drag_stopped() {
@@ -238,7 +238,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                         let new_val = (point.value + delta_val).clamp(0.0, 1.0);
 
                         all_modified_auto_points.push((
-                            track.id,
+                            i,
                             auto_track_idx,
                             point.id,
                             new_time as f64,
@@ -290,8 +290,8 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         }
     }
 
-    for (t_id, auto_track_idx, point_id, new_time, new_val) in all_modified_auto_points {
-        if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id)
+    for (track_idx, auto_track_idx, point_id, new_time, new_val) in all_modified_auto_points {
+        if let Some(track) = app.state.tracks.get_mut(track_idx)
             && let Some(auto_track) = track.automations.get_mut(auto_track_idx)
         {
             if let Some(point) = auto_track.points.iter_mut().find(|p| p.id == point_id) {
@@ -304,18 +304,18 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         }
     }
 
-    for (t_id, clip_id, new_pos) in all_modified_clips {
+    for (track_idx, clip_id, new_pos) in all_modified_clips {
         #[allow(clippy::collapsible_if)]
-        if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
+        if let Some(track) = app.state.tracks.get_mut(track_idx) {
             if let Some(clip) = track.clips.iter_mut().find(|c| c.id == clip_id) {
                 clip.start_pos = new_pos.max(0.0);
             }
         }
     }
 
-    for (t_id, clip_id, new_pos) in all_modified_midi_clips {
+    for (track_idx, clip_id, new_pos) in all_modified_midi_clips {
         #[allow(clippy::collapsible_if)]
-        if let Some(track) = app.state.tracks.iter_mut().find(|t| t.id == t_id) {
+        if let Some(track) = app.state.tracks.get_mut(track_idx) {
             if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
                 clip.start_beat = new_pos.max(0.0);
             }

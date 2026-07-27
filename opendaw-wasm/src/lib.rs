@@ -315,8 +315,15 @@ pub fn get_track_id_at_y(y: f32) -> i32 {
                 let track_height = 80.0;
                 let mut automation_height = 0.0;
 
-                if let Some(visible) = track_val.get("automation_visible").and_then(|v| v.as_bool()) {
-                    if visible && track_val.get("selected_automation").map_or(false, |v| !v.is_null()) {
+                if let Some(visible) = track_val
+                    .get("automation_visible")
+                    .and_then(|v| v.as_bool())
+                {
+                    if visible
+                        && track_val
+                            .get("selected_automation")
+                            .map_or(false, |v| !v.is_null())
+                    {
                         automation_height = 60.0;
                     }
                 }
