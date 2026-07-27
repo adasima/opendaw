@@ -81,15 +81,15 @@ mod tests {
     #[test]
     fn test_time_stretcher_set_time_ratio() {
         let mut stretcher = TimeStretcher::new(44100, 2);
-        // 現在はノーオぺレーション。パニックしないことだけを確認
         stretcher.set_time_ratio(1.5);
+        assert_eq!(stretcher._time_ratio, 1.5);
     }
 
     #[test]
     fn test_time_stretcher_set_pitch_scale() {
         let mut stretcher = TimeStretcher::new(44100, 2);
-        // 現在はノーオぺレーション。パニックしないことだけを確認
         stretcher.set_pitch_scale(1.5);
+        assert_eq!(stretcher._pitch_scale, 1.5);
     }
 
     #[test]
