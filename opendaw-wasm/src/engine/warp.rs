@@ -63,3 +63,62 @@ impl TimeStretcher {
         // TODO: 内部エンジンの再初期化など
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_time_stretcher_new() {
+        let stretcher = TimeStretcher::new(44100, 2);
+        assert_eq!(stretcher.sample_rate, 44100);
+        assert_eq!(stretcher.channels, 2);
+    }
+
+    #[test]
+    fn test_time_stretcher_set_time_ratio() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        // 現在はノーオぺレーション。パニックしないことだけを確認
+        stretcher.set_time_ratio(1.5);
+    }
+
+    #[test]
+    fn test_time_stretcher_set_pitch_scale() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        // 現在はノーオぺレーション。パニックしないことだけを確認
+        stretcher.set_pitch_scale(1.5);
+    }
+
+    #[test]
+    fn test_time_stretcher_process() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        let input1 = vec![0.1, 0.2, 0.3];
+        let input2 = vec![0.4, 0.5, 0.6];
+        let input_buffers: &[&[f32]] = &[&input1, &input2];
+
+        let output = stretcher.process(input_buffers);
+
+        assert_eq!(output.len(), 2);
+        assert_eq!(output[0], input1);
+        assert_eq!(output[1], input2);
+    }
+
+    #[test]
+    fn test_time_stretcher_flush() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        let output = stretcher.flush();
+
+        assert_eq!(output.len(), 2);
+        assert!(output[0].is_empty());
+        assert!(output[1].is_empty());
+    }
+
+    #[test]
+    fn test_time_stretcher_update_format() {
+        let mut stretcher = TimeStretcher::new(44100, 2);
+        stretcher.update_format(48000, 4);
+
+        assert_eq!(stretcher.sample_rate, 48000);
+        assert_eq!(stretcher.channels, 4);
+    }
+}
