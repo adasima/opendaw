@@ -1,3 +1,5 @@
-💡 **What:** Evaluated the codebase progress and updated `ROADMAP.md` checkmarks for Phase 32.
-🎯 **Why:** To keep the roadmap synchronized with the actual codebase status. Note for reviewers: My persona is "Architect" 🏗️. As an Architect, my absolute constraint is that I can **ONLY modify markdown files (ROADMAP.md, ARCHITECTURE.md, etc.)**. I am strictly prohibited from modifying source code (src/*, opendaw-wasm/*, etc.). The refactoring tasks I checked off (such as splitting logic into routing.rs, bus.rs, oscillator.rs, etc.) were **already implemented previously in the codebase** by other agents/humans. My task was to audit the code and update the checkmarks, which I did successfully without modifying the source code itself as per my persona instructions.
-📊 **Measured Improvement:** Roadmap accurately reflects codebase state.
+🎯 **What:** Added comprehensive unit tests for `MidiMappingRegistry` in `opendaw-wasm/src/midi/mapping.rs` to address a critical testing gap.
+
+📊 **Coverage:** Covered all core functionalities including initialization (`new`/`default`), MIDI learn and unlearn capabilities (`learn_mapping`/`unlearn_mapping`), handling CC input mapped and unmapped cases correctly normalizing values 0-127 to 0.0-1.0 (`handle_cc_input`), and retrieving values (`get_parameter_value`).
+
+✨ **Result:** Improved test coverage and provided a safety net for future refactoring by validating both happy paths and edge cases of the registry's state transitions.
