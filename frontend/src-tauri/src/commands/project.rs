@@ -1,6 +1,8 @@
 use log::info;
 
-use tauri::State;
+use tauri::{AppHandle, State};
+use std::path::Path;
+use tauri_plugin_fs::FsExt;
 
 use crate::app::AppState;
 
@@ -107,8 +109,13 @@ pub fn get_project_state(state: State<'_, AppState>) -> String {
 
 /// プロジェクトの状態をファイルに保存する
 #[tauri::command]
-pub fn save_project(path: String, state: State<'_, AppState>) -> Result<(), String> {
+pub fn save_project(path: String, state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
     info!("Project: Save project to {}", path);
+
+    let scope = app.fs_scope();
+    if !scope.is_allowed(Path::new(&path)) {
+        return Err("Permission denied: Path is not within the allowed scope.".to_string());
+    }
     let project_state_guard = state
         .engine
         .project_state
@@ -130,8 +137,13 @@ pub fn save_project(path: String, state: State<'_, AppState>) -> Result<(), Stri
 
 /// ファイルからプロジェクトの状態を読み込む
 #[tauri::command]
-pub fn load_project(path: String, state: State<'_, AppState>) -> Result<(), String> {
+pub fn load_project(path: String, state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
     info!("Project: Load project from {}", path);
+
+    let scope = app.fs_scope();
+    if !scope.is_allowed(Path::new(&path)) {
+        return Err("Permission denied: Path is not within the allowed scope.".to_string());
+    }
     let json = std::fs::read_to_string(&path).map_err(|e| format!("File read error: {}", e))?;
 
     let new_state: crate::state::ProjectState =

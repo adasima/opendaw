@@ -15,6 +15,7 @@ pub fn run() {
         .manage(app::AppState {
             engine: Arc::clone(&engine),
         })
+        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             app.handle().plugin(tauri_plugin_dialog::init())?;
             if cfg!(debug_assertions) {
