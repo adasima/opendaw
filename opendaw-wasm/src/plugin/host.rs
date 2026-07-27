@@ -46,3 +46,40 @@ impl Default for Host {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_host_new() {
+        let host = Host::new();
+        assert_eq!(host.plugins.len(), 0);
+    }
+
+    #[test]
+    fn test_host_default() {
+        let host = Host::default();
+        assert_eq!(host.plugins.len(), 0);
+    }
+
+    #[test]
+    fn test_scan_plugins() {
+        let host = Host::new();
+        let plugins = host.scan_plugins();
+        assert_eq!(plugins.len(), 0);
+    }
+
+    #[test]
+    fn test_load_plugin() {
+        let mut host = Host::new();
+        let descriptor = PluginDescriptor {
+            name: "Test Plugin".to_string(),
+            vendor: "Test Vendor".to_string(),
+            version: "1.0.0".to_string(),
+            format: PluginFormat::Vst3,
+        };
+        let result = host.load_plugin(&descriptor);
+        assert_eq!(result, Err("Not implemented".to_string()));
+    }
+}
