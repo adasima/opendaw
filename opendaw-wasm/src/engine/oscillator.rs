@@ -120,3 +120,113 @@ impl Oscillator {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_oscillator_new() {
+        let osc = Oscillator::new(44100.0);
+        assert_eq!(osc.sample_rate, 44100.0);
+        assert_eq!(osc.frequency, 440.0);
+        assert_eq!(osc.phase, 0.0);
+        assert!(!osc.is_active);
+        assert_eq!(osc.waveform, Waveform::Sine);
+    }
+
+    #[test]
+    fn test_oscillator_set_sample_rate() {
+        let mut osc = Oscillator::new(44100.0);
+        osc.set_sample_rate(48000.0);
+        assert_eq!(osc.sample_rate, 48000.0);
+    }
+
+    #[test]
+    fn test_oscillator_set_frequency() {
+        let mut osc = Oscillator::new(44100.0);
+        osc.set_frequency(880.0);
+        assert_eq!(osc.frequency, 880.0);
+    }
+
+    #[test]
+    fn test_oscillator_active_state() {
+        let mut osc = Oscillator::new(44100.0);
+        assert!(!osc.is_active());
+
+        osc.set_active(true);
+        assert!(osc.is_active());
+        assert_eq!(osc.phase, 0.0);
+
+        osc.set_active(false);
+        // Envelope goes to release phase, so still active
+        assert!(osc.is_active());
+
+        // Advance enough samples to complete the release phase
+        for _ in 0..10000 {
+            osc.next_sample();
+        }
+        assert!(!osc.is_active());
+    }
+
+    #[test]
+    fn test_oscillator_waveforms() {
+        let mut osc = Oscillator::new(44100.0);
+        // Set up envelope to reach max instantly
+        osc.envelope.params.attack = 0.0;
+        osc.envelope.params.decay = 0.0;
+        osc.envelope.params.sustain = 1.0;
+        osc.set_active(true);
+
+        // Dummy run to let envelope reach sustain
+        osc.next_sample();
+
+        // Test Sine
+        osc.waveform = Waveform::Sine;
+        osc.phase = PI / 2.0;
+        let val = osc.next_sample();
+        assert!((val - 1.0).abs() < 1e-4);
+
+        // Test Square
+        osc.waveform = Waveform::Square;
+        osc.phase = PI / 2.0;
+        let val = osc.next_sample();
+        assert!((val - 1.0).abs() < 1e-4);
+
+        osc.phase = 3.0 * PI / 2.0;
+        let val = osc.next_sample();
+        assert!((val - (-1.0)).abs() < 1e-4);
+
+        // Test Sawtooth
+        osc.waveform = Waveform::Sawtooth;
+        osc.phase = PI / 2.0;
+        let val = osc.next_sample();
+        assert!((val - (-0.5)).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_oscillator_process_add() {
+        let mut osc = Oscillator::new(44100.0);
+        osc.envelope.params.attack = 0.0;
+        osc.envelope.params.decay = 0.0;
+        osc.envelope.params.sustain = 1.0;
+
+        let mut buffer = vec![0.0, 0.0, 0.0, 0.0];
+
+        // Not active, buffer remains unchanged
+        osc.process_add(&mut buffer, 2);
+        assert_eq!(buffer, vec![0.0, 0.0, 0.0, 0.0]);
+
+        osc.set_active(true);
+        osc.waveform = Waveform::Square;
+        osc.phase = PI / 2.0;
+        osc.frequency = 0.0; // Keep phase constant for easy testing
+
+        osc.process_add(&mut buffer, 2);
+
+        // Output should be added to buffer
+        for &val in &buffer {
+            assert!((val - 1.0).abs() < 1e-4);
+        }
+    }
+}
