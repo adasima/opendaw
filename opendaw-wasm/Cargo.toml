@@ -44,5 +44,9 @@ criterion = "0.8.2"
 
 
 [[bench]]
+name = "timeline_bench"
+harness = false
+
+[[bench]]
 name = "math_benches"
 harness = false
