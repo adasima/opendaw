@@ -84,7 +84,10 @@ mod tests {
     #[test]
     fn test_learn_and_unlearn_mapping() {
         let mut registry = MidiMappingRegistry::new();
-        let key = MidiCcKey { channel: 1, cc_number: 10 };
+        let key = MidiCcKey {
+            channel: 1,
+            cc_number: 10,
+        };
         let param_id = ParameterId(42);
 
         // Map
@@ -99,7 +102,10 @@ mod tests {
     #[test]
     fn test_handle_cc_input_mapped() {
         let mut registry = MidiMappingRegistry::new();
-        let key = MidiCcKey { channel: 1, cc_number: 10 };
+        let key = MidiCcKey {
+            channel: 1,
+            cc_number: 10,
+        };
         let param_id = ParameterId(42);
 
         registry.learn_mapping(key, param_id);
@@ -124,7 +130,10 @@ mod tests {
     #[test]
     fn test_handle_cc_input_unmapped() {
         let mut registry = MidiMappingRegistry::new();
-        let key = MidiCcKey { channel: 1, cc_number: 10 };
+        let key = MidiCcKey {
+            channel: 1,
+            cc_number: 10,
+        };
 
         let result = registry.handle_cc_input(key, 127);
         assert_eq!(result, None);

@@ -144,10 +144,7 @@ mod tests {
 
         // Test normal note on a member channel (channel 1)
         zone.handle_note_on(1, 60, 100);
-        assert_eq!(
-            zone.member_notes[1],
-            Some(MpeNote::new(60, 100))
-        );
+        assert_eq!(zone.member_notes[1], Some(MpeNote::new(60, 100)));
 
         // Test note on master channel is ignored
         zone.handle_note_on(0, 62, 100);

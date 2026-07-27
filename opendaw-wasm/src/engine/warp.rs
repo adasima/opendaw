@@ -7,8 +7,11 @@ pub struct TimeStretcher {
     channels: usize,
     _time_ratio: f64,
     _pitch_scale: f64,
-    // TODO: Rubberband等の内部状態やハンドルを保持するフィールドを追加
+    handle: Option<*mut std::ffi::c_void>,
 }
+
+unsafe impl Send for TimeStretcher {}
+unsafe impl Sync for TimeStretcher {}
 
 impl TimeStretcher {
     /// 新しいTimeStretcherインスタンスを作成します
@@ -18,6 +21,7 @@ impl TimeStretcher {
             channels,
             _time_ratio: 1.0,
             _pitch_scale: 1.0,
+            handle: None,
         }
     }
 
