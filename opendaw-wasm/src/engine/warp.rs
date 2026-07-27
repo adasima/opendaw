@@ -5,6 +5,7 @@
 pub struct TimeStretcher {
     sample_rate: u32,
     channels: usize,
+    time_ratio: f64,
     // TODO: Rubberband等の内部状態やハンドルを保持するフィールドを追加
 }
 
@@ -14,6 +15,7 @@ impl TimeStretcher {
         Self {
             sample_rate,
             channels,
+            time_ratio: 1.0,
         }
     }
 
@@ -21,8 +23,8 @@ impl TimeStretcher {
     /// ratio = 1.0 は等倍。
     /// ratio > 1.0 は遅く（長く）なり、ratio < 1.0 は速く（短く）なります。
     pub fn set_time_ratio(&mut self, ratio: f64) {
+        self.time_ratio = ratio;
         // TODO: 内部のストレッチエンジンに比率を適用する
-        let _ = ratio;
     }
 
     /// ピッチスケールを設定します。
