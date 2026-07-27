@@ -49,11 +49,7 @@ impl TimeStretcher {
     /// クリップの終端などで呼び出します。
     pub fn flush(&mut self) -> Vec<Vec<f32>> {
         // TODO: 内部状態に残っているデータをフラッシュする処理を実装
-        let mut output = Vec::with_capacity(self.channels);
-        for _ in 0..self.channels {
-            output.push(Vec::new());
-        }
-        output
+        vec![Vec::new(); self.channels]
     }
 
     /// サンプルレートやチャンネル数が変更された場合にフォーマットを更新します。
