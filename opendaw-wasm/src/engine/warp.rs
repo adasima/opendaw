@@ -5,6 +5,8 @@
 pub struct TimeStretcher {
     sample_rate: u32,
     channels: usize,
+    _time_ratio: f64,
+    _pitch_scale: f64,
     // TODO: Rubberband等の内部状態やハンドルを保持するフィールドを追加
 }
 
@@ -14,6 +16,8 @@ impl TimeStretcher {
         Self {
             sample_rate,
             channels,
+            _time_ratio: 1.0,
+            _pitch_scale: 1.0,
         }
     }
 
@@ -22,7 +26,7 @@ impl TimeStretcher {
     /// ratio > 1.0 は遅く（長く）なり、ratio < 1.0 は速く（短く）なります。
     pub fn set_time_ratio(&mut self, ratio: f64) {
         // TODO: 内部のストレッチエンジンに比率を適用する
-        let _ = ratio;
+        self._time_ratio = ratio;
     }
 
     /// ピッチスケールを設定します。
@@ -30,7 +34,7 @@ impl TimeStretcher {
     /// scale > 1.0 はピッチが上がり、scale < 1.0 はピッチが下がります。
     pub fn set_pitch_scale(&mut self, scale: f64) {
         // TODO: 内部のストレッチエンジンにピッチスケールを適用する
-        let _ = scale;
+        self._pitch_scale = scale;
     }
 
     /// 入力オーディオバッファを処理し、タイムストレッチ/ピッチシフトされた結果を返します。
