@@ -113,3 +113,110 @@ impl MpeZone {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mpe_note_new() {
+        let note = MpeNote::new(60, 100);
+        assert_eq!(note.note_number, 60);
+        assert_eq!(note.velocity, 100);
+        assert_eq!(note.pitch_bend, 0);
+        assert_eq!(note.pressure, 0);
+        assert_eq!(note.timbre, 64);
+        assert_eq!(note.release_velocity, 0);
+    }
+
+    #[test]
+    fn test_mpe_zone_new() {
+        let zone = MpeZone::new(0, 15);
+        assert_eq!(zone.master_channel, 0);
+        assert_eq!(zone.member_channel_count, 15);
+        assert_eq!(zone.master_pitch_bend, 0);
+        assert!(zone.member_notes.iter().all(|n| n.is_none()));
+    }
+
+    #[test]
+    fn test_handle_note_on() {
+        let mut zone = MpeZone::new(0, 15);
+
+        // Test normal note on a member channel (channel 1)
+        zone.handle_note_on(1, 60, 100);
+        assert_eq!(
+            zone.member_notes[1],
+            Some(MpeNote::new(60, 100))
+        );
+
+        // Test note on master channel is ignored
+        zone.handle_note_on(0, 62, 100);
+        assert_eq!(zone.member_notes[0], None);
+
+        // Test velocity 0 acts as note off
+        zone.handle_note_on(1, 60, 0);
+        assert_eq!(zone.member_notes[1], None);
+    }
+
+    #[test]
+    fn test_handle_note_off() {
+        let mut zone = MpeZone::new(0, 15);
+        zone.handle_note_on(1, 60, 100);
+        assert!(zone.member_notes[1].is_some());
+
+        // Test note off
+        zone.handle_note_off(1, 60, 64);
+        assert_eq!(zone.member_notes[1], None);
+
+        // Test note off on master channel is ignored
+        zone.handle_note_on(2, 62, 100);
+        zone.handle_note_off(0, 62, 64);
+        assert!(zone.member_notes[2].is_some());
+    }
+
+    #[test]
+    fn test_handle_pitch_bend() {
+        let mut zone = MpeZone::new(0, 15);
+        zone.handle_note_on(1, 60, 100);
+
+        // Pitch bend on master channel
+        zone.handle_pitch_bend(0, 4096);
+        assert_eq!(zone.master_pitch_bend, 4096);
+
+        // Pitch bend on member channel
+        zone.handle_pitch_bend(1, 2048);
+        assert_eq!(zone.member_notes[1].unwrap().pitch_bend, 2048);
+    }
+
+    #[test]
+    fn test_handle_pressure() {
+        let mut zone = MpeZone::new(0, 15);
+        zone.handle_note_on(1, 60, 100);
+
+        // Pressure on member channel
+        zone.handle_pressure(1, 100);
+        assert_eq!(zone.member_notes[1].unwrap().pressure, 100);
+
+        // Pressure on master channel (ignored for note)
+        zone.handle_pressure(0, 127);
+        assert_eq!(zone.member_notes[1].unwrap().pressure, 100);
+    }
+
+    #[test]
+    fn test_handle_control_change() {
+        let mut zone = MpeZone::new(0, 15);
+        zone.handle_note_on(1, 60, 100);
+
+        // CC74 on member channel changes timbre
+        zone.handle_control_change(1, 74, 100);
+        assert_eq!(zone.member_notes[1].unwrap().timbre, 100);
+
+        // Other CCs are ignored
+        zone.handle_control_change(1, 1, 127); // Mod wheel
+        assert_eq!(zone.member_notes[1].unwrap().timbre, 100);
+
+        // Master channel CC74 is ignored for notes
+        zone.handle_control_change(0, 74, 127);
+        assert_eq!(zone.member_notes[1].unwrap().timbre, 100);
+    }
+}
