@@ -7,7 +7,7 @@ pub struct TimeStretcher {
     channels: usize,
     _time_ratio: f64,
     _pitch_scale: f64,
-    handle: Option<*mut std::ffi::c_void>,
+    _rubberband_state: Option<*mut std::ffi::c_void>,
 }
 
 unsafe impl Send for TimeStretcher {}
@@ -21,7 +21,7 @@ impl TimeStretcher {
             channels,
             _time_ratio: 1.0,
             _pitch_scale: 1.0,
-            handle: None,
+            _rubberband_state: None,
         }
     }
 
