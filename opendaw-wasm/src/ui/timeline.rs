@@ -205,7 +205,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
             {
                 let mut prev_point: Option<egui::Pos2> = None;
 
-                for point in &auto_track.points {
+                for (point_idx, point) in auto_track.points.iter().enumerate() {
                     let px =
                         rect.left() + (rect.width() / TIMELINE_PERCENT_MAX) * point.time as f32;
                     // value is 0.0 to 1.0, map to y (bottom to top)
@@ -240,7 +240,7 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
                         all_modified_auto_points.push((
                             i,
                             auto_track_idx,
-                            point.id,
+                            point_idx,
                             new_time as f64,
                             new_val,
                         ));
@@ -290,17 +290,26 @@ pub fn draw_timeline(ui: &mut egui::Ui, app: &mut OpenDawApp) {
         }
     }
 
-    for (t_idx, auto_track_idx, point_id, new_time, new_val) in all_modified_auto_points {
+    let mut tracks_to_sort = Vec::new();
+    for (t_idx, auto_track_idx, point_idx, new_time, new_val) in all_modified_auto_points {
         if let Some(track) = app.state.tracks.get_mut(t_idx)
             && let Some(auto_track) = track.automations.get_mut(auto_track_idx)
         {
-            if let Some(point) = auto_track.points.iter_mut().find(|p| p.id == point_id) {
+            if let Some(point) = auto_track.points.get_mut(point_idx) {
                 point.time = new_time;
                 point.value = new_val;
             }
-            auto_track
-                .points
-                .sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
+            tracks_to_sort.push((t_idx, auto_track_idx));
+        }
+    }
+
+    tracks_to_sort.sort_unstable();
+    tracks_to_sort.dedup();
+    for (t_idx, auto_track_idx) in tracks_to_sort {
+        if let Some(track) = app.state.tracks.get_mut(t_idx)
+            && let Some(auto_track) = track.automations.get_mut(auto_track_idx)
+        {
+            auto_track.points.sort_by(|a, b| a.time.partial_cmp(&b.time).unwrap());
         }
     }
 
