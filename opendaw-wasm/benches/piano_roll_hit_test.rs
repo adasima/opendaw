@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 
 fn piano_roll_hit_test_benchmark(c: &mut Criterion) {
     c.bench_function("piano_roll_hit_test", |b| {

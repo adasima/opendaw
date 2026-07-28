@@ -27,18 +27,26 @@ pub fn draw_import_ui(ui: &mut egui::Ui, app: &mut OpenDawApp) {
 
                 match crate::engine::audio_file::load_wav(&path) {
                     Ok(buffer) => {
-                        let length = buffer.samples.len() as f32 / buffer.channels as f32 / buffer.sample_rate as f32;
-                        let summary: Vec<f32> = buffer.samples.iter().step_by(100).copied().collect();
+                        let length = buffer.samples.len() as f32
+                            / buffer.channels as f32
+                            / buffer.sample_rate as f32;
+                        let summary: Vec<f32> =
+                            buffer.samples.iter().step_by(100).copied().collect();
 
-                        let mut clip = crate::state::clip::AudioClip::new(0, file_name, 0.0, length);
+                        let mut clip =
+                            crate::state::clip::AudioClip::new(0, file_name, 0.0, length);
                         clip.set_waveform_summary(summary);
 
                         app.state.tracks[track_idx].clips.push(clip);
 
                         if let Some(ui_channels) = &mut app.ui_channels {
-                            let _ = ui_channels.0.try_push(crate::engine::channel::UiToAudioMsg::AddRecordedClip(
-                                track_id, 0, std::sync::Arc::new(buffer.samples)
-                            ));
+                            let _ = ui_channels.0.try_push(
+                                crate::engine::channel::UiToAudioMsg::AddRecordedClip(
+                                    track_id,
+                                    0,
+                                    std::sync::Arc::new(buffer.samples),
+                                ),
+                            );
                         }
                     }
                     Err(e) => {
