@@ -63,6 +63,27 @@ impl EngineHandle {
     }
 
     /// 新しいEngineHandleを作成する (テスト用)
+    pub fn read_project_state(&self) -> std::sync::RwLockReadGuard<'_, ProjectState> {
+        self.project_state.read().unwrap_or_else(|e| e.into_inner())
+    }
+
+    pub fn write_project_state(&self) -> std::sync::RwLockWriteGuard<'_, ProjectState> {
+        self.project_state
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+    }
+
+    pub fn read_history(
+        &self,
+    ) -> std::sync::RwLockReadGuard<'_, crate::state::history::HistoryManager> {
+        self.history.read().unwrap_or_else(|e| e.into_inner())
+    }
+
+    pub fn write_history(
+        &self,
+    ) -> std::sync::RwLockWriteGuard<'_, crate::state::history::HistoryManager> {
+        self.history.write().unwrap_or_else(|e| e.into_inner())
+    }
     pub fn new() -> Self {
         Self::create_channel().0
     }

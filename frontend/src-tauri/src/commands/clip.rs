@@ -14,11 +14,7 @@ pub fn add_audio_clip(
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
     info!("Project: Add audio clip '{}' to track {}", name, track_id);
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -33,9 +29,7 @@ pub fn add_audio_clip(
         track.clips.push(clip);
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(new_id)
     } else {
@@ -54,20 +48,14 @@ pub fn remove_audio_clip(
         "Project: Remove audio clip {} from track {}",
         clip_id, track_id
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
         track.clips.retain(|c| c.id != clip_id);
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
@@ -87,11 +75,7 @@ pub fn move_audio_clip(
         "Project: Move audio clip {} in track {} to {}",
         clip_id, track_id, new_start_pos
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -99,9 +83,7 @@ pub fn move_audio_clip(
             clip.start_pos = new_start_pos;
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
@@ -122,11 +104,7 @@ pub fn add_midi_clip(
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
     info!("Project: Add midi clip '{}' to track {}", name, track_id);
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -141,9 +119,7 @@ pub fn add_midi_clip(
         track.midi_clips.push(clip);
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(new_id)
     } else {
@@ -162,20 +138,14 @@ pub fn remove_midi_clip(
         "Project: Remove midi clip {} from track {}",
         clip_id, track_id
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
         track.midi_clips.retain(|c| c.id != clip_id);
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
@@ -195,11 +165,7 @@ pub fn move_midi_clip(
         "Project: Move midi clip {} in track {} to {}",
         clip_id, track_id, new_start_beat
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -207,9 +173,7 @@ pub fn move_midi_clip(
             clip.start_beat = new_start_beat;
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
@@ -232,11 +196,7 @@ pub fn update_midi_clip_notes(
         "Project: Update midi clip notes for clip {} in track {}",
         clip_id, track_id
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -257,9 +217,7 @@ pub fn update_midi_clip_notes(
 
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
