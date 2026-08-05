@@ -4,7 +4,6 @@ export async function open(options: any) {
 }
 
 export async function save(options: any) {
-    console.log("[MockDialog] save", options);
     return "mock/file.mid";
 }
 
