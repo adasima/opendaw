@@ -8,11 +8,7 @@ use crate::app::AppState;
 #[tauri::command]
 pub fn set_master_volume(volume: f64, state: State<'_, AppState>) {
     info!("Mixer: Set Master Volume to {}", volume);
-    let mut proj = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut proj = state.engine.write_project_state();
     proj.master_volume = volume;
     state.engine.set_master_volume(volume);
 }
@@ -48,11 +44,7 @@ pub fn set_track_midi_routing(
 #[tauri::command]
 pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>) {
     info!("Mixer: Set track {} volume to {}", track_id, volume);
-    let mut proj = _state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut proj = _state.engine.write_project_state();
     if let Some(track_arc) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
         let track = std::sync::Arc::make_mut(track_arc);
         track.volume = volume as f32;
@@ -64,11 +56,7 @@ pub fn set_track_volume(track_id: u32, volume: f64, _state: State<'_, AppState>)
 #[tauri::command]
 pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
     info!("Mixer: Set track {} pan to {}", track_id, pan);
-    let mut proj = _state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut proj = _state.engine.write_project_state();
     if let Some(track_arc) = proj.tracks.iter_mut().find(|t| t.id == track_id as usize) {
         let track = std::sync::Arc::make_mut(track_arc);
         track.pan = pan as f32;
@@ -80,20 +68,14 @@ pub fn set_track_pan(track_id: u32, pan: f64, _state: State<'_, AppState>) {
 #[tauri::command]
 pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String> {
     info!("Project: Add track '{}'", name);
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     let new_id = project_state.tracks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
     let track = crate::state::Track::new(new_id, name);
     project_state.tracks.push(std::sync::Arc::new(track));
     state
         .engine
-        .history
-        .write()
-        .unwrap_or_else(|e| e.into_inner())
+        .write_history()
         .save_snapshot(project_state_snapshot);
     Ok(new_id as u32)
 }
@@ -102,18 +84,12 @@ pub fn add_track(name: String, state: State<'_, AppState>) -> Result<u32, String
 #[tauri::command]
 pub fn remove_track(track_id: usize, state: State<'_, AppState>) -> Result<(), String> {
     info!("Project: Remove track {}", track_id);
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     project_state.tracks.retain(|t| t.id != track_id);
     state
         .engine
-        .history
-        .write()
-        .unwrap_or_else(|e| e.into_inner())
+        .write_history()
         .save_snapshot(project_state_snapshot);
     Ok(())
 }
@@ -126,20 +102,14 @@ pub fn set_track_output_routing(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     info!("Routing: Set track {} output to {:?}", track_id, target);
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
         track.output_routing = target;
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
@@ -160,11 +130,7 @@ pub fn update_automation_point(
         "Automation: Update point on track {} ({}) at {} = {}",
         track_id, param_name, time, value
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
 
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
@@ -205,9 +171,7 @@ pub fn update_automation_point(
 
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
@@ -227,11 +191,7 @@ pub fn remove_automation_point(
         "Automation: Remove point {} on track {} ({})",
         point_id, track_id, param_name
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
 
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
@@ -244,9 +204,7 @@ pub fn remove_automation_point(
             auto_track.points.retain(|p| p.id != point_id);
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
@@ -269,11 +227,7 @@ pub fn set_automation_visibility(
         "Automation: Set visibility on track {} to {} ({:?})",
         track_id, visible, selected_param
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
 
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
@@ -282,9 +236,7 @@ pub fn set_automation_visibility(
         track.selected_automation = selected_param;
         state
             .engine
-            .history
-            .write()
-            .unwrap_or_else(|e| e.into_inner())
+            .write_history()
             .save_snapshot(project_state_snapshot);
         Ok(())
     } else {
@@ -304,11 +256,7 @@ pub fn add_track_send(
         "Routing: Add send from track {} to {} (amount: {})",
         track_id, target_track_id, amount
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -324,9 +272,7 @@ pub fn add_track_send(
             });
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
         }
         Ok(())
@@ -347,11 +293,7 @@ pub fn set_track_send_amount(
         "Routing: Set send amount from track {} to {} (amount: {})",
         track_id, target_track_id, amount
     );
-    let mut project_state = state
-        .engine
-        .project_state
-        .write()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut project_state = state.engine.write_project_state();
     let project_state_snapshot = project_state.clone();
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
@@ -363,9 +305,7 @@ pub fn set_track_send_amount(
             send.amount = amount;
             state
                 .engine
-                .history
-                .write()
-                .unwrap_or_else(|e| e.into_inner())
+                .write_history()
                 .save_snapshot(project_state_snapshot);
             Ok(())
         } else {
