@@ -34,16 +34,12 @@ pub struct PlaybackContext {
 
 /// f32バッファに無音（0.0）を書き込む
 pub fn write_silence_f32(buffer: &mut [f32], _channels: u16) {
-    for sample in buffer.iter_mut() {
-        *sample = 0.0;
-    }
+    buffer.fill(0.0);
 }
 
 /// i16バッファに無音（0）を書き込む
 pub fn write_silence_i16(buffer: &mut [i16], _channels: u16) {
-    for sample in buffer.iter_mut() {
-        *sample = 0;
-    }
+    buffer.fill(0);
 }
 
 /// オーディオストリームを構築する関数
