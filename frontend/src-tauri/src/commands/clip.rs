@@ -241,19 +241,7 @@ pub fn update_midi_clip_notes(
     if let Some(track_arc) = project_state.tracks.iter_mut().find(|t| t.id == track_id) {
         let track = std::sync::Arc::make_mut(track_arc);
         if let Some(clip) = track.midi_clips.iter_mut().find(|c| c.id == clip_id) {
-            clip.sequence.notes = notes;
-
-            // Sequence の next_note_id は private フィールドなので直接変更できない。
-            // しかし Sequence 構造体に `clear()` して `add_note_event()` で入れ直すか、
-            // もしくは `notes` フィールドは pub なので、Sequence自体を新しいものに置き換える。
-
-            // 新しい Sequence を作り、notes を設定し、
-            // 次のIDが適切になるようにするため、add_note_eventを使う
-            let mut new_seq = crate::midi::sequence::Sequence::new();
-            for note in &clip.sequence.notes {
-                new_seq.add_note_event(note.clone());
-            }
-            clip.sequence = new_seq;
+            clip.sequence.set_notes(notes);
 
             state
                 .engine

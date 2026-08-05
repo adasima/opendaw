@@ -36,9 +36,7 @@ pub struct TrackMixData<'a> {
 /// `tracks` はミキシング対象のトラックのリストです。
 pub fn mix_tracks(out_buffer: &mut [f32], out_channels: u16, tracks: &mut [TrackMixData<'_>]) {
     // 出力バッファを0クリア
-    for sample in out_buffer.iter_mut() {
-        *sample = 0.0;
-    }
+    out_buffer.fill(0.0);
 
     // ステレオ出力以外は現在未対応として処理をスキップ
     if out_channels != 2 {
