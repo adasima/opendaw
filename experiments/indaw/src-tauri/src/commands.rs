@@ -59,18 +59,18 @@ pub fn set_loop_region(state: State<SharedAudioState>, sender: State<Sender<Audi
 }
 
 #[tauri::command]
-pub fn get_sequence(state: State<SharedAudioState>) -> crate::sequence::Sequence {
+pub fn get_sequence(state: State<SharedAudioState>) -> Result<crate::sequence::Sequence, AppError> {
     // Legacy support: Return content of Track 0
-    let tracks_guard = state.tracks.read().unwrap();
+    let tracks_guard = state.tracks.read().map_err(|e| AppError::internal(e.to_string()))?;
     if let Some(track) = tracks_guard.first() {
         if let Ok(content) = track.content.read() {
             if let crate::state::TrackContent::Midi(seq) = &**content {
-                return seq.clone();
+                return Ok(seq.clone());
             }
         }
     }
     // Fallback if no tracks or not MIDI
-    crate::sequence::Sequence::new(120.0)
+    Ok(crate::sequence::Sequence::new(120.0))
 }
 
 #[tauri::command]
