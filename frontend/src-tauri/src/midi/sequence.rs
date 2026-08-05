@@ -90,6 +90,16 @@ impl Sequence {
         self.notes.push(note);
     }
 
+    /// ノートのリストを直接設定し、next_note_idを適切に更新する
+    pub fn set_notes(&mut self, notes: Vec<NoteEvent>) {
+        if let Some(max_id) = notes.iter().map(|n| n.id).max() {
+            if self.next_note_id <= max_id {
+                self.next_note_id = max_id + 1;
+            }
+        }
+        self.notes = notes;
+    }
+
     /// 指定されたIDのノートへのミュータブル参照を取得する
     pub fn get_note_mut(&mut self, id: usize) -> Option<&mut NoteEvent> {
         self.notes.iter_mut().find(|n| n.id == id)
